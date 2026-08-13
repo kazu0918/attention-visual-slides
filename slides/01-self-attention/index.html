@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>How Translation AI Works</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<div class="deck-header">
+  <span class="count" id="deck-count">01 / 08</span>
+  <span class="title-mini">How Translation AI Works</span>
+</div>
+
+<nav class="deck-nav" id="deck-nav">
+  <button data-target="slide1" class="active" aria-label="Go to slide 1"></button>
+  <button data-target="slide2" aria-label="Go to slide 2"></button>
+  <button data-target="slide3" aria-label="Go to slide 3"></button>
+  <button data-target="slide4" aria-label="Go to slide 4"></button>
+  <button data-target="slide5" aria-label="Go to slide 5"></button>
+  <button data-target="slide6" aria-label="Go to slide 6"></button>
+  <button data-target="slide7" aria-label="Go to slide 7"></button>
+  <button data-target="slide8" aria-label="Go to slide 8"></button>
+</nav>
+
+<div class="scroll-hint">
+  <span>SCROLL</span>
+  <svg viewBox="0 0 12 12" fill="none"><path d="M2 4L6 8L10 4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+</div>
+
+<div class="deck" id="deck">
+
+  <!-- ============ SLIDE 1 ============ -->
+  <section class="slide" id="slide1">
+    <div class="slide-inner">
+      <div>
+        <div class="eyebrow"><span class="num">01</span> TRANSLATION AI</div>
+        <h1 class="title">AI That Translates —<br>The Encoder–Decoder Model</h1>
+        <p class="subtitle">Encoder–Decoder Model</p>
+        <p class="lead">Because word order differs across languages, translation isn't just word-by-word. Instead, the model <b>first "digests" the whole sentence into a single meaning</b>, then builds the output from that.</p>
+        <p class="lead">The input sentence is turned entirely into numbers (a vector) that capture its meaning, and the output words are generated from that vector.</p>
+        <div class="note">Note: this is a simplified picture of how a translation model works — it's not necessarily how translation happens in the human brain.</div>
+      </div>
+
+      <div class="stage-panel">
+        <div class="stage-caption" id="s1-caption"><b>Step 0 —</b> The sentence to translate is fed into the encoder.</div>
+        <div class="s1-stage">
+          <svg class="s1-lines" id="s1-lines"></svg>
+          <div class="s1-row" id="s1-row">
+            <div class="s1-block s1-input">
+              <div class="s1-block-label">Input</div>
+              <div class="s1-input-text">猫が魚を食べた</div>
+            </div>
+            <div class="s1-arrow" id="arrow-1">→</div>
+            <div class="s1-block s1-encoder" id="s1-encoder">
+              <div class="s1-block-label">Encoder</div>
+              <div class="s1-tokens" id="s1-tokens"></div>
+            </div>
+            <div class="s1-arrow" id="arrow-2">→</div>
+            <div class="s1-block s1-meaning">
+              <div class="s1-block-label">Meaning<br>Vector</div>
+              <div class="s1-meaning-grid" id="s1-meaning-grid">
+                <div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div>
+              </div>
+            </div>
+            <div class="s1-arrow" id="arrow-3">→</div>
+            <div class="s1-block s1-decoder" id="s1-decoder">
+              <div class="s1-block-label">Decoder</div>
+              <div class="s1-output" id="s1-output"></div>
+            </div>
+          </div>
+        </div>
+        <div class="s1-controls">
+          <button class="step-btn" id="s1-prev">← Back</button>
+          <div class="step-dots" id="s1-dots"></div>
+          <button class="step-btn" id="s1-next">Next →</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SLIDE 2 ============ -->
+  <section class="slide" id="slide2">
+    <div class="slide-inner">
+      <div>
+        <div class="eyebrow"><span class="num">02</span> WORDS AS NUMBERS</div>
+        <h1 class="title">Turning Meaning<br>Into Numbers</h1>
+        <p class="subtitle">word2vec</p>
+        <p class="lead">The core idea behind word2vec is to represent a word's meaning as <b>a list of numbers — a vector</b>. More numbers (dimensions) can capture finer shades of meaning.</p>
+        <p class="lead">Words with similar meanings end up close together in this numeric space.</p>
+        <div class="note">Click a point in the diagram to see that word's vector.</div>
+      </div>
+
+      <div class="stage-panel">
+        <div class="stage-caption">Click a word to see its <b>vector</b>, and use the button below to see how <b>meaning relationships</b> look as vector directions.</div>
+        <div class="s2-layout">
+          <div class="s2-plot-wrap">
+            <div class="s2-plot" id="s2-plot">
+              <svg class="s2-lines" id="s2-lines"></svg>
+            </div>
+          </div>
+          <div class="s2-detail" id="s2-detail">
+            <div class="s2-detail-empty">Click a word to see<br>its vector here.</div>
+          </div>
+        </div>
+        <div class="s2-controls">
+          <button class="step-btn" id="s2-analogy-btn">🔎 See how "Japan → Tokyo" and "France → Paris" relate</button>
+        </div>
+        <div class="s2-analogy-caption" id="s2-analogy-caption"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SLIDE 3 ============ -->
+  <section class="slide" id="slide3">
+    <div class="slide-inner">
+      <div>
+        <div class="eyebrow"><span class="num">03</span> ATTENTION</div>
+        <h1 class="title">Meaning Depends<br>on Context</h1>
+        <p class="subtitle">Attention</p>
+        <p class="lead">"Apple" can mean a fruit or a company. A word's meaning isn't fixed by itself — it's shaped by <b>the words around it</b>.</p>
+        <p class="lead">Attention updates a word's vector using the vectors of the surrounding context words. Here, that's shown as Apple's point <b>shifting toward the fruit or tech cluster</b> depending on the sentence.</p>
+        <div class="note">Simplification: a real Transformer doesn't "look up a map" like this — it blends the actual words in that one sentence. But real contextual embeddings do show the same effect: the same word lands in noticeably different places depending on meaning.</div>
+      </div>
+
+      <div class="stage-panel">
+        <div class="stage-caption" id="s3-caption">Toggle the sentence below to see Apple's vector shift toward a different region of meaning.</div>
+        <div class="s3-toggle">
+          <button class="ctx-btn active" data-ctx="fruit">🍎 I ate a juicy apple.</button>
+          <button class="ctx-btn" data-ctx="company">💻 I bought an Apple laptop.</button>
+        </div>
+        <div class="s3-plot" id="s3-plot">
+          <svg class="s3-lines" id="s3-lines"></svg>
+          <div class="s3-neutral" id="s3-neutral">
+            <div class="s3-neutral-dot"></div>
+            <div class="s3-neutral-lbl">Apple<br>(no context)</div>
+          </div>
+          <div class="s3-apple fruit" id="s3-apple">
+            <div class="s3-apple-dot"></div>
+            <div class="s3-apple-lbl">Apple</div>
+          </div>
+        </div>
+        <div class="s3-compare">
+          <div class="s3-compare-item">
+            <div class="s3-compare-label">VECTOR BEFORE CONTEXT</div>
+            <div class="s3-compare-vec" id="s3-vec-before"></div>
+          </div>
+          <div class="s3-compare-arrow">→</div>
+          <div class="s3-compare-item">
+            <div class="s3-compare-label">AFTER ATTENTION UPDATE</div>
+            <div class="s3-compare-vec" id="s3-vec-after"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SLIDE 4 ============ -->
+  <section class="slide" id="slide4">
+    <div class="slide-inner">
+      <div>
+        <div class="eyebrow"><span class="num">04</span> EMBEDDINGS</div>
+        <h1 class="title">Turning a Sentence<br>Into Vectors</h1>
+        <p class="subtitle">Token Embeddings</p>
+        <p class="lead">The encoder first splits a sentence into <b>tokens</b> (words, roughly), then looks up a starting <b>embedding vector</b> for each one — shown here in just 2 dimensions so it can be plotted directly.</p>
+        <p class="lead">Toggle between the two example sentences. Notice that "apple" starts at <b>the exact same point</b> in both — the encoder hasn't looked at context yet.</p>
+        <div class="note">This is the raw input to self-attention: context-free embeddings, one per token.</div>
+      </div>
+
+      <div class="stage-panel">
+        <div class="stage-caption" id="s4-caption">Sentence ① — "I ate a juicy apple."</div>
+        <div class="s3-toggle" id="s4-toggle">
+          <button class="ctx-btn active" data-ctx="fruit">🍎 Sentence ①</button>
+          <button class="ctx-btn" data-ctx="company">💻 Sentence ②</button>
+        </div>
+        <div class="s3-plot" id="s4-plot">
+          <svg class="s3-lines" id="s4-lines"></svg>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SLIDE 5 ============ -->
+  <section class="slide" id="slide5">
+    <div class="slide-inner">
+      <div>
+        <div class="eyebrow"><span class="num">05</span> SELF-ATTENTION</div>
+        <h1 class="title">Comparing Every Word<br>With Every Other Word</h1>
+        <p class="subtitle">Dot-Product Similarity</p>
+        <p class="lead">Self-attention's basic idea, put simply: for every vector, compute how close in meaning it is to <b>every other vector</b> in the sentence, using their <b>dot product</b> — brute-force, all pairs.</p>
+        <p class="lead">Take the 2D vectors from the last slide, multiply their matching components and add them up, and repeat for every pair to build a similarity matrix.</p>
+        <div class="note">In a real Transformer this is computed as Q·K&#7488; (query vectors against key vectors), but the intuition is the same: "how relevant is token j to token i?"</div>
+      </div>
+
+      <div class="stage-panel">
+        <div class="stage-caption" id="s5-caption">Step 1 — Start from each token's 2D vector, taken straight from the last slide.</div>
+        <div class="s3-toggle" id="s5-toggle">
+          <button class="ctx-btn active" data-ctx="fruit">🍎 Sentence ①</button>
+          <button class="ctx-btn" data-ctx="company">💻 Sentence ②</button>
+        </div>
+
+        <div id="s5-step0">
+          <div class="s5-vec-row" id="s5-vec-row"></div>
+        </div>
+
+        <div id="s5-step1" style="display:none;">
+          <div class="s5-formula" id="s5-formula"></div>
+        </div>
+
+        <div id="s5-step2" style="display:none;">
+          <div class="s5-matrix-wrap">
+            <div class="s5-matrix" id="s5-matrix"></div>
+          </div>
+          <div class="s5-cell-info" id="s5-cell-info">Hover or tap a cell to see its score.</div>
+        </div>
+
+        <div class="s1-controls">
+          <button class="step-btn" id="s5-prev">← Back</button>
+          <div class="step-dots" id="s5-dots"></div>
+          <button class="step-btn" id="s5-next">Next →</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SLIDE 6 ============ -->
+  <section class="slide" id="slide6">
+    <div class="slide-inner">
+      <div>
+        <div class="eyebrow"><span class="num">06</span> SOFTMAX</div>
+        <h1 class="title">From Scores to<br>Blend Ratios</h1>
+        <p class="subtitle">Softmax Normalization</p>
+        <p class="lead">Apply <b>softmax</b> to each row of the matrix. That makes every row sum to 1 — turning raw similarity scores into a proportion: how much of each other word to blend in.</p>
+        <p class="lead">For company-context <b>Apple</b>, most of the weight lands on "laptop." For fruit-context <b>apple</b>, most of it lands on "juicy."</p>
+        <div class="note">Softmax exaggerates differences — a slightly higher score gets a disproportionately larger share of the weight.</div>
+      </div>
+
+      <div class="stage-panel">
+        <div class="stage-caption" id="s6-caption">Blend weights for <b>apple</b>'s row — every bar adds up to 100%.</div>
+        <div class="s3-toggle" id="s6-toggle">
+          <button class="ctx-btn active" data-ctx="fruit">🍎 Sentence ①</button>
+          <button class="ctx-btn" data-ctx="company">💻 Sentence ②</button>
+        </div>
+        <div class="s6-bars" id="s6-bars"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SLIDE 7 ============ -->
+  <section class="slide" id="slide7">
+    <div class="slide-inner">
+      <div>
+        <div class="eyebrow"><span class="num">07</span> BLENDING</div>
+        <h1 class="title">Blending the<br>Vectors</h1>
+        <p class="subtitle">Weighted Sum</p>
+        <p class="lead">Now actually use those blend ratios: multiply each token's vector by its weight and add them all together. The result is <b>apple's</b> new, context-aware vector.</p>
+        <p class="lead">Watch the coral dot shift from its original position to the blended one as you switch sentences.</p>
+        <div class="note">This is just a weighted average of the other tokens' vectors, using the softmax weights from the last slide.</div>
+      </div>
+
+      <div class="stage-panel">
+        <div class="stage-caption" id="s7-caption">Original vector → blended vector.</div>
+        <div class="s3-toggle" id="s7-toggle">
+          <button class="ctx-btn active" data-ctx="fruit">🍎 Sentence ①</button>
+          <button class="ctx-btn" data-ctx="company">💻 Sentence ②</button>
+        </div>
+        <div class="s3-plot" id="s7-plot">
+          <svg class="s3-lines" id="s7-lines"></svg>
+          <div class="s3-apple fruit" id="s7-apple-blend">
+            <div class="s3-apple-dot"></div>
+            <div class="s3-apple-lbl">blended</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SLIDE 8 ============ -->
+  <section class="slide" id="slide8">
+    <div class="slide-inner">
+      <div>
+        <div class="eyebrow"><span class="num">08</span> ALL TOKENS</div>
+        <h1 class="title">Every Word<br>Gets Updated</h1>
+        <p class="subtitle">Contextualized Embeddings</p>
+        <p class="lead">Self-attention repeats this same process for <b>every token</b> in the sentence, not just "apple" — each one gets its own similarity-based blend.</p>
+        <p class="lead">The word starts at the same point in both sentences, but ends up in very different places — one pulled toward "fruit," the other toward "tech."</p>
+        <div class="note">This is what gives Transformer-based models contextual understanding: the same token can carry different meanings depending on its sentence.</div>
+      </div>
+
+      <div class="stage-panel">
+        <div class="stage-caption">One shared starting point, two different outcomes.</div>
+        <div class="s3-plot" id="s8-plot" style="height:360px;">
+          <svg class="s3-lines" id="s8-lines"></svg>
+        </div>
+        <div class="s3-compare">
+          <div class="s3-compare-item">
+            <div class="s3-compare-label">SENTENCE ① → FRUIT</div>
+            <div class="s3-compare-vec fruit" id="s8-vec-fruit"></div>
+          </div>
+          <div class="s3-compare-arrow">·</div>
+          <div class="s3-compare-item">
+            <div class="s3-compare-label">SENTENCE ② → COMPANY</div>
+            <div class="s3-compare-vec company" id="s8-vec-company"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+  <script src="js/app.js"></script>
+</body>
+</html>
