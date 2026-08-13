@@ -31,3 +31,7 @@ An interactive slide collection that explains attention mechanisms by theme.
 Open the repository-level `index.html` in a browser. It currently redirects to the Self-Attention deck.
 
 Each deck is self-contained. Place topic-specific HTML, CSS, and JavaScript inside its corresponding directory.
+
+## Acknowledgements
+
+This project was developed with assistance from OpenAI Codex.
