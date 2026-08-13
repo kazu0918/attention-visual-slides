@@ -156,8 +156,8 @@ function blendedPosition(key){
    SLIDE 1 : Encoder - Decoder
 --------------------------------------------------------- */
 (function(){
-  const tokens = ['猫','が','魚','を','食べた'];
-  const outputTokens = ['The','cat','ate','the','fish'];
+  const tokens = ['The','cat','ate','the','fish'];
+  const outputTokens = ['A','cat','ate','the','fish'];
   const captions = [
     '<b>Step 0 —</b> The sentence to translate is fed into the encoder.',
     '<b>Step 1 —</b> ① The text is split into words (tokens).',

@@ -1,5 +1,5 @@
 # Masked Attention
 
-Decoderが未来のトークンを参照しないよう、Attentionスコアへマスクを適用する流れを扱うスライドの配置先です。
+This directory is reserved for a slide deck explaining how attention masks prevent a decoder from attending to future tokens.
 
-実装時は、このフォルダ内に `index.html`、`css/`、`js/` を配置します。
+When implemented, place the deck's `index.html`, `css/`, and `js/` files in this directory.

@@ -1,5 +1,5 @@
 # Cross-Attention
 
-Decoder側のQueryが、Encoder側のKeyとValueを参照する流れを扱うスライドの配置先です。
+This directory is reserved for a slide deck explaining how decoder queries attend to encoder keys and values.
 
-実装時は、このフォルダ内に `index.html`、`css/`、`js/` を配置します。
+When implemented, place the deck's `index.html`, `css/`, and `js/` files in this directory.
