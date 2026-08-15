@@ -134,7 +134,7 @@ function blendedPosition(key){
         const idx = slides.indexOf(e.target);
         navBtns.forEach(b=>b.classList.remove('active'));
         navBtns[idx].classList.add('active');
-        countEl.textContent = String(idx+1).padStart(2,'0') + ' / 08';
+        countEl.textContent = String(idx+1).padStart(2,'0') + ' / ' + String(slides.length).padStart(2,'0');
       }
     });
   }, { root: deck, threshold: [0.5] });
@@ -153,18 +153,59 @@ function blendedPosition(key){
 })();
 
 /* ---------------------------------------------------------
+   SLIDE 4 : A matrix transforms Apple's vector
+--------------------------------------------------------- */
+(function(){
+  const examples = {
+    fruit: {
+      matrix:[1.00,0.50,-0.80,0.70], result:'[−0.28, +0.52]', note:'built from “ate” + “juicy”',
+      caption:'<b>Fruit context —</b> A context-dependent transformation moves Apple toward the fruit region, matching slide 03.'
+    },
+    company: {
+      matrix:[1.20,-0.80,0.50,0.40], result:'[+0.54, +0.08]', note:'built from “bought” + “laptop”',
+      caption:'<b>Company context —</b> A different transformation moves the same initial Apple toward the tech region, matching slide 03.'
+    }
+  };
+  const matrix = document.getElementById('s3b-matrix');
+  const point = document.getElementById('s3b-output-point');
+  const region = document.getElementById('s3b-region');
+  const result = document.getElementById('s3b-output-vector');
+  const note = document.getElementById('s3b-matrix-note');
+  const caption = document.getElementById('s3b-caption');
+  const buttons = [...document.querySelectorAll('#s3b-toggle .ctx-btn')];
+  function render(key){
+    const ex = examples[key];
+    buttons.forEach(b=>b.classList.toggle('active',b.dataset.ctx===key));
+    matrix.className = 's3b-matrix ' + key;
+    matrix.innerHTML = ex.matrix.map(v=>`<span>${fmt(v)}</span>`).join('');
+    point.className = 's3b-point ' + key;
+    region.className = 's3b-region ' + key;
+    result.textContent = ex.result;
+    note.textContent = ex.note;
+    caption.innerHTML = ex.caption;
+  }
+  buttons.forEach(b=>b.addEventListener('click',()=>render(b.dataset.ctx)));
+  render('fruit');
+})();
+
+/* ---------------------------------------------------------
    SLIDE 1 : Encoder - Decoder
 --------------------------------------------------------- */
 (function(){
   const tokens = ['The','cat','ate','the','fish'];
-  const outputTokens = ['A','cat','ate','the','fish'];
+  const outputTokens = ['猫','は','魚','を','食べた'];
+  const wordAlignment = [
+    { source:1, target:0 }, // cat -> 猫
+    { source:2, target:4 }, // ate -> 食べた
+    { source:4, target:2 }, // fish -> 魚
+  ];
   const captions = [
     '<b>Step 0 —</b> The sentence to translate is fed into the encoder.',
     '<b>Step 1 —</b> ① The text is split into words (tokens).',
     '<b>Step 2 —</b> ② Each word becomes an initial vector (a list of numbers).',
     '<b>Step 3 —</b> ③ Each vector is updated using the vectors of surrounding words (this is Attention). This is the encoder\'s job.',
-    '<b>Step 4 —</b> The encoder outputs one large vector summarizing the meaning of the whole sentence.',
-    '<b>Step 5 —</b> The decoder uses that vector to generate the translated words one at a time.'
+    '<b>Step 4 —</b> The encoder creates a numeric representation of the whole sentence: who did what to whom.',
+    '<b>Step 5 —</b> The decoder generates Japanese in Japanese word order. The crossing lines show why translation is not sequential word replacement.'
   ];
   const totalSteps = captions.length;
   let step = 0;
@@ -183,6 +224,47 @@ function blendedPosition(key){
   const arrow3 = document.getElementById('arrow-3');
   const prevBtn = document.getElementById('s1-prev');
   const nextBtn = document.getElementById('s1-next');
+  const alignmentEl = document.getElementById('s1-alignment');
+  const alignmentMapEl = document.getElementById('s1-alignment-map');
+  const alignmentLinesEl = document.getElementById('s1-alignment-lines');
+  const sourceRowEl = document.getElementById('s1-source-row');
+  const targetRowEl = document.getElementById('s1-target-row');
+
+  function buildAlignment(){
+    sourceRowEl.innerHTML = '';
+    targetRowEl.innerHTML = '';
+
+    tokens.forEach((word,index)=>{
+      const token = document.createElement('span');
+      token.className = 'alignment-token ' + (wordAlignment.some(pair=>pair.source===index) ? 'mapped' : 'omitted');
+      token.textContent = word;
+      sourceRowEl.appendChild(token);
+    });
+
+    outputTokens.forEach((word,index)=>{
+      const token = document.createElement('span');
+      token.className = 'alignment-token ' + (wordAlignment.some(pair=>pair.target===index) ? 'mapped' : 'added');
+      token.textContent = word;
+      targetRowEl.appendChild(token);
+    });
+  }
+
+  function drawAlignmentLines(){
+    alignmentLinesEl.innerHTML = '';
+    if(step < 5) return;
+    sizeSvgToContainer(alignmentLinesEl, alignmentMapEl);
+    const sourceTokens = [...sourceRowEl.children];
+    const targetTokens = [...targetRowEl.children];
+    wordAlignment.forEach((pair,index)=>{
+      const from = centerOf(sourceTokens[pair.source], alignmentMapEl);
+      const to = centerOf(targetTokens[pair.target], alignmentMapEl);
+      svgLine(alignmentLinesEl, from.x, from.y + 8, to.x, to.y - 8, {
+        stroke:index===1 ? 'var(--coral)' : 'rgba(79,209,197,.72)',
+        width:index===1 ? 2 : 1.5,
+        opacity:.9,
+      });
+    });
+  }
 
   for(let i=0;i<totalSteps;i++){
     const d = document.createElement('span');
@@ -246,13 +328,22 @@ function blendedPosition(key){
       });
     }
 
-    requestAnimationFrame(drawAttentionLines);
+    alignmentEl.classList.toggle('show', step>=5);
+
+    requestAnimationFrame(()=>{
+      drawAttentionLines();
+      drawAlignmentLines();
+    });
   }
 
   prevBtn.addEventListener('click', ()=>{ if(step>0){ step--; render(); }});
   nextBtn.addEventListener('click', ()=>{ if(step<totalSteps-1){ step++; render(); }});
-  window.addEventListener('resize', ()=> drawAttentionLines());
+  window.addEventListener('resize', ()=>{
+    drawAttentionLines();
+    drawAlignmentLines();
+  });
 
+  buildAlignment();
   render();
 })();
 
@@ -361,14 +452,17 @@ function blendedPosition(key){
   ];
   const neutralPos = { x:50, y:48 };
   const targets = {
+    neutral: neutralPos,
     fruit:   { x:28, y:66 },
     company: { x:72, y:24 },
   };
   const ctxWords = {
+    neutral: [],
     fruit:   [ {w:'ate', x:42, y:74, weight:.85}, {w:'juicy', x:20, y:46, weight:.5} ],
     company: [ {ref:'laptop', weight:.9}, {w:'bought', x:58, y:36, weight:.55} ],
   };
   const captions = {
+    neutral: '<b>Initial vector —</b> Before attention, Apple has the same context-free starting position.',
     fruit: '<b>Attention —</b> "ate" and "juicy" pull Apple\'s vector toward the fruit cluster.',
     company: '<b>Attention —</b> "laptop" and "bought" pull Apple\'s vector toward the tech cluster.'
   };
@@ -378,8 +472,10 @@ function blendedPosition(key){
   const appleEl = document.getElementById('s3-apple');
   const vecBefore = document.getElementById('s3-vec-before');
   const vecAfter = document.getElementById('s3-vec-after');
-  const buttons = [...document.querySelectorAll('.ctx-btn')];
+  const buttons = [...document.querySelectorAll('#s3-toggle .ctx-btn')];
   const captionEl = document.getElementById('s3-caption');
+  const afterLabelEl = document.getElementById('s3-after-label');
+  const neutralEl = document.getElementById('s3-neutral');
 
   const clusterEls = {};
   function addClusterDots(list, type){
@@ -401,13 +497,16 @@ function blendedPosition(key){
   vecBefore.innerHTML = beforeVec.map(v=>`<span>${fmt(v)}</span>`).join('');
 
   let transientEls = [];
+  let activeLineTargets = [];
 
   function render(ctxKey){
     buttons.forEach(b=> b.classList.toggle('active', b.dataset.ctx === ctxKey));
     captionEl.innerHTML = captions[ctxKey];
 
     appleEl.classList.remove('fruit','company');
-    appleEl.classList.add(ctxKey);
+    if(ctxKey !== 'neutral') appleEl.classList.add(ctxKey);
+    neutralEl.classList.toggle('current', ctxKey === 'neutral');
+    afterLabelEl.textContent = ctxKey === 'neutral' ? 'INITIAL VECTOR' : 'AFTER ATTENTION UPDATE';
     const target = targets[ctxKey];
     appleEl.style.left = target.x + '%';
     appleEl.style.top = target.y + '%';
@@ -434,6 +533,7 @@ function blendedPosition(key){
         lineTargets.push({ el, weight:item.weight });
       }
     });
+    activeLineTargets = lineTargets;
 
     const afterVec = toVec2D(target.x, target.y);
     vecAfter.className = 's3-compare-vec ' + ctxKey;
@@ -448,9 +548,11 @@ function blendedPosition(key){
     linesSvg.innerHTML = '';
     const appleCenter = centerOf(appleEl, plot);
     const neutralCenter = centerOf(document.getElementById('s3-neutral'), plot);
-    svgLine(linesSvg, neutralCenter.x, neutralCenter.y, appleCenter.x, appleCenter.y, {
-      stroke:'rgba(255,255,255,0.28)', width:1.2, dash:'3,4', opacity:0.8
-    });
+    if(ctxKey !== 'neutral'){
+      svgLine(linesSvg, neutralCenter.x, neutralCenter.y, appleCenter.x, appleCenter.y, {
+        stroke:'rgba(255,255,255,0.28)', width:1.2, dash:'3,4', opacity:0.8
+      });
+    }
     const color = ctxKey === 'fruit' ? 'rgba(126,217,154,0.65)' : 'rgba(143,179,255,0.65)';
     lineTargets.forEach(({el, weight})=>{
       const p = centerOf(el, plot);
@@ -465,10 +567,10 @@ function blendedPosition(key){
   });
   window.addEventListener('resize', ()=>{
     const active = buttons.find(b=>b.classList.contains('active'));
-    if(active) drawLines(active.dataset.ctx, []);
+    if(active) drawLines(active.dataset.ctx, activeLineTargets);
   });
 
-  render('fruit');
+  render('neutral');
 })();
 
 /* ---------------------------------------------------------
@@ -478,6 +580,7 @@ function blendedPosition(key){
   const plot = document.getElementById('s4-plot');
   const caption = document.getElementById('s4-caption');
   const buttons = [...document.querySelectorAll('#s4-toggle .ctx-btn')];
+  if(!plot || !caption) return;
 
   function render(key){
     buttons.forEach(b=> b.classList.toggle('active', b.dataset.ctx===key));
@@ -512,9 +615,13 @@ function blendedPosition(key){
   const dotsEl = document.getElementById('s5-dots');
   const prevBtn = document.getElementById('s5-prev');
   const nextBtn = document.getElementById('s5-next');
+  const contextToggle = document.getElementById('s5-toggle');
+
+  // Slide 07 is intentionally a single, static overview now.
+  if(!dotsEl || !prevBtn || !nextBtn) return;
 
   const stepCaptions = [
-    'Step 1 — Start from each token\'s 2D vector, taken straight from the last slide.',
+    '<b>Initial vector —</b> We are here, just before self-attention begins.',
     'Step 2 — Pick a pair, multiply matching components, and add them up: that\'s the dot product.',
     'Step 3 — Repeat that for every pair of tokens, and you get the full similarity matrix.',
   ];
@@ -626,6 +733,7 @@ function blendedPosition(key){
     step0.style.display = step===0 ? '' : 'none';
     step1.style.display = step===1 ? '' : 'none';
     step2.style.display = step===2 ? '' : 'none';
+    contextToggle.style.display = step===0 ? 'none' : '';
 
     if(step===0) renderStep0();
     else if(step===1) renderStep1();
@@ -650,6 +758,7 @@ function blendedPosition(key){
   const barsEl = document.getElementById('s6-bars');
   const caption = document.getElementById('s6-caption');
   const buttons = [...document.querySelectorAll('#s6-toggle .ctx-btn')];
+  if(!barsEl || !caption) return;
 
   function render(key){
     buttons.forEach(b=> b.classList.toggle('active', b.dataset.ctx===key));
@@ -680,11 +789,27 @@ function blendedPosition(key){
    SLIDE 7 : Actually blending the vectors (weighted sum)
 --------------------------------------------------------- */
 (function(){
+  const carousel = document.getElementById('s10-carousel');
+  const buttons = [...document.querySelectorAll('[data-s10-view]')];
+  if(!carousel || !buttons.length) return;
+  function select(index){
+    carousel.scrollTo({ left: carousel.clientWidth * index, behavior:'smooth' });
+    buttons.forEach((button,i)=>button.classList.toggle('active',i===index));
+  }
+  buttons.forEach((button,i)=>button.addEventListener('click',()=>select(i)));
+  carousel.addEventListener('scroll',()=>{
+    const index = Math.round(carousel.scrollLeft / Math.max(1,carousel.clientWidth));
+    buttons.forEach((button,i)=>button.classList.toggle('active',i===index));
+  },{passive:true});
+})();
+
+(function(){
   const plot = document.getElementById('s7-plot');
   const linesSvg = document.getElementById('s7-lines');
   const blendEl = document.getElementById('s7-apple-blend');
   const caption = document.getElementById('s7-caption');
   const buttons = [...document.querySelectorAll('#s7-toggle .ctx-btn')];
+  if(!plot || !linesSvg || !blendEl || !caption) return;
 
   function drawLines(key, tokens, weights, fi){
     sizeSvgToContainer(linesSvg, plot);
@@ -746,6 +871,7 @@ function blendedPosition(key){
   const linesSvg = document.getElementById('s8-lines');
   const vecFruitEl = document.getElementById('s8-vec-fruit');
   const vecCompanyEl = document.getElementById('s8-vec-company');
+  if(!plot || !linesSvg || !vecFruitEl || !vecCompanyEl) return;
 
   function draw(){
     plot.querySelectorAll('.word-node').forEach(n=>n.remove());
@@ -798,4 +924,61 @@ function blendedPosition(key){
   }
   draw();
   window.addEventListener('resize', draw);
+})();
+
+/* ---------------------------------------------------------
+   SLIDE 11 : interactive dot-product lab
+--------------------------------------------------------- */
+(function(){
+  const carousel = document.getElementById('s11-carousel');
+  const viewButtons = [...document.querySelectorAll('[data-s11-view]')];
+  const sliderA = document.getElementById('s11-a-slider');
+  const sliderB = document.getElementById('s11-b-slider');
+  if(!carousel || !sliderA || !sliderB) return;
+
+  viewButtons.forEach((button,index)=>button.addEventListener('click',()=>{
+    carousel.scrollTo({left:carousel.clientWidth*index,behavior:'smooth'});
+    viewButtons.forEach((b,i)=>b.classList.toggle('active',i===index));
+  }));
+  carousel.addEventListener('scroll',()=>{
+    const index=Math.round(carousel.scrollLeft/Math.max(1,carousel.clientWidth));
+    viewButtons.forEach((b,i)=>b.classList.toggle('active',i===index));
+  },{passive:true});
+
+  const lineA=document.getElementById('s11-vector-a');
+  const lineB=document.getElementById('s11-vector-b');
+  const labelA=document.getElementById('s11-label-a');
+  const labelB=document.getElementById('s11-label-b');
+  const coordsA=document.getElementById('s11-a-coords');
+  const coordsB=document.getElementById('s11-b-coords');
+  const angleA=document.getElementById('s11-a-angle');
+  const angleB=document.getElementById('s11-b-angle');
+  const angleDiff=document.getElementById('s11-angle-diff');
+  const result=document.getElementById('s11-dot-result');
+  const caption=document.getElementById('s11-lab-caption');
+  const origin={x:210,y:165}, length=132;
+  const signed=v=>(v>=0?'+':'')+v.toFixed(2);
+
+  function endpoint(degrees){
+    const radians=degrees*Math.PI/180;
+    return {x:origin.x+Math.cos(radians)*length,y:origin.y-Math.sin(radians)*length,cx:Math.cos(radians),cy:Math.sin(radians)};
+  }
+  function update(){
+    const a=Number(sliderA.value), b=Number(sliderB.value);
+    const pa=endpoint(a), pb=endpoint(b);
+    [[lineA,labelA,pa],[lineB,labelB,pb]].forEach(([line,label,p])=>{
+      line.setAttribute('x2',p.x); line.setAttribute('y2',p.y);
+      label.setAttribute('x',p.x+(p.cx>=0?10:-20)); label.setAttribute('y',p.y+(p.cy>=0?-8:18));
+    });
+    coordsA.textContent=`[${signed(pa.cx)}, ${signed(pa.cy)}]`;
+    coordsB.textContent=`[${signed(pb.cx)}, ${signed(pb.cy)}]`;
+    angleA.textContent=`${a}°`; angleB.textContent=`${b}°`;
+    let diff=Math.abs(a-b)%360; if(diff>180) diff=360-diff;
+    const dot=Math.cos(diff*Math.PI/180);
+    angleDiff.textContent=`${diff}°`;
+    result.textContent=signed(dot);
+    const state=dot>0.7?['Similar directions:','the dot product is large.']:dot<-0.2?['Opposite directions:','the dot product is negative.']:['Different directions:','the dot product is small.'];
+    caption.innerHTML=`<b>${state[0]}</b> ${state[1]}`;
+  }
+  sliderA.addEventListener('input',update); sliderB.addEventListener('input',update); update();
 })();

@@ -12,7 +12,7 @@
 <body>
 
 <div class="deck-header">
-  <span class="count" id="deck-count">01 / 08</span>
+  <span class="count" id="deck-count">01 / 11</span>
   <span class="title-mini">How Translation AI Works</span>
 </div>
 
@@ -20,11 +20,14 @@
   <button data-target="slide1" class="active" aria-label="Go to slide 1"></button>
   <button data-target="slide2" aria-label="Go to slide 2"></button>
   <button data-target="slide3" aria-label="Go to slide 3"></button>
-  <button data-target="slide4" aria-label="Go to slide 4"></button>
-  <button data-target="slide5" aria-label="Go to slide 5"></button>
-  <button data-target="slide6" aria-label="Go to slide 6"></button>
-  <button data-target="slide7" aria-label="Go to slide 7"></button>
-  <button data-target="slide8" aria-label="Go to slide 8"></button>
+  <button data-target="slide3b" aria-label="Go to slide 4"></button>
+  <button data-target="slide-architecture" aria-label="Go to slide 5"></button>
+  <button data-target="slide4" aria-label="Go to slide 6"></button>
+  <button data-target="slide5" aria-label="Go to slide 7"></button>
+  <button data-target="slide-attention-architecture" aria-label="Go to slide 8"></button>
+  <button data-target="slide6" aria-label="Go to slide 9"></button>
+  <button data-target="slide7" aria-label="Go to slide 10"></button>
+  <button data-target="slide8" aria-label="Go to slide 11"></button>
 </nav>
 
 <div class="scroll-hint">
@@ -43,7 +46,7 @@
         <p class="subtitle">Encoder–Decoder Model</p>
         <p class="lead">Because word order differs across languages, translation isn't just word-by-word. Instead, the model <b>first "digests" the whole sentence into a single meaning</b>, then builds the output from that.</p>
         <p class="lead">The input sentence is turned entirely into numbers (a vector) that capture its meaning, and the output words are generated from that vector.</p>
-        <div class="note">Note: this is a simplified picture of how a translation model works — it's not necessarily how translation happens in the human brain.</div>
+        <div class="note">In this simplified encoder–decoder diagram, the meaning vector is a numeric summary of the whole sentence—not a translation of any single word. It carries information such as who did what to whom, allowing the decoder to rebuild the sentence in a different word order.</div>
       </div>
 
       <div class="stage-panel">
@@ -62,16 +65,26 @@
             </div>
             <div class="s1-arrow" id="arrow-2">→</div>
             <div class="s1-block s1-meaning">
-              <div class="s1-block-label">Meaning<br>Vector</div>
+              <div class="s1-block-label">Sentence<br>Meaning Vector</div>
               <div class="s1-meaning-grid" id="s1-meaning-grid">
                 <div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div>
               </div>
+              <div class="s1-meaning-desc">A numeric summary of the whole sentence</div>
             </div>
             <div class="s1-arrow" id="arrow-3">→</div>
             <div class="s1-block s1-decoder" id="s1-decoder">
               <div class="s1-block-label">Decoder</div>
               <div class="s1-output" id="s1-output"></div>
             </div>
+          </div>
+          <div class="s1-alignment" id="s1-alignment" aria-label="Word alignment between the English input and Japanese output">
+            <div class="s1-alignment-title">WORD ALIGNMENT <span>Lines cross because the word order changes</span></div>
+            <div class="s1-alignment-map" id="s1-alignment-map">
+              <svg class="s1-alignment-lines" id="s1-alignment-lines"></svg>
+              <div class="s1-alignment-row" id="s1-source-row"></div>
+              <div class="s1-alignment-row" id="s1-target-row"></div>
+            </div>
+            <div class="s1-alignment-note">English articles are omitted; Japanese particles are generated from the sentence meaning.</div>
           </div>
         </div>
         <div class="s1-controls">
@@ -128,10 +141,11 @@
       </div>
 
       <div class="stage-panel">
-        <div class="stage-caption" id="s3-caption">Toggle the sentence below to see Apple's vector shift toward a different region of meaning.</div>
-        <div class="s3-toggle">
-          <button class="ctx-btn active" data-ctx="fruit">🍎 I ate a juicy apple.</button>
-          <button class="ctx-btn" data-ctx="company">💻 I bought an Apple laptop.</button>
+        <div class="stage-caption" id="s3-caption"><b>Initial vector —</b> Before attention, Apple has the same context-free starting position.</div>
+        <div class="s3-toggle" id="s3-toggle">
+          <button class="ctx-btn active" data-ctx="neutral">① Initial vector</button>
+          <button class="ctx-btn" data-ctx="fruit">② I ate a juicy apple.</button>
+          <button class="ctx-btn" data-ctx="company">③ I bought an Apple laptop.</button>
         </div>
         <div class="s3-plot" id="s3-plot">
           <svg class="s3-lines" id="s3-lines"></svg>
@@ -151,7 +165,7 @@
           </div>
           <div class="s3-compare-arrow">→</div>
           <div class="s3-compare-item">
-            <div class="s3-compare-label">AFTER ATTENTION UPDATE</div>
+            <div class="s3-compare-label" id="s3-after-label">INITIAL VECTOR</div>
             <div class="s3-compare-vec" id="s3-vec-after"></div>
           </div>
         </div>
@@ -160,25 +174,147 @@
   </section>
 
   <!-- ============ SLIDE 4 ============ -->
+  <section class="slide" id="slide3b">
+    <div class="slide-inner">
+      <div>
+        <div class="eyebrow"><span class="num">04</span> MATRICES AS TRANSFORMATIONS</div>
+        <h1 class="title">A Matrix Transforms<br>One Vector Into Another</h1>
+        <p class="subtitle">A Linear Algebra View</p>
+        <p class="lead">A point on a coordinate plane is a <b>vector</b>. Multiplying it by a matrix transforms it into a new vector — shown as the point landing at a new position.</p>
+        <p class="lead">This is one way to view what we want for Apple: start with the same context-free vector, then transform it into a representation that <b>includes the sentence's meaning</b>.</p>
+        <div class="note">The matrix below is an intuition-building 2D example. In a Transformer, attention computes the context-dependent mixing weights from the sentence itself.</div>
+      </div>
+      <div class="stage-panel">
+        <div class="stage-caption" id="s3b-caption"><b>Fruit context —</b> A context-dependent transformation moves Apple toward the fruit region, matching slide 03.</div>
+        <div class="s3-toggle" id="s3b-toggle">
+          <button class="ctx-btn active" data-ctx="fruit">🍎 I ate a juicy apple.</button>
+          <button class="ctx-btn" data-ctx="company">💻 I bought an Apple laptop.</button>
+        </div>
+        <div class="s3b-equation" aria-label="A vector multiplied by a matrix becomes a context-aware vector">
+          <div class="s3b-plane-card">
+            <div class="s3b-card-label">BEFORE CONTEXT</div>
+            <div class="s3b-plane"><div class="s3b-axis s3b-axis-x"></div><div class="s3b-axis s3b-axis-y"></div><div class="s3b-point input"><span>Apple</span></div></div>
+            <div class="s3b-vector">x = <span>[+0.20, +0.60]</span></div>
+          </div>
+          <div class="s3b-operator">×</div>
+          <div class="s3b-matrix-card">
+            <div class="s3b-card-label">CONTEXT-DEPENDENT MATRIX</div>
+            <div class="s3b-matrix fruit" id="s3b-matrix"></div>
+            <div class="s3b-matrix-note" id="s3b-matrix-note">built from “ate” + “juicy”</div>
+          </div>
+          <div class="s3b-operator">=</div>
+          <div class="s3b-plane-card">
+            <div class="s3b-card-label">AFTER CONTEXT</div>
+            <div class="s3b-plane"><div class="s3b-region fruit" id="s3b-region"></div><div class="s3b-axis s3b-axis-x"></div><div class="s3b-axis s3b-axis-y"></div><div class="s3b-point fruit" id="s3b-output-point"><span>Apple</span></div></div>
+            <div class="s3b-vector">xA = <span id="s3b-output-vector">[−0.28, +0.52]</span></div>
+          </div>
+        </div>
+        <div class="s3b-question">So how can the model build the right transformation from the other words in the sentence? <b>That is the problem attention solves.</b></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SLIDE 5 ============ -->
+  <section class="slide" id="slide-architecture">
+    <div class="slide-inner">
+      <div>
+        <div class="eyebrow"><span class="num">05</span> THE TRANSFORMER</div>
+        <h1 class="title">Where Does<br>Attention Begin?</h1>
+        <p class="subtitle">Model Architecture</p>
+        <p class="lead">This is the complete Transformer architecture. Before the encoder can compare words with attention, every input token must first become a vector.</p>
+        <p class="lead">For now, focus on the first step highlighted in red: <b>Input Embedding</b>.</p>
+        <div class="note">On the next slide, we will zoom in and see exactly how the input sentence becomes embedding vectors.</div>
+      </div>
+
+      <div class="stage-panel architecture-panel">
+        <div class="stage-caption"><b>You are here —</b> The input sentence enters the Transformer through Input Embedding.</div>
+        <svg class="transformer-diagram paper-figure" viewBox="0 0 568 755" role="img" aria-labelledby="transformer-title transformer-desc">
+          <title id="transformer-title">Transformer encoder-decoder architecture from the original paper</title>
+          <desc id="transformer-desc">The original Transformer architecture figure with Input Embedding highlighted in red.</desc>
+          <defs>
+            <filter id="paper-red-glow" x="-35%" y="-55%" width="170%" height="210%"><feGaussianBlur stdDeviation="4" result="blur"/><feFlood flood-color="#ff334b" flood-opacity=".72"/><feComposite in2="blur" operator="in"/><feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+          </defs>
+          <image href="assets/transformer-architecture-paper.png" x="0" y="0" width="568" height="755" preserveAspectRatio="xMidYMid meet"/>
+          <g class="paper-input-focus" filter="url(#paper-red-glow)">
+            <rect x="146" y="572" width="113" height="52" rx="7"/>
+          </g>
+        </svg>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SLIDE 6 ============ -->
   <section class="slide" id="slide4">
     <div class="slide-inner">
       <div>
-        <div class="eyebrow"><span class="num">04</span> EMBEDDINGS</div>
-        <h1 class="title">Turning a Sentence<br>Into Vectors</h1>
-        <p class="subtitle">Token Embeddings</p>
-        <p class="lead">The encoder first splits a sentence into <b>tokens</b> (words, roughly), then looks up a starting <b>embedding vector</b> for each one — shown here in just 2 dimensions so it can be plotted directly.</p>
-        <p class="lead">Toggle between the two example sentences. Notice that "apple" starts at <b>the exact same point</b> in both — the encoder hasn't looked at context yet.</p>
-        <div class="note">This is the raw input to self-attention: context-free embeddings, one per token.</div>
+        <div class="eyebrow"><span class="num">06</span> EMBEDDINGS</div>
+        <h1 class="title">From a Sentence<br>to 512-D Vectors</h1>
+        <p class="subtitle">BPE Tokenization + Embedding Lookup</p>
+        <p class="lead">First, <b>BPE splits the sentence into reusable subword tokens</b>. Each token is represented conceptually as a one-hot row with about <b>37,000 possible positions</b>.</p>
+        <p class="lead">One matrix multiplication selects a learned <b>512-number vector</b> for every token. There is <b>no hidden layer or activation function</b> inside the Input Embedding block.</p>
+        <div class="note">In code this is implemented as a fast row lookup, but it is mathematically equivalent to the matrix multiplication shown here.</div>
       </div>
 
-      <div class="stage-panel">
-        <div class="stage-caption" id="s4-caption">Sentence ① — "I ate a juicy apple."</div>
-        <div class="s3-toggle" id="s4-toggle">
-          <button class="ctx-btn active" data-ctx="fruit">🍎 Sentence ①</button>
-          <button class="ctx-btn" data-ctx="company">💻 Sentence ②</button>
-        </div>
-        <div class="s3-plot" id="s4-plot">
-          <svg class="s3-lines" id="s4-lines"></svg>
+      <div class="stage-panel embedding-pipeline-panel">
+        <div class="stage-caption"><b>One horizontal operation —</b> Token matrix × Embedding matrix = vector sequence</div>
+        <div class="embedding-horizontal">
+          <div class="embedding-tokenization-row">
+            <div class="embedding-sentence-compact">I ate a juicy apple</div>
+            <div class="embedding-mini-arrow">→</div>
+            <div class="embedding-bpe-compact">
+              <div class="embedding-step-label"><span>01</span> BPE</div>
+              <div class="bpe-tokens compact" aria-label="Illustrative BPE split">
+                <span>I</span><span>ate</span><span>a</span><span>juicy</span><span class="focus">apple</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="embedding-equation" aria-label="A five by thirty-seven-thousand one-hot matrix multiplied by a thirty-seven-thousand by five-hundred-twelve embedding matrix gives a five by five-hundred-twelve output matrix">
+            <div class="matrix-term input-matrix-term">
+              <div class="matrix-title">TOKEN MATRIX <b>X</b></div>
+              <div class="matrix-bracket onehot-matrix">
+                <div><b>I</b><code>0 ··· 1 ··· 0</code></div>
+                <div><b>ate</b><code>0 ··· 1 ··· 0</code></div>
+                <div><b>a</b><code>0 ··· 1 ··· 0</code></div>
+                <div><b>juicy</b><code>0 ··· 1 ··· 0</code></div>
+                <div class="focus"><b>apple</b><code>0 ··· 1 ··· 0</code></div>
+              </div>
+              <div class="matrix-shape">5 × 37,000</div>
+              <div class="matrix-caption">one “1” per token</div>
+            </div>
+
+            <div class="matrix-operator">×</div>
+
+            <div class="matrix-term embedding-matrix-term">
+              <div class="matrix-title">EMBEDDING MATRIX <b>E</b></div>
+              <div class="embedding-table-visual">
+                <div class="embedding-axis top">512 columns →</div>
+                <div class="embedding-table-rows">
+                  <i></i><i></i><i class="selected"></i><i></i><i></i><i></i><i class="selected"></i><i></i><i></i><i class="ellipsis">⋮</i><i></i><i class="selected focus"></i><i></i><i></i>
+                </div>
+                <div class="embedding-axis side">37,000 rows</div>
+              </div>
+              <div class="matrix-shape">37,000 × 512</div>
+              <div class="matrix-caption">one learned row per token type</div>
+            </div>
+
+            <div class="matrix-operator equals">=</div>
+
+            <div class="matrix-term output-matrix-term">
+              <div class="matrix-title">OUTPUT <b>H</b></div>
+              <div class="matrix-bracket output-vector-matrix">
+                <div><b>I</b><code>[0.12, −0.44, …, 0.31]</code></div>
+                <div><b>ate</b><code>[−0.21, 0.63, …, −0.06]</code></div>
+                <div><b>a</b><code>[0.04, 0.19, …, 0.28]</code></div>
+                <div><b>juicy</b><code>[0.71, −0.08, …, 0.14]</code></div>
+                <div class="focus"><b>apple</b><code>[−0.18, 0.52, …, 0.67]</code></div>
+              </div>
+              <div class="matrix-shape">5 × 512</div>
+              <div class="matrix-caption">one 512-D vector per token</div>
+            </div>
+          </div>
+
+          <div class="embedding-equation-note"><b>Actual implementation:</b> use each Token ID to fetch the matching row of E—no dense one-hot matrix is created.</div>
         </div>
       </div>
     </div>
@@ -188,64 +324,111 @@
   <section class="slide" id="slide5">
     <div class="slide-inner">
       <div>
-        <div class="eyebrow"><span class="num">05</span> SELF-ATTENTION</div>
-        <h1 class="title">Comparing Every Word<br>With Every Other Word</h1>
-        <p class="subtitle">Dot-Product Similarity</p>
-        <p class="lead">Self-attention's basic idea, put simply: for every vector, compute how close in meaning it is to <b>every other vector</b> in the sentence, using their <b>dot product</b> — brute-force, all pairs.</p>
-        <p class="lead">Take the 2D vectors from the last slide, multiply their matching components and add them up, and repeat for every pair to build a similarity matrix.</p>
-        <div class="note">In a real Transformer this is computed as Q·K&#7488; (query vectors against key vectors), but the intuition is the same: "how relevant is token j to token i?"</div>
+        <div class="eyebrow"><span class="num">07</span> SELF-ATTENTION</div>
+        <h1 class="title">Starting From the<br>Initial Vectors</h1>
+        <p class="subtitle">The Starting Point of Self-Attention</p>
+        <p class="lead">Every BPE token now has an initial embedding. The red marker shows <b>where we are now: before attention has added any context</b>.</p>
+        <p class="lead">The diagram uses only <b>2 dimensions so it can be drawn</b>. As shown on the previous slide, the real model represents every token with <b>512 numbers</b>.</p>
+        <div class="note">To focus on attention, this teaching example temporarily omits the ×√512 scaling, Positional Encoding addition, and Dropout.</div>
       </div>
 
       <div class="stage-panel">
-        <div class="stage-caption" id="s5-caption">Step 1 — Start from each token's 2D vector, taken straight from the last slide.</div>
-        <div class="s3-toggle" id="s5-toggle">
-          <button class="ctx-btn active" data-ctx="fruit">🍎 Sentence ①</button>
-          <button class="ctx-btn" data-ctx="company">💻 Sentence ②</button>
-        </div>
+        <div class="stage-caption" id="s5-caption"><b>Initial vector —</b> We are here, just before self-attention begins.</div>
 
         <div id="s5-step0">
-          <div class="s5-vec-row" id="s5-vec-row"></div>
-        </div>
-
-        <div id="s5-step1" style="display:none;">
-          <div class="s5-formula" id="s5-formula"></div>
-        </div>
-
-        <div id="s5-step2" style="display:none;">
-          <div class="s5-matrix-wrap">
-            <div class="s5-matrix" id="s5-matrix"></div>
+          <div class="s7-recap-tabs" aria-label="Contextualization stages">
+            <div class="active"><small>YOU ARE HERE</small><b>① Initial vector</b></div>
+            <div><b>② Fruit context</b><span>after attention</span></div>
+            <div><b>③ Company context</b><span>after attention</span></div>
           </div>
-          <div class="s5-cell-info" id="s5-cell-info">Hover or tap a cell to see its score.</div>
-        </div>
-
-        <div class="s1-controls">
-          <button class="step-btn" id="s5-prev">← Back</button>
-          <div class="step-dots" id="s5-dots"></div>
-          <button class="step-btn" id="s5-next">Next →</button>
+          <div class="s7-recap-plot" aria-label="A two-dimensional view of Apple's initial vector between fruit and technology regions">
+            <svg viewBox="0 0 600 230" preserveAspectRatio="none" aria-hidden="true">
+              <path class="fruit-path" d="M300 113C230 130 190 158 132 177"/>
+              <path class="company-path" d="M300 113C375 96 422 67 478 49"/>
+            </svg>
+            <div class="s7-region fruit"><span>FRUIT CONTEXT</span></div>
+            <div class="s7-region company"><span>COMPANY CONTEXT</span></div>
+            <div class="cluster-node" data-c="fruit" style="left:14%;top:76%"><div class="dot"></div><div class="lbl">banana</div></div>
+            <div class="cluster-node" data-c="fruit" style="left:24%;top:84%"><div class="dot"></div><div class="lbl">orange</div></div>
+            <div class="cluster-node" data-c="fruit" style="left:21%;top:61%"><div class="dot"></div><div class="lbl">juicy</div></div>
+            <div class="cluster-node" data-c="tech" style="left:79%;top:18%"><div class="dot"></div><div class="lbl">laptop</div></div>
+            <div class="cluster-node" data-c="tech" style="left:89%;top:29%"><div class="dot"></div><div class="lbl">computer</div></div>
+            <div class="cluster-node" data-c="tech" style="left:75%;top:39%"><div class="dot"></div><div class="lbl">bought</div></div>
+            <div class="s7-initial-vector">
+              <div class="s7-you-are-here">YOU ARE HERE</div>
+              <div class="s3-apple-dot"></div>
+              <div class="s3-apple-lbl">apple — initial vector</div>
+              <div class="s7-vector-value">[x, y] <span>2-D view</span></div>
+            </div>
+          </div>
+          <div class="s7-recap-notes">
+            <div><span class="dimension-icon">2D</span><p><b>Shown here:</b> 2 numbers per token, only so positions can be plotted.</p></div>
+            <div><span class="dimension-icon real">512D</span><p><b>Actual model:</b> 512 numbers for every single token.</p></div>
+            <div class="omitted"><span>OMITTED FOR NOW</span><p>×√512 · Positional Encoding · Dropout</p></div>
+          </div>
+          <div class="s5-vec-row s7-data-only" id="s5-vec-row" aria-hidden="true"></div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- ============ SLIDE 6 ============ -->
+  <!-- ============ SLIDE 8 ============ -->
+  <section class="slide" id="slide-attention-architecture">
+    <div class="slide-inner">
+      <div>
+        <div class="eyebrow"><span class="num">08</span> SELF-ATTENTION</div>
+        <h1 class="title">Next: Multi-Head<br>Attention</h1>
+        <p class="subtitle">Where Context Enters the Encoder</p>
+        <p class="lead">The initial token vectors have now reached the first Transformer block. The encoder begins by sending every token into <b>Multi-Head Attention</b>.</p>
+        <p class="lead">This is where each token starts comparing itself with the other tokens and gathering the context it needs.</p>
+        <div class="note">The red block runs several attention heads in parallel. In the following explanation, we simplify the process and examine the underlying attention calculation step by step.</div>
+      </div>
+
+      <div class="stage-panel architecture-panel">
+        <div class="stage-caption"><b>You are here —</b> The encoder's first Multi-Head Attention block.</div>
+        <svg class="transformer-diagram paper-figure" viewBox="0 0 568 755" role="img" aria-labelledby="attention-transformer-title attention-transformer-desc">
+          <title id="attention-transformer-title">Transformer architecture with encoder multi-head attention highlighted</title>
+          <desc id="attention-transformer-desc">The original Transformer architecture figure with the first encoder Multi-Head Attention block highlighted in red.</desc>
+          <defs>
+            <filter id="attention-red-glow" x="-35%" y="-55%" width="170%" height="210%"><feGaussianBlur stdDeviation="4" result="blur"/><feFlood flood-color="#ff334b" flood-opacity=".72"/><feComposite in2="blur" operator="in"/><feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+          </defs>
+          <image href="assets/transformer-architecture-paper.png" x="0" y="0" width="568" height="755" preserveAspectRatio="xMidYMid meet"/>
+          <g class="paper-attention-focus" filter="url(#attention-red-glow)">
+            <rect x="147" y="431" width="116" height="58" rx="8"/>
+          </g>
+        </svg>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SLIDE 9 ============ -->
   <section class="slide" id="slide6">
     <div class="slide-inner">
       <div>
-        <div class="eyebrow"><span class="num">06</span> SOFTMAX</div>
-        <h1 class="title">From Scores to<br>Blend Ratios</h1>
-        <p class="subtitle">Softmax Normalization</p>
-        <p class="lead">Apply <b>softmax</b> to each row of the matrix. That makes every row sum to 1 — turning raw similarity scores into a proportion: how much of each other word to blend in.</p>
-        <p class="lead">For company-context <b>Apple</b>, most of the weight lands on "laptop." For fruit-context <b>apple</b>, most of it lands on "juicy."</p>
-        <div class="note">Softmax exaggerates differences — a slightly higher score gets a disproportionately larger share of the weight.</div>
+        <div class="eyebrow"><span class="num">09</span> MULTI-HEAD ATTENTION</div>
+        <h1 class="title">Understanding Attention<br>in Two Steps</h1>
+        <p class="subtitle">From One Attention to Multiple Heads</p>
+        <p class="lead">First, we will use a simple example to understand what <b>Scaled Dot-Product Attention</b> actually does.</p>
+        <p class="lead">Then, we will update its inputs and run <b>several attention operations in parallel</b> to build Multi-Head Attention.</p>
+        <div class="note">The <b>√d<sub>k</sub></b> term scales the scores for stability. We will set it aside for now and focus on the core attention process.</div>
       </div>
 
-      <div class="stage-panel">
-        <div class="stage-caption" id="s6-caption">Blend weights for <b>apple</b>'s row — every bar adds up to 100%.</div>
-        <div class="s3-toggle" id="s6-toggle">
-          <button class="ctx-btn active" data-ctx="fruit">🍎 Sentence ①</button>
-          <button class="ctx-btn" data-ctx="company">💻 Sentence ②</button>
+      <div class="stage-panel s9-roadmap-panel">
+        <div class="stage-caption"><b>Roadmap —</b> Understand one attention operation, then expand it into multiple parallel heads.</div>
+        <div class="s9-formula s9-formula-feature" aria-label="Attention of Q, K, V equals softmax of Q K transpose divided by square root of d k, multiplied by V">
+          <span class="s9-function">Attention(Q, K, V)</span>
+          <span class="s9-equals">=</span>
+          <span>softmax</span>
+          <span class="s9-paren">(</span>
+          <span class="s9-frac"><span>QK<sup>T</sup></span><span>√d<sub>k</sub></span></span>
+          <span class="s9-paren">)</span>
+          <span>V</span>
         </div>
-        <div class="s6-bars" id="s6-bars"></div>
+        <figure class="s9-paper-figure">
+          <img src="assets/attention-figure-2.png" alt="The Transformer paper diagram comparing Scaled Dot-Product Attention with Multi-Head Attention">
+          <figcaption><span>01</span> Scaled Dot-Product Attention <b>→</b> <span>02</span> Multi-Head Attention</figcaption>
+        </figure>
+        <div class="s9-focus-note">We will first ignore the scale term and unpack the left-hand process with a simple example. Then we will return to the full multi-head structure on the right.</div>
       </div>
     </div>
   </section>
@@ -254,57 +437,198 @@
   <section class="slide" id="slide7">
     <div class="slide-inner">
       <div>
-        <div class="eyebrow"><span class="num">07</span> BLENDING</div>
-        <h1 class="title">Blending the<br>Vectors</h1>
-        <p class="subtitle">Weighted Sum</p>
-        <p class="lead">Now actually use those blend ratios: multiply each token's vector by its weight and add them all together. The result is <b>apple's</b> new, context-aware vector.</p>
-        <p class="lead">Watch the coral dot shift from its original position to the blended one as you switch sentences.</p>
-        <div class="note">This is just a weighted average of the other tokens' vectors, using the softmax weights from the last slide.</div>
+        <div class="eyebrow"><span class="num">10</span> THE GOAL OF ATTENTION</div>
+        <h1 class="title">Update a Vector<br>Using Its Context</h1>
+        <p class="subtitle">From Initial Embedding to Context-Aware Vector</p>
+        <p class="lead">After embedding, <b>apple starts with the same initial vector</b> wherever it appears.</p>
+        <p class="lead">Attention uses information from the other words in the sentence to update that vector. The result should represent <b>apple as a fruit</b> in one sentence and <b>Apple as a company</b> in the other.</p>
+        <div class="note">These are simplified 2D vectors for visualization. A real Transformer updates hundreds of dimensions at once.</div>
       </div>
 
-      <div class="stage-panel">
-        <div class="stage-caption" id="s7-caption">Original vector → blended vector.</div>
-        <div class="s3-toggle" id="s7-toggle">
-          <button class="ctx-btn active" data-ctx="fruit">🍎 Sentence ①</button>
-          <button class="ctx-btn" data-ctx="company">💻 Sentence ②</button>
+      <div class="stage-panel s10-goal-panel">
+        <div class="stage-caption"><b>What should attention do?</b> Transform one initial vector differently depending on the surrounding words.</div>
+        <div class="s10-carousel-nav" aria-label="Choose the attention explanation view">
+          <button class="active" data-s10-view="0"><span>01</span> Concept map</button>
+          <button data-s10-view="1"><span>02</span> Concrete example →</button>
         </div>
-        <div class="s3-plot" id="s7-plot">
-          <svg class="s3-lines" id="s7-lines"></svg>
-          <div class="s3-apple fruit" id="s7-apple-blend">
-            <div class="s3-apple-dot"></div>
-            <div class="s3-apple-lbl">blended</div>
+        <div class="s10-carousel" id="s10-carousel">
+          <div class="s10-carousel-track">
+            <div class="s10-carousel-view">
+        <div class="s10-scatter" aria-label="A simplified embedding scatter plot showing apple moving toward fruit or company context">
+          <svg class="s10-scatter-arrows" viewBox="0 0 620 270" preserveAspectRatio="none" aria-hidden="true">
+            <defs>
+              <marker id="s10-fruit-arrow" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#7ed99a"/></marker>
+              <marker id="s10-company-arrow" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#8fb3ff"/></marker>
+            </defs>
+            <path d="M310 137 C255 145, 215 177, 168 205" marker-end="url(#s10-fruit-arrow)"/>
+            <path d="M310 137 C372 124, 420 78, 480 55" marker-end="url(#s10-company-arrow)"/>
+          </svg>
+          <div class="s10-cluster-label fruit">FRUIT CONTEXT</div>
+          <div class="s10-cluster-label company">COMPANY CONTEXT</div>
+          <div class="s10-point fruit" style="left:12%;top:70%"><i></i><span>banana</span></div>
+          <div class="s10-point fruit" style="left:22%;top:82%"><i></i><span>orange</span></div>
+          <div class="s10-point fruit strong" style="left:25%;top:62%"><i></i><span>juicy</span></div>
+          <div class="s10-point fruit" style="left:39%;top:65%"><i></i><span>ate</span></div>
+          <div class="s10-point fruit" style="left:9%;top:51%"><i></i><span>mango</span></div>
+          <div class="s10-point company" style="left:67%;top:16%"><i></i><span>computer</span></div>
+          <div class="s10-point company strong" style="left:88%;top:35%"><i></i><span>laptop</span></div>
+          <div class="s10-point company" style="left:69%;top:43%"><i></i><span>bought</span></div>
+          <div class="s10-point company" style="left:91%;top:14%"><i></i><span>Microsoft</span></div>
+          <div class="s10-point company" style="left:89%;top:49%"><i></i><span>Google</span></div>
+          <div class="s10-point initial" style="left:50%;top:50%"><i></i><span>apple / Apple</span><small>[+0.10, +0.10]</small></div>
+          <div class="s10-point outcome fruit" style="left:28%;top:74%"><i></i><span>apple</span><small>[−0.28, +0.52]</small></div>
+          <div class="s10-point outcome company" style="left:78%;top:24%"><i></i><span>Apple</span><small>[+0.54, +0.08]</small></div>
+        </div>
+
+        <div class="s10-matrix-flow">
+          <div class="s10-matrix-copy"><b>Other words provide the context</b><span>ate · juicy · bought · laptop · …</span></div>
+          <div class="s10-flow-arrow">→</div>
+          <div class="s10-attention-matrix">
+            <div class="s10-matrix-grid" aria-label="An illustrative attention matrix without numeric values">
+              <i></i><i></i><i></i><i></i><i></i>
+              <i></i><i></i><i></i><i></i><i></i>
+              <i></i><i></i><i></i><i></i><i></i>
+              <i></i><i></i><i></i><i></i><i></i>
+              <i></i><i></i><i></i><i></i><i></i>
+            </div>
+            <div><b>Scaled Dot-Product Attention</b><span>builds a context-mixing matrix</span></div>
+          </div>
+          <div class="s10-flow-arrow">→</div>
+          <div class="s10-matrix-copy output"><b>One vector, updated two ways</b><span>toward fruit or company context</span></div>
+        </div>
+            </div>
+
+            <div class="s10-carousel-view s10-concrete-view">
+              <div class="s10-concrete-kicker">CONCRETELY, THE SAME STARTING VECTOR BECOMES TWO DIFFERENT OUTPUTS</div>
+              <div class="s10-concrete-flow">
+                <div class="s10-concrete-initial">
+                  <span>INITIAL EMBEDDING</span>
+                  <b>apple / Apple</b>
+                  <code>[+0.10, +0.10]</code>
+                </div>
+                <div class="s10-concrete-arrow">→</div>
+                <div class="s10-concrete-matrix">
+                  <div class="s10-matrix-grid large" aria-hidden="true">
+                    <i></i><i></i><i></i><i></i><i></i>
+                    <i></i><i></i><i></i><i></i><i></i>
+                    <i></i><i></i><i></i><i></i><i></i>
+                    <i></i><i></i><i></i><i></i><i></i>
+                    <i></i><i></i><i></i><i></i><i></i>
+                  </div>
+                  <b>Scaled Dot-Product<br>Attention</b>
+                  <span>creates a different context-mixing matrix for each sentence</span>
+                </div>
+                <div class="s10-concrete-arrow split">⇢</div>
+                <div class="s10-concrete-results">
+                  <div class="s10-concrete-result fruit">
+                    <span>“I ate a juicy apple.”</span>
+                    <div><b>apple</b><code>[−0.28, +0.52]</code></div>
+                    <small>pulled toward <em>ate</em> + <em>juicy</em></small>
+                  </div>
+                  <div class="s10-concrete-result company">
+                    <span>“I bought an Apple laptop.”</span>
+                    <div><b>Apple</b><code>[+0.54, +0.08]</code></div>
+                    <small>pulled toward <em>bought</em> + <em>laptop</em></small>
+                  </div>
+                </div>
+              </div>
+              <div class="s10-concrete-takeaway"><b>The matrix is the transformation rule.</b> It decides how strongly the other words contribute to the updated vector.</div>
+            </div>
           </div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- ============ SLIDE 8 ============ -->
+  <!-- ============ SLIDE 11 ============ -->
   <section class="slide" id="slide8">
     <div class="slide-inner">
       <div>
-        <div class="eyebrow"><span class="num">08</span> ALL TOKENS</div>
-        <h1 class="title">Every Word<br>Gets Updated</h1>
-        <p class="subtitle">Contextualized Embeddings</p>
-        <p class="lead">Self-attention repeats this same process for <b>every token</b> in the sentence, not just "apple" — each one gets its own similarity-based blend.</p>
-        <p class="lead">The word starts at the same point in both sentences, but ends up in very different places — one pulled toward "fruit," the other toward "tech."</p>
-        <div class="note">This is what gives Transformer-based models contextual understanding: the same token can carry different meanings depending on its sentence.</div>
+        <div class="eyebrow"><span class="num">11</span> DOT PRODUCT</div>
+        <h1 class="title">A Score for<br>Vector Similarity</h1>
+        <p class="subtitle">Similar Direction → Larger Dot Product</p>
+        <p class="lead">Words with related meanings tend to point in <b>similar directions</b> in an embedding space. Their dot product is therefore large.</p>
+        <p class="lead">When two word vectors point in very different directions, their dot product becomes <b>small—or even negative</b>.</p>
+        <div class="note">For this intuition, the vectors are normalized to the same length. Dot product measures directional alignment, not literal distance between the arrow tips.</div>
       </div>
 
-      <div class="stage-panel">
-        <div class="stage-caption">One shared starting point, two different outcomes.</div>
-        <div class="s3-plot" id="s8-plot" style="height:360px;">
-          <svg class="s3-lines" id="s8-lines"></svg>
+      <div class="stage-panel s11-dot-panel">
+        <div class="stage-caption"><b>Compare the angle —</b> The closer the directions, the larger the dot product.</div>
+        <div class="s11-carousel-nav" aria-label="Choose the dot product explanation view">
+          <button class="active" data-s11-view="0"><span>01</span> Word examples</button>
+          <button data-s11-view="1"><span>02</span> Try it yourself →</button>
         </div>
-        <div class="s3-compare">
-          <div class="s3-compare-item">
-            <div class="s3-compare-label">SENTENCE ① → FRUIT</div>
-            <div class="s3-compare-vec fruit" id="s8-vec-fruit"></div>
+        <div class="s11-carousel" id="s11-carousel">
+          <div class="s11-carousel-track">
+            <div class="s11-carousel-view">
+        <div class="s11-comparison">
+          <div class="s11-case similar">
+            <div class="s11-case-head"><span>SIMILAR MEANING</span><b>cat ↔ kitten</b></div>
+            <div class="s11-plane">
+              <svg viewBox="0 0 260 210" preserveAspectRatio="none" aria-hidden="true">
+                <defs><marker id="s11-arrow-coral" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#ff8a65"/></marker><marker id="s11-arrow-teal" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#4fd1c5"/></marker></defs>
+                <line class="axis" x1="28" y1="176" x2="244" y2="176"/><line class="axis" x1="28" y1="192" x2="28" y2="18"/>
+                <line class="vector cat" x1="28" y1="176" x2="205" y2="62" marker-end="url(#s11-arrow-coral)"/>
+                <line class="vector match" x1="28" y1="176" x2="188" y2="45" marker-end="url(#s11-arrow-teal)"/>
+              </svg>
+              <div class="s11-vector-label cat">cat</div><div class="s11-vector-label kitten">kitten</div>
+              <div class="s11-angle small">small angle</div>
+            </div>
+            <div class="s11-equation"><span>(0.84 × 0.77) + (0.54 × 0.64)</span><b>= +0.99</b></div>
+            <div class="s11-meaning">Nearly the same direction → <b>large score</b></div>
           </div>
-          <div class="s3-compare-arrow">·</div>
-          <div class="s3-compare-item">
-            <div class="s3-compare-label">SENTENCE ② → COMPANY</div>
-            <div class="s3-compare-vec company" id="s8-vec-company"></div>
+
+          <div class="s11-case different">
+            <div class="s11-case-head"><span>DIFFERENT MEANING</span><b>cat ↔ airplane</b></div>
+            <div class="s11-plane">
+              <svg viewBox="0 0 260 210" preserveAspectRatio="none" aria-hidden="true">
+                <defs><marker id="s11-arrow-coral2" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#ff8a65"/></marker><marker id="s11-arrow-blue" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#8fb3ff"/></marker></defs>
+                <line class="axis" x1="28" y1="176" x2="244" y2="176"/><line class="axis" x1="28" y1="192" x2="28" y2="18"/>
+                <line class="vector cat" x1="28" y1="176" x2="205" y2="62" marker-end="url(#s11-arrow-coral2)"/>
+                <line class="vector far" x1="28" y1="176" x2="82" y2="28" marker-end="url(#s11-arrow-blue)"/>
+              </svg>
+              <div class="s11-vector-label cat">cat</div><div class="s11-vector-label airplane">airplane</div>
+              <div class="s11-angle large">large angle</div>
+            </div>
+            <div class="s11-equation"><span>(0.84 × −0.54) + (0.54 × 0.84)</span><b>= 0.00</b></div>
+            <div class="s11-meaning">Different directions → <b>small score</b></div>
+          </div>
+        </div>
+        <div class="s11-takeaway"><b>In attention:</b> dot products score how strongly one token should pay attention to another.</div>
+            </div>
+
+            <div class="s11-carousel-view s11-lab">
+              <div class="s11-lab-grid">
+                <div class="s11-lab-plane">
+                  <svg viewBox="0 0 420 330" aria-label="Interactive coordinate plane with vectors A and B">
+                    <defs><marker id="s11-lab-a-arrow" markerWidth="9" markerHeight="9" refX="8" refY="3.5" orient="auto"><path d="M0,0 L8,3.5 L0,7 Z" fill="#ff8a65"/></marker><marker id="s11-lab-b-arrow" markerWidth="9" markerHeight="9" refX="8" refY="3.5" orient="auto"><path d="M0,0 L8,3.5 L0,7 Z" fill="#4fd1c5"/></marker></defs>
+                    <line class="axis" x1="35" y1="165" x2="395" y2="165"/><line class="axis" x1="210" y1="310" x2="210" y2="20"/>
+                    <line id="s11-vector-a" class="lab-vector a" x1="210" y1="165" x2="335" y2="92" marker-end="url(#s11-lab-a-arrow)"/>
+                    <line id="s11-vector-b" class="lab-vector b" x1="210" y1="165" x2="286" y2="38" marker-end="url(#s11-lab-b-arrow)"/>
+                    <text id="s11-label-a" class="lab-label a" x="342" y="86">A</text>
+                    <text id="s11-label-b" class="lab-label b" x="292" y="32">B</text>
+                    <circle cx="210" cy="165" r="5" class="origin"/>
+                  </svg>
+                </div>
+                <div class="s11-lab-controls">
+                  <div class="s11-slider-row a">
+                    <div><b>Vector A</b><code id="s11-a-coords">[+0.87, +0.50]</code></div>
+                    <label>Direction <output id="s11-a-angle">30°</output></label>
+                    <input id="s11-a-slider" type="range" min="-180" max="180" value="30" step="1" aria-label="Vector A direction">
+                  </div>
+                  <div class="s11-slider-row b">
+                    <div><b>Vector B</b><code id="s11-b-coords">[+0.50, +0.87]</code></div>
+                    <label>Direction <output id="s11-b-angle">60°</output></label>
+                    <input id="s11-b-slider" type="range" min="-180" max="180" value="60" step="1" aria-label="Vector B direction">
+                  </div>
+                  <div class="s11-live-result">
+                    <span>ANGLE BETWEEN THEM</span><b id="s11-angle-diff">30°</b>
+                    <span>DOT PRODUCT</span><strong id="s11-dot-result">+0.87</strong>
+                  </div>
+                </div>
+              </div>
+              <div class="s11-lab-caption" id="s11-lab-caption"><b>Similar directions:</b> the dot product is large.</div>
+            </div>
           </div>
         </div>
       </div>
