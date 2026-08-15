@@ -786,6 +786,255 @@ function blendedPosition(key){
 })();
 
 /* ---------------------------------------------------------
+   SLIDE 7 : interactive positional encoding
+--------------------------------------------------------- */
+(function(){
+  const slider = document.getElementById('s12-position-slider');
+  const graphMarker = document.getElementById('s12-graph-marker');
+  const vectorBox = document.getElementById('s12-vector-box');
+  const tracePath = document.getElementById('s12-trace-path');
+  const tracePoint = document.getElementById('s12-trace-point');
+  const valuesEl = document.getElementById('s12-vector-values');
+  const positionEl = document.getElementById('s12-position-value');
+  const curveEls = [
+    document.getElementById('s12-curve-a'),
+    document.getElementById('s12-curve-b'),
+    document.getElementById('s12-curve-c'),
+  ];
+  const dotEls = [
+    document.getElementById('s12-dot-a'),
+    document.getElementById('s12-dot-b'),
+    document.getElementById('s12-dot-c'),
+  ];
+  const axisEls = {
+    xNeg: document.getElementById('s12-axis-x-neg'), xPos: document.getElementById('s12-axis-x-pos'),
+    yNeg: document.getElementById('s12-axis-y-neg'), yPos: document.getElementById('s12-axis-y-pos'),
+    zNeg: document.getElementById('s12-axis-z-neg'), zPos: document.getElementById('s12-axis-z-pos'),
+  };
+  const axisLabelEls = {
+    xNeg: document.getElementById('s12-label-x-neg'), xPos: document.getElementById('s12-label-x-pos'),
+    yNeg: document.getElementById('s12-label-y-neg'), yPos: document.getElementById('s12-label-y-pos'),
+    zNeg: document.getElementById('s12-label-z-neg'), zPos: document.getElementById('s12-label-z-pos'),
+  };
+  if(!slider || !graphMarker || !vectorBox || !tracePath || !tracePoint || !valuesEl || !positionEl || curveEls.some(el=>!el)) return;
+
+  const plot = { left:42, right:600, top:18, bottom:170, centerY:94 };
+  const origin = { x:160, y:108 };
+  const axisLength = 82;
+  let yaw = -Math.PI / 4;
+  let pitch = Math.PI / 4;
+  let currentPosition = 0;
+  let dragStart = null;
+  let autoRotate = true;
+  let resumeTimer = null;
+  const channels = [
+    position => Math.sin(position * 0.9),
+    position => Math.cos(position * 0.9),
+    position => Math.sin(position * 0.22),
+  ];
+  const signed = value => `${value >= 0 ? '+' : ''}${value.toFixed(2)}`;
+  const encoding = position => channels.map(channel => channel(position));
+
+  function project(point){
+    const cosYaw = Math.cos(yaw), sinYaw = Math.sin(yaw);
+    const cosPitch = Math.cos(pitch), sinPitch = Math.sin(pitch);
+    const rotatedX = cosYaw * point[0] + sinYaw * point[2];
+    const rotatedZ = -sinYaw * point[0] + cosYaw * point[2];
+    const projectedY = cosPitch * point[1] - sinPitch * rotatedZ;
+    const depth = sinPitch * point[1] + cosPitch * rotatedZ;
+    return { x:origin.x + rotatedX * axisLength, y:origin.y - projectedY * axisLength, depth };
+  }
+
+  function setLine(line, from, to, depth){
+    line.setAttribute('x1', from.x); line.setAttribute('y1', from.y);
+    line.setAttribute('x2', to.x); line.setAttribute('y2', to.y);
+    line.style.opacity = (0.26 + (depth + 1) * 0.18).toFixed(2);
+  }
+
+  function setLabel(label, point, depth){
+    label.setAttribute('x', point.x + (point.x >= origin.x ? 6 : -17));
+    label.setAttribute('y', point.y + (point.y >= origin.y ? 13 : -6));
+    label.style.opacity = (0.42 + (depth + 1) * 0.22).toFixed(2);
+  }
+
+  function encodingPoint(position){
+    return [channels[0](position), channels[1](position), (position / Number(slider.max)) * 2 - 1];
+  }
+
+  function renderScene(position){
+    const center = project([0,0,0]);
+    const axes = [
+      ['xNeg','xPos',[-1,0,0],[1,0,0]],
+      ['yNeg','yPos',[0,-1,0],[0,1,0]],
+      ['zNeg','zPos',[0,0,-1],[0,0,1]],
+    ];
+    axes.forEach(([negativeKey, positiveKey, negative, positive])=>{
+      const neg = project(negative), pos = project(positive);
+      setLine(axisEls[negativeKey], center, neg, neg.depth);
+      setLine(axisEls[positiveKey], center, pos, pos.depth);
+      setLabel(axisLabelEls[negativeKey], neg, neg.depth);
+      setLabel(axisLabelEls[positiveKey], pos, pos.depth);
+    });
+    const points = [];
+    const steps = Math.max(2, Math.ceil(position * 8));
+    for(let i=0;i<=steps;i++){
+      const point = project(encodingPoint(position * (i / steps)));
+      points.push(`${i===0 ? 'M' : 'L'}${point.x.toFixed(2)},${point.y.toFixed(2)}`);
+    }
+    tracePath.setAttribute('d', points.join(' '));
+    const current = project(encodingPoint(position));
+    tracePoint.setAttribute('cx', current.x); tracePoint.setAttribute('cy', current.y);
+  }
+
+  function curvePath(channel){
+    const points = [];
+    for(let i=0;i<=120;i++){
+      const position = (i / 120) * Number(slider.max);
+      const x = plot.left + (position / Number(slider.max)) * (plot.right - plot.left);
+      const y = plot.centerY - channel(position) * 76;
+      points.push(`${i===0 ? 'M' : 'L'}${x.toFixed(2)},${y.toFixed(2)}`);
+    }
+    return points.join(' ');
+  }
+
+  function update(){
+    const position = Number(slider.value);
+    const values = encoding(position);
+    const x = plot.left + (position / Number(slider.max)) * (plot.right - plot.left);
+
+    curveEls.forEach((curve, index)=> curve.setAttribute('d', curvePath(channels[index])));
+    graphMarker.setAttribute('x1', x); graphMarker.setAttribute('x2', x);
+    dotEls.forEach((dot, index)=>{
+      dot.setAttribute('cx', x);
+      dot.setAttribute('cy', plot.centerY - values[index] * 76);
+    });
+
+    currentPosition = position;
+    renderScene(position);
+
+    valuesEl.textContent = `[${values.map(signed).join(', ')}]`;
+    positionEl.textContent = position.toFixed(1).replace('.0','');
+  }
+
+  slider.addEventListener('input', update);
+  vectorBox.addEventListener('pointerdown', event=>{
+    autoRotate = false;
+    clearTimeout(resumeTimer);
+    dragStart = { x:event.clientX, y:event.clientY, yaw, pitch };
+    vectorBox.classList.add('is-dragging');
+    vectorBox.setPointerCapture(event.pointerId);
+  });
+  vectorBox.addEventListener('pointermove', event=>{
+    if(!dragStart) return;
+    yaw = dragStart.yaw + (event.clientX - dragStart.x) * 0.012;
+    pitch = Math.max(-1.15, Math.min(1.15, dragStart.pitch + (event.clientY - dragStart.y) * 0.012));
+    renderScene(currentPosition);
+  });
+  const endDrag = event=>{
+    if(!dragStart) return;
+    dragStart = null;
+    vectorBox.classList.remove('is-dragging');
+    if(event.pointerId !== undefined && vectorBox.hasPointerCapture(event.pointerId)) vectorBox.releasePointerCapture(event.pointerId);
+    resumeTimer = setTimeout(()=>{ autoRotate = true; }, 1600);
+  };
+  vectorBox.addEventListener('pointerup', endDrag);
+  vectorBox.addEventListener('pointercancel', endDrag);
+  update();
+  let previousFrame = performance.now();
+  function animate(now){
+    const elapsed = Math.min(40, now - previousFrame);
+    previousFrame = now;
+    if(autoRotate && !dragStart){
+      yaw += elapsed * 0.00045;
+      renderScene(currentPosition);
+    }
+    requestAnimationFrame(animate);
+  }
+  requestAnimationFrame(animate);
+})();
+
+/* ---------------------------------------------------------
+   SLIDE 7 : application — word vectors plus precomputed position
+--------------------------------------------------------- */
+(function(){
+  const viewButtons = [...document.querySelectorAll('[data-s12-view]')];
+  const encodingView = document.getElementById('s12-encoding-view');
+  const applicationView = document.getElementById('s12-application-view');
+  const appItems = document.getElementById('s12-application-items');
+  const orderButtons = [...document.querySelectorAll('[data-s12-order]')];
+  if(!viewButtons.length || !encodingView || !applicationView || !appItems || !orderButtons.length) return;
+
+  const actualVectors = {
+    you:   [-0.34,  0.28],
+    eat:   [ 0.16, -0.18],
+    salad: [ 0.42,  0.32],
+  };
+  const positionVectors = [
+    [ 0.00,  0.42],
+    [-0.36,  0.05],
+    [ 0.28, -0.28],
+  ];
+  const orders = {
+    'you-eat-salad': ['you','eat','salad'],
+    'salad-eat-you': ['salad','eat','you'],
+    'you-salad-eat': ['you','salad','eat'],
+  };
+  const colors = { you:'var(--teal)', eat:'var(--purple)', salad:'var(--gold)' };
+  const origin = { x:310, y:119 };
+  const scale = 120;
+
+  function point(vector){ return { x:origin.x + vector[0] * scale, y:origin.y - vector[1] * scale }; }
+  function svgEl(tag, attrs){
+    const el = document.createElementNS('http://www.w3.org/2000/svg', tag);
+    Object.entries(attrs).forEach(([key,value])=>el.setAttribute(key,value));
+    return el;
+  }
+
+  function renderApplication(orderKey){
+    const order = orders[orderKey];
+    appItems.innerHTML = '';
+    order.forEach((word, positionIndex)=>{
+      const actual = actualVectors[word];
+      const positional = positionVectors[positionIndex];
+      const placed = [actual[0] + positional[0], actual[1] + positional[1]];
+      const from = point(actual), to = point(placed);
+      const group = svgEl('g', { class:'s12-app-item', 'data-word':word });
+      const line = svgEl('line', { class:'s12-app-shift', x1:from.x, y1:from.y, x2:to.x, y2:to.y });
+      const ghost = svgEl('circle', { class:'s12-app-actual', cx:from.x, cy:from.y, r:4 });
+      const final = svgEl('circle', { class:'s12-app-placed', cx:to.x, cy:to.y, r:7 });
+      final.style.color = colors[word];
+      ghost.style.color = colors[word];
+      const label = svgEl('text', { class:'s12-app-word', x:to.x + 10, y:to.y - 9 });
+      label.style.fill = colors[word];
+      label.textContent = `[${word}]`;
+      group.append(line, ghost, final, label);
+      appItems.appendChild(group);
+    });
+    orderButtons.forEach(button=>{
+      const active = button.dataset.s12Order === orderKey;
+      button.classList.toggle('active', active);
+      button.setAttribute('aria-selected', String(active));
+    });
+  }
+
+  function selectView(view){
+    const application = view === 'application';
+    encodingView.hidden = application;
+    applicationView.hidden = !application;
+    viewButtons.forEach(button=>{
+      const active = button.dataset.s12View === view;
+      button.classList.toggle('active', active);
+      button.setAttribute('aria-selected', String(active));
+    });
+  }
+
+  viewButtons.forEach(button=>button.addEventListener('click',()=>selectView(button.dataset.s12View)));
+  orderButtons.forEach(button=>button.addEventListener('click',()=>renderApplication(button.dataset.s12Order)));
+  renderApplication('you-eat-salad');
+  selectView('encoding');
+})();
+
+/* ---------------------------------------------------------
    SLIDE 7 : Actually blending the vectors (weighted sum)
 --------------------------------------------------------- */
 (function(){
