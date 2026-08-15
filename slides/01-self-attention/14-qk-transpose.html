@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QK Transpose — How Translation AI Works</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="single-slide-page" data-slide-index="14" data-slide-count="19" data-prev-page="13-query-key-value.html" data-next-page="15-similarity.html">
+<div class="deck-header">
+  <span class="count" id="deck-count">14 / 19</span>
+  <span class="title-mini">How Translation AI Works</span>
+</div>
+<nav class="deck-nav" id="deck-nav" aria-label="Slide navigation">
+  <a href="01-encoder-decoder.html" aria-label="Go to slide 1: Encoder–Decoder Model"></a>
+  <a href="02-word-vectors.html" aria-label="Go to slide 2: Word Vectors"></a>
+  <a href="03-contextual-meaning.html" aria-label="Go to slide 3: Contextual Meaning"></a>
+  <a href="04-matrix-transformation.html" aria-label="Go to slide 4: Matrix Transformation"></a>
+  <a href="05-transformer-architecture.html" aria-label="Go to slide 5: Transformer Architecture"></a>
+  <a href="06-token-embeddings.html" aria-label="Go to slide 6: Token Embeddings"></a>
+  <a href="07-positional-encoding.html" aria-label="Go to slide 7: Positional Encoding"></a>
+  <a href="08-similarity-matrix.html" aria-label="Go to slide 8: Similarity Matrix"></a>
+  <a href="09-attention-architecture.html" aria-label="Go to slide 9: Attention Architecture"></a>
+  <a href="10-softmax-weights.html" aria-label="Go to slide 10: Softmax Weights"></a>
+  <a href="11-weighted-sum.html" aria-label="Go to slide 11: Weighted Sum"></a>
+  <a href="12-context-outcomes.html" aria-label="Go to slide 12: Context Outcomes"></a>
+  <a href="13-query-key-value.html" aria-label="Go to slide 13: Query, Key, Value"></a>
+  <a href="14-qk-transpose.html" class="active" aria-current="page" aria-label="Go to slide 14: QK Transpose"></a>
+  <a href="15-similarity.html" aria-label="Go to slide 15: Similarity"></a>
+  <a href="16-softmax.html" aria-label="Go to slide 16: Softmax"></a>
+  <a href="17-scaling.html" aria-label="Go to slide 17: Scaling"></a>
+  <a href="18-attention-summary.html" aria-label="Go to slide 18: Attention Summary"></a>
+  <a href="19-context-update.html" aria-label="Go to slide 19: Context Update"></a>
+</nav>
+<div class="deck" id="deck">
+<section class="slide" id="slide-qkt">
+    <div class="slide-inner">
+      <div>
+        <div class="eyebrow"><span class="num">14</span> Q × Kᵀ</div>
+        <h1 class="title">Compare Every<br>Word with Every Word</h1>
+        <p class="subtitle">Matrix multiplication is a sequence of vector dot products</p>
+        <p class="lead">First, transpose <b>K</b>. Its token vectors change from rows into columns.</p>
+        <p class="lead">Then each row of <b>Q</b> meets each column of <b>Kᵀ</b>. Their dot product becomes one cell in the score matrix.</p>
+        <div class="note">The row word tells us <b>who is looking</b>. The column word tells us <b>which word is being compared</b>. Here, vectors are unit-normalized, so a word compared with itself scores <b>1.00</b>.</div>
+      </div>
+
+      <div class="stage-panel s13-panel">
+        <div class="stage-caption"><b>One row × one column → one attention score.</b></div>
+        <button class="step-btn s13-replay" id="s13-replay">↻ Replay animation</button>
+        <div class="s13-animation is-playing" id="s13-animation">
+          <div class="s13-q-matrix">
+            <strong>Q</strong><small>5 × 512</small>
+            <div class="s13-row" data-word="I"><b>I</b><i></i><i></i><i></i><i></i><i></i></div>
+            <div class="s13-row" data-word="ate"><b>ate</b><i></i><i></i><i></i><i></i><i></i></div>
+            <div class="s13-row" data-word="a"><b>a</b><i></i><i></i><i></i><i></i><i></i></div>
+            <div class="s13-row" data-word="juicy"><b>juicy</b><i></i><i></i><i></i><i></i><i></i></div>
+            <div class="s13-row" data-word="apple"><b>apple</b><i></i><i></i><i></i><i></i><i></i></div>
+          </div>
+
+          <div class="s13-k-area">
+            <div class="s13-k-original">
+              <strong>K</strong><small>5 × 512</small>
+              <div class="s13-mini-rows"><i></i><i></i><i></i><i></i><i></i></div>
+            </div>
+            <div class="s13-turn">ROTATE 90° <b>K → Kᵀ</b></div>
+            <div class="s13-kt-matrix">
+              <div class="s13-col-labels"><b>I</b><b>ate</b><b>a</b><b>juicy</b><b>apple</b></div>
+              <strong>Kᵀ</strong><small>512 × 5</small>
+              <div class="s13-columns"><i data-word="I"></i><i data-word="ate"></i><i data-word="a"></i><i data-word="juicy"></i><i data-word="apple"></i></div>
+            </div>
+          </div>
+
+          <div class="s13-vectors">
+            <div class="s13-vector-row"><span>Q row: <b id="s13-q-word">I</b></span><code id="s13-q-vector">[q₁, q₂, q₃, …, q₅₁₂]</code></div>
+            <div class="s13-vector-row key"><span>Kᵀ column: <b id="s13-k-word">I</b></span><code id="s13-k-vector">[k₁, k₂, k₃, …, k₅₁₂]</code></div>
+            <div class="s13-dot-calc"><code id="s13-live-formula">qᴵ · kᴵ</code><b id="s13-live-score">= 1.00</b></div>
+          </div>
+
+          <div class="s13-score-wrap">
+            <div class="s13-score-title"><strong>QKᵀ</strong><small>5 × 5 word-to-word scores</small></div>
+            <div class="s13-top-labels"><span>I</span><span>ate</span><span>a</span><span>juicy</span><span>apple</span></div>
+            <div class="s13-side-labels"><span>I</span><span>ate</span><span>a</span><span>juicy</span><span>apple</span></div>
+            <div class="s13-score-grid" aria-label="Q K transpose score matrix">
+              <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+            </div>
+          </div>
+        </div>
+        <div class="s13-takeaway"><b>Rows and columns are still vectors.</b> Matrix multiplication simply repeats the same dot product for every word pair.</div>
+      </div>
+    </div>
+  </section>
+</div>
+<script src="js/app.js"></script>
+</body>
+</html>

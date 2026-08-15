@@ -119,35 +119,35 @@ function blendedPosition(key){
 (function(){
   const deck = document.getElementById('deck');
   const slides = [...document.querySelectorAll('.slide')];
-  const navBtns = [...document.querySelectorAll('#deck-nav button')];
+  const navBtns = [...document.querySelectorAll('#deck-nav a')];
   const countEl = document.getElementById('deck-count');
+  if(!deck || !slides.length) return;
+  const pageIndex = Number(document.body.dataset.slideIndex || 1);
+  const pageCount = Number(document.body.dataset.slideCount || slides.length);
+  if(countEl) countEl.textContent = String(pageIndex).padStart(2,'0') + ' / ' + String(pageCount).padStart(2,'0');
 
-  navBtns.forEach(b=>{
-    b.addEventListener('click', ()=>{
-      document.getElementById(b.dataset.target).scrollIntoView({behavior:'smooth'});
-    });
-  });
-
-  const io = new IntersectionObserver((entries)=>{
-    entries.forEach(e=>{
-      if(e.isIntersecting && e.intersectionRatio > 0.5){
-        const idx = slides.indexOf(e.target);
-        navBtns.forEach(b=>b.classList.remove('active'));
-        navBtns[idx].classList.add('active');
-        countEl.textContent = String(idx+1).padStart(2,'0') + ' / ' + String(slides.length).padStart(2,'0');
-      }
-    });
-  }, { root: deck, threshold: [0.5] });
-  slides.forEach(s=>io.observe(s));
+  const prev = document.body.dataset.prevPage;
+  const next = document.body.dataset.nextPage;
+  const pager = document.createElement('nav');
+  pager.className = 'deck-pager';
+  pager.setAttribute('aria-label', 'Previous and next slide');
+  pager.innerHTML = `
+    ${prev ? `<a href="${prev}" rel="prev">← Previous</a>` : '<span aria-disabled="true">← Previous</span>'}
+    <div class="deck-pager-identity">
+      <strong>${pageIndex} / ${pageCount}</strong>
+      <span>How Translation AI Works</span>
+    </div>
+    ${next ? `<a href="${next}" rel="next">Next →</a>` : '<span aria-disabled="true">Next →</span>'}
+  `;
+  document.body.appendChild(pager);
 
   document.addEventListener('keydown', (e)=>{
-    const activeIdx = navBtns.findIndex(b=>b.classList.contains('active'));
-    if(e.key === 'ArrowDown' || e.key === 'PageDown'){
+    if((e.key === 'ArrowDown' || e.key === 'ArrowRight' || e.key === 'PageDown') && next){
       e.preventDefault();
-      if(activeIdx < slides.length-1) slides[activeIdx+1].scrollIntoView({behavior:'smooth'});
-    } else if(e.key === 'ArrowUp' || e.key === 'PageUp'){
+      window.location.href = next;
+    } else if((e.key === 'ArrowUp' || e.key === 'ArrowLeft' || e.key === 'PageUp') && prev){
       e.preventDefault();
-      if(activeIdx > 0) slides[activeIdx-1].scrollIntoView({behavior:'smooth'});
+      window.location.href = prev;
     }
   });
 })();
@@ -156,6 +156,7 @@ function blendedPosition(key){
    SLIDE 4 : A matrix transforms Apple's vector
 --------------------------------------------------------- */
 (function(){
+  if(!document.getElementById('s3b-matrix')) return;
   const examples = {
     fruit: {
       matrix:[1.00,0.50,-0.80,0.70], result:'[−0.28, +0.52]', note:'built from “ate” + “juicy”',
@@ -192,6 +193,7 @@ function blendedPosition(key){
    SLIDE 1 : Encoder - Decoder
 --------------------------------------------------------- */
 (function(){
+  if(!document.getElementById('s1-tokens')) return;
   const tokens = ['The','cat','ate','the','fish'];
   const outputTokens = ['猫','は','魚','を','食べた'];
   const wordAlignment = [
@@ -351,6 +353,7 @@ function blendedPosition(key){
    SLIDE 2 : word2vec  (2D vector matches plotted x,y)
 --------------------------------------------------------- */
 (function(){
+  if(!document.getElementById('s2-plot')) return;
   const words = [
     {w:'cat', x:15, y:22, c:'animal'},
     {w:'dog', x:24, y:15, c:'animal'},
@@ -438,6 +441,7 @@ function blendedPosition(key){
    SLIDE 3 : Attention — Apple's point moves between clusters
 --------------------------------------------------------- */
 (function(){
+  if(!document.getElementById('s3-plot')) return;
   const fruitCluster = [
     {w:'banana', x:14, y:78},
     {w:'orange', x:26, y:85},
@@ -1181,9 +1185,8 @@ function blendedPosition(key){
 (function(){
   const carousel = document.getElementById('s11-carousel');
   const viewButtons = [...document.querySelectorAll('[data-s11-view]')];
-  const sliderA = document.getElementById('s11-a-slider');
-  const sliderB = document.getElementById('s11-b-slider');
-  if(!carousel || !sliderA || !sliderB) return;
+  const plane = document.getElementById('s11-drag-plane');
+  if(!carousel || !plane) return;
 
   viewButtons.forEach((button,index)=>button.addEventListener('click',()=>{
     carousel.scrollTo({left:carousel.clientWidth*index,behavior:'smooth'});
@@ -1198,36 +1201,329 @@ function blendedPosition(key){
   const lineB=document.getElementById('s11-vector-b');
   const labelA=document.getElementById('s11-label-a');
   const labelB=document.getElementById('s11-label-b');
+  const hitA=document.getElementById('s11-hit-a');
+  const hitB=document.getElementById('s11-hit-b');
+  const handleA=document.getElementById('s11-handle-a');
+  const handleB=document.getElementById('s11-handle-b');
   const coordsA=document.getElementById('s11-a-coords');
   const coordsB=document.getElementById('s11-b-coords');
-  const angleA=document.getElementById('s11-a-angle');
-  const angleB=document.getElementById('s11-b-angle');
   const angleDiff=document.getElementById('s11-angle-diff');
+  const formula=document.getElementById('s11-dot-formula');
   const result=document.getElementById('s11-dot-result');
   const caption=document.getElementById('s11-lab-caption');
-  const origin={x:210,y:165}, length=132;
+  const origin={x:210,y:165}, scale=125;
   const signed=v=>(v>=0?'+':'')+v.toFixed(2);
+  const vectors={a:{x:1.00,y:0.58},b:{x:0.61,y:1.02}};
 
-  function endpoint(degrees){
-    const radians=degrees*Math.PI/180;
-    return {x:origin.x+Math.cos(radians)*length,y:origin.y-Math.sin(radians)*length,cx:Math.cos(radians),cy:Math.sin(radians)};
+  function endpoint(vector){ return {x:origin.x+vector.x*scale,y:origin.y-vector.y*scale}; }
+  function setVector(key){
+    const vector=vectors[key], point=endpoint(vector);
+    const line=key==='a'?lineA:lineB, hit=key==='a'?hitA:hitB, handle=key==='a'?handleA:handleB, label=key==='a'?labelA:labelB;
+    line.setAttribute('x2',point.x); line.setAttribute('y2',point.y);
+    hit.setAttribute('x2',point.x); hit.setAttribute('y2',point.y);
+    handle.setAttribute('cx',point.x); handle.setAttribute('cy',point.y);
+    label.setAttribute('x',point.x+(vector.x>=0?12:-24)); label.setAttribute('y',point.y+(vector.y>=0?-10:22));
   }
   function update(){
-    const a=Number(sliderA.value), b=Number(sliderB.value);
-    const pa=endpoint(a), pb=endpoint(b);
-    [[lineA,labelA,pa],[lineB,labelB,pb]].forEach(([line,label,p])=>{
-      line.setAttribute('x2',p.x); line.setAttribute('y2',p.y);
-      label.setAttribute('x',p.x+(p.cx>=0?10:-20)); label.setAttribute('y',p.y+(p.cy>=0?-8:18));
-    });
-    coordsA.textContent=`[${signed(pa.cx)}, ${signed(pa.cy)}]`;
-    coordsB.textContent=`[${signed(pb.cx)}, ${signed(pb.cy)}]`;
-    angleA.textContent=`${a}°`; angleB.textContent=`${b}°`;
-    let diff=Math.abs(a-b)%360; if(diff>180) diff=360-diff;
-    const dot=Math.cos(diff*Math.PI/180);
+    setVector('a'); setVector('b');
+    const a=vectors.a,b=vectors.b;
+    coordsA.textContent=`[${signed(a.x)}, ${signed(a.y)}]`;
+    coordsB.textContent=`[${signed(b.x)}, ${signed(b.y)}]`;
+    const dot=a.x*b.x+a.y*b.y;
+    const magA=Math.hypot(a.x,a.y),magB=Math.hypot(b.x,b.y);
+    const cosine=Math.max(-1,Math.min(1,dot/Math.max(.0001,magA*magB)));
+    const diff=Math.round(Math.acos(cosine)*180/Math.PI);
     angleDiff.textContent=`${diff}°`;
     result.textContent=signed(dot);
-    const state=dot>0.7?['Similar directions:','the dot product is large.']:dot<-0.2?['Opposite directions:','the dot product is negative.']:['Different directions:','the dot product is small.'];
+    formula.textContent=`(${signed(a.x)} × ${signed(b.x)}) + (${signed(a.y)} × ${signed(b.y)}) = ${signed(dot)}`;
+    const state=cosine>0.7?['Similar directions:','the dot product is large.']:cosine<-0.2?['Opposite directions:','the dot product is negative.']:['Different directions:','the dot product is small.'];
     caption.innerHTML=`<b>${state[0]}</b> ${state[1]}`;
   }
-  sliderA.addEventListener('input',update); sliderB.addEventListener('input',update); update();
+  let dragging=null;
+  function pointerPoint(event){
+    const point=plane.createSVGPoint(); point.x=event.clientX; point.y=event.clientY;
+    return point.matrixTransform(plane.getScreenCTM().inverse());
+  }
+  function startDrag(key,event){
+    dragging=key; (key==='a'?handleA:handleB).classList.add('dragging');
+    plane.setPointerCapture(event.pointerId); event.preventDefault();
+  }
+  [handleA,hitA].forEach(el=>el.addEventListener('pointerdown',event=>startDrag('a',event)));
+  [handleB,hitB].forEach(el=>el.addEventListener('pointerdown',event=>startDrag('b',event)));
+  plane.addEventListener('pointermove',event=>{
+    if(!dragging) return;
+    const point=pointerPoint(event);
+    vectors[dragging].x=Math.max(-1.35,Math.min(1.35,(point.x-origin.x)/scale));
+    vectors[dragging].y=Math.max(-1.10,Math.min(1.10,(origin.y-point.y)/scale));
+    update();
+  });
+  function endDrag(event){
+    if(!dragging) return;
+    (dragging==='a'?handleA:handleB).classList.remove('dragging'); dragging=null;
+    if(plane.hasPointerCapture(event.pointerId)) plane.releasePointerCapture(event.pointerId);
+  }
+  plane.addEventListener('pointerup',endDrag); plane.addEventListener('pointercancel',endDrag); update();
+})();
+
+// Slide 16: replay row-wise softmax normalization.
+(()=>{
+  const stage=document.getElementById('s16-flow');
+  const replay=document.getElementById('s16-replay');
+  if(!stage||!replay) return;
+  const words=['I','ate','a','juicy','apple'];
+  const scores=[[1,.42,.18,.35,.28],[.42,1,.22,.61,.49],[.18,.22,1,.27,.31],[.35,.61,.27,1,.78],[.28,.49,.31,.78,1]];
+  const sourceCells=[...stage.querySelectorAll('.raw-grid i')];
+  const targetCells=[...stage.querySelectorAll('.soft-weight')];
+  const collector=[...stage.querySelectorAll('.s16-collector i')];
+  const rowTotal=document.getElementById('s16-row-total');
+  const rowLabel=document.getElementById('s16-row-label');
+  const numerator=document.getElementById('s16-numerator');
+  const denominatorValue=document.getElementById('s16-denominator-value');
+  const divisionResult=document.getElementById('s16-division-result');
+  const sourceOutline=stage.querySelector('.source-outline');
+  const targetOutline=stage.querySelector('.target-outline');
+  let timers=[];
+  const later=(fn,ms)=>timers.push(setTimeout(fn,ms));
+  function flyValue(source,slot,label,done){
+    const stageRect=stage.getBoundingClientRect(),a=source.getBoundingClientRect(),b=slot.getBoundingClientRect();
+    const chip=document.createElement('div');
+    chip.className='s16-flying-chip'; chip.textContent=label;
+    Object.assign(chip.style,{left:`${a.left-stageRect.left}px`,top:`${a.top-stageRect.top}px`,width:`${a.width}px`,height:`${a.height}px`});
+    stage.appendChild(chip); void chip.offsetWidth;
+    chip.style.transform=`translate(${b.left-a.left}px,${b.top-a.top}px) scale(.65)`;
+    later(()=>{chip.remove();done();},440);
+  }
+  function runRow(row){
+    if(row>=5) return;
+    const top=42+row*48;
+    sourceOutline.style.top=`${top}px`; targetOutline.style.top=`${top}px`;
+    sourceOutline.querySelector('span').textContent=`${words[row]} row`;
+    targetOutline.querySelector('span').textContent=`${words[row]} distributes 100%`;
+    rowLabel.textContent=`Convert positive + add the whole ${words[row]} row`;
+    numerator.textContent='each value'; denominatorValue.textContent='Σe^score'; divisionResult.textContent='weight';
+    sourceCells.forEach((cell,i)=>cell.classList.toggle('active-row',Math.floor(i/5)===row));
+    collector.forEach(slot=>slot.textContent=''); rowTotal.textContent='0.00';
+    const positives=scores[row].map(Math.exp),sum=positives.reduce((a,b)=>a+b,0);
+    let running=0;
+    function collect(col){
+      if(col>=5){ later(()=>fill(0),420); return; }
+      const source=sourceCells[row*5+col],slot=collector[col];
+      flyValue(source,slot,source.textContent,()=>{
+        running+=positives[col]; slot.textContent=positives[col].toFixed(2); rowTotal.textContent=running.toFixed(2);
+        later(()=>collect(col+1),170);
+      });
+    }
+    function fill(col){
+      if(col>=5){ later(()=>runRow(row+1),650); return; }
+      const weight=(positives[col]/sum).toFixed(2),cell=targetCells[row*5+col];
+      const rawCell=sourceCells[row*5+col];
+      flyValue(rawCell,numerator,rawCell.textContent,()=>{
+        numerator.textContent=`e^${rawCell.textContent} = ${positives[col].toFixed(2)}`;
+        denominatorValue.textContent=`Σe^score = ${sum.toFixed(2)}`;
+        divisionResult.textContent=weight;
+        later(()=>flyValue(divisionResult,cell,weight,()=>{
+          cell.textContent=weight; cell.classList.add('filled');
+          later(()=>fill(col+1),180);
+        }),420);
+      });
+    }
+    collect(0);
+  }
+  const play=()=>{
+    timers.forEach(clearTimeout); timers=[];
+    stage.querySelectorAll('.s16-flying-chip').forEach(el=>el.remove());
+    targetCells.forEach(cell=>{cell.textContent='';cell.classList.remove('filled');});
+    sourceCells.forEach(cell=>cell.classList.remove('active-row'));
+    collector.forEach(slot=>slot.textContent=''); rowTotal.textContent='0.00';
+    numerator.textContent='each value'; denominatorValue.textContent='Σe^score'; divisionResult.textContent='weight';
+    stage.classList.remove('is-playing');
+    void stage.offsetWidth;
+    stage.classList.add('is-playing');
+    later(()=>runRow(0),900);
+  };
+  replay.addEventListener('click',play);
+  const slide=document.getElementById('slide-softmax');
+  if('IntersectionObserver' in window&&slide){
+    let visibleBefore=false;
+    new IntersectionObserver(entries=>{
+      const visible=entries[0].isIntersecting&&entries[0].intersectionRatio>.55;
+      if(visible&&!visibleBefore) play();
+      visibleBefore=visible;
+    },{threshold:[.55]}).observe(slide);
+  }
+})();
+
+// Slide 16: replay the context-weighted vector update.
+(()=>{
+  const stage=document.getElementById('s15-cases');
+  const replay=document.getElementById('s15-replay');
+  if(!stage||!replay) return;
+  const play=()=>{
+    stage.classList.remove('is-playing');
+    void stage.offsetWidth;
+    stage.classList.add('is-playing');
+  };
+  replay.addEventListener('click',play);
+  const slide=document.getElementById('slide-context-update');
+  if('IntersectionObserver' in window&&slide){
+    let visibleBefore=false;
+    new IntersectionObserver(entries=>{
+      const visible=entries[0].isIntersecting&&entries[0].intersectionRatio>.55;
+      if(visible&&!visibleBefore) play();
+      visibleBefore=visible;
+    },{threshold:[.55]}).observe(slide);
+  }
+})();
+
+// Slide 15: horizontal matrix/scatter explanation carousel.
+(()=>{
+  const carousel=document.getElementById('s14-carousel');
+  const buttons=[...document.querySelectorAll('[data-s14-view]')];
+  if(!carousel||!buttons.length) return;
+  function select(index){
+    carousel.scrollTo({left:carousel.clientWidth*index,behavior:'smooth'});
+    buttons.forEach((button,i)=>button.classList.toggle('active',i===index));
+  }
+  buttons.forEach(button=>button.addEventListener('click',()=>select(Number(button.dataset.s14View))));
+  let settle;
+  carousel.addEventListener('scroll',()=>{
+    clearTimeout(settle);
+    settle=setTimeout(()=>{
+      const index=Math.round(carousel.scrollLeft/Math.max(1,carousel.clientWidth));
+      buttons.forEach((button,i)=>button.classList.toggle('active',i===index));
+    },80);
+  },{passive:true});
+})();
+
+// Slide 14: replay K transpose and Q × Kᵀ dot-product animation.
+(()=>{
+  const stage=document.getElementById('s13-animation');
+  const replay=document.getElementById('s13-replay');
+  if(!stage||!replay) return;
+  const words=['I','ate','a','juicy','apple'];
+  const scores=[
+    [1.00,.42,.18,.35,.28],
+    [.42,1.00,.22,.61,.49],
+    [.18,.22,1.00,.27,.31],
+    [.35,.61,.27,1.00,.78],
+    [.28,.49,.31,.78,1.00]
+  ];
+  const rows=[...stage.querySelectorAll('.s13-row')];
+  const cols=[...stage.querySelectorAll('.s13-columns i')];
+  const cells=[...stage.querySelectorAll('.s13-score-grid i')];
+  const qWord=document.getElementById('s13-q-word');
+  const kWord=document.getElementById('s13-k-word');
+  const formula=document.getElementById('s13-live-formula');
+  const liveScore=document.getElementById('s13-live-score');
+  let timers=[];
+  const later=(fn,ms)=>timers.push(setTimeout(fn,ms));
+  function showPair(index){
+    const r=Math.floor(index/5),c=index%5;
+    rows.forEach((el,i)=>el.classList.toggle('target',i===r));
+    cols.forEach((el,i)=>el.classList.toggle('target',i===c));
+    cells.forEach(el=>el.classList.remove('current'));
+    qWord.textContent=words[r]; kWord.textContent=words[c];
+    formula.textContent=`q(${words[r]}) · k(${words[c]})`;
+    liveScore.textContent=`= ${scores[r][c].toFixed(2)}`;
+    const cell=cells[index];
+    cell.textContent=scores[r][c].toFixed(2);
+    cell.classList.add('computed','current');
+    if(index<24) later(()=>showPair(index+1),index<4?720:190);
+  }
+  const play=()=>{
+    timers.forEach(clearTimeout); timers=[];
+    rows.forEach(el=>el.classList.remove('target'));
+    cols.forEach(el=>el.classList.remove('target'));
+    cells.forEach(el=>{el.classList.remove('computed','current');el.textContent='';});
+    qWord.textContent='I'; kWord.textContent='I';
+    formula.textContent='q(I) · k(I)'; liveScore.textContent='= 1.00';
+    stage.classList.remove('is-playing');
+    void stage.offsetWidth;
+    stage.classList.add('is-playing');
+    later(()=>showPair(0),3150);
+  };
+  replay.addEventListener('click',play);
+  const slide=document.getElementById('slide-qkt');
+  if('IntersectionObserver' in window&&slide){
+    let visibleBefore=false;
+    new IntersectionObserver(entries=>{
+      const visible=entries[0].isIntersecting&&entries[0].intersectionRatio>.55;
+      if(visible&&!visibleBefore) play();
+      visibleBefore=visible;
+    },{threshold:[.55]}).observe(slide);
+  }
+})();
+
+// Slide 13: replay the conceptual H → Q, K, V branching animation.
+(()=>{
+  const stage=document.getElementById('s12-animation');
+  const replay=document.getElementById('s12-replay');
+  if(!stage||!replay) return;
+  const play=()=>{
+    stage.classList.remove('is-playing');
+    void stage.offsetWidth;
+    stage.classList.add('is-playing');
+  };
+  replay.addEventListener('click',play);
+  const slide=document.getElementById('slide-qkv');
+  if('IntersectionObserver' in window&&slide){
+    let wasVisible=false;
+    new IntersectionObserver(entries=>{
+      const visible=entries[0].isIntersecting&&entries[0].intersectionRatio>.55;
+      if(visible&&!wasVisible) play();
+      wasVisible=visible;
+    },{threshold:[.55]}).observe(slide);
+  }
+})();
+
+// Slide 18: synchronize architecture, matrices, and formula highlights.
+(()=>{
+  const stage=document.getElementById('s18-animation');
+  const prev=document.getElementById('s18-prev');
+  const next=document.getElementById('s18-next');
+  const number=document.getElementById('s18-step-number');
+  const title=document.getElementById('s18-step-title');
+  const caption=document.getElementById('s18-formula-caption');
+  const phase=document.getElementById('s18-phase-label');
+  const panel=stage?.closest('.s18-panel');
+  const dots=[...document.querySelectorAll('.s18-progress button')];
+  if(!stage||!prev||!next||!number||!title||!caption||!phase||!panel) return;
+  const steps=[
+    ['Create Q, K, and V','Q, K, and V enter the calculation as three learned views of the input.'],
+    ['Compare every Query with every Key','QKᵀ is active; V waits until the attention weights are ready.'],
+    ['Scale the dot-product scores','Dividing QKᵀ by √dₖ controls the score magnitude before softmax.'],
+    ['Normalize each row with softmax','Softmax converts each scaled score row into attention weights that sum to 1.'],
+    ['Next: Use the weights to mix V','This final MatMul is what we explain next: the attention weights mix the Value vectors into contextualized output.']
+  ];
+  let current=0;
+  function show(index){
+    const previous=current;
+    current=Math.max(0,Math.min(steps.length-1,index));
+    if(current!==previous+1){
+      stage.className='s18-columns';
+      void stage.offsetWidth;
+    }
+    stage.className=`s18-columns stage-${current}`;
+    const isNext=current===4;
+    number.textContent=isNext?'NEXT · STEP 5 / 5':`RECAP · STEP ${current+1} / 4`;
+    title.textContent=steps[current][0];
+    caption.textContent=steps[current][1];
+    phase.textContent=isNext?'WHAT COMES NEXT':'WHAT WE HAVE COVERED';
+    panel.classList.toggle('is-next',isNext);
+    dots.forEach((dot,i)=>dot.classList.toggle('active',i===current));
+    prev.disabled=current===0;
+    next.disabled=current===steps.length-1;
+  }
+  prev.addEventListener('click',()=>show(current-1));
+  next.addEventListener('click',()=>show(current+1));
+  dots.forEach((dot,index)=>dot.addEventListener('click',()=>show(index)));
+  const slide=document.getElementById('slide-attention-summary');
+  if('IntersectionObserver' in window&&slide){
+    let visibleBefore=false;
+    new IntersectionObserver(entries=>{
+      const visible=entries[0].isIntersecting&&entries[0].intersectionRatio>.55;
+      if(visible&&!visibleBefore) show(0);
+      visibleBefore=visible;
+    },{threshold:[.55]}).observe(slide);
+  }
 })();

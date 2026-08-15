@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Similarity — How Translation AI Works</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="single-slide-page" data-slide-index="15" data-slide-count="19" data-prev-page="14-qk-transpose.html" data-next-page="16-softmax.html">
+<div class="deck-header">
+  <span class="count" id="deck-count">15 / 19</span>
+  <span class="title-mini">How Translation AI Works</span>
+</div>
+<nav class="deck-nav" id="deck-nav" aria-label="Slide navigation">
+  <a href="01-encoder-decoder.html" aria-label="Go to slide 1: Encoder–Decoder Model"></a>
+  <a href="02-word-vectors.html" aria-label="Go to slide 2: Word Vectors"></a>
+  <a href="03-contextual-meaning.html" aria-label="Go to slide 3: Contextual Meaning"></a>
+  <a href="04-matrix-transformation.html" aria-label="Go to slide 4: Matrix Transformation"></a>
+  <a href="05-transformer-architecture.html" aria-label="Go to slide 5: Transformer Architecture"></a>
+  <a href="06-token-embeddings.html" aria-label="Go to slide 6: Token Embeddings"></a>
+  <a href="07-positional-encoding.html" aria-label="Go to slide 7: Positional Encoding"></a>
+  <a href="08-similarity-matrix.html" aria-label="Go to slide 8: Similarity Matrix"></a>
+  <a href="09-attention-architecture.html" aria-label="Go to slide 9: Attention Architecture"></a>
+  <a href="10-softmax-weights.html" aria-label="Go to slide 10: Softmax Weights"></a>
+  <a href="11-weighted-sum.html" aria-label="Go to slide 11: Weighted Sum"></a>
+  <a href="12-context-outcomes.html" aria-label="Go to slide 12: Context Outcomes"></a>
+  <a href="13-query-key-value.html" aria-label="Go to slide 13: Query, Key, Value"></a>
+  <a href="14-qk-transpose.html" aria-label="Go to slide 14: QK Transpose"></a>
+  <a href="15-similarity.html" class="active" aria-current="page" aria-label="Go to slide 15: Similarity"></a>
+  <a href="16-softmax.html" aria-label="Go to slide 16: Softmax"></a>
+  <a href="17-scaling.html" aria-label="Go to slide 17: Scaling"></a>
+  <a href="18-attention-summary.html" aria-label="Go to slide 18: Attention Summary"></a>
+  <a href="19-context-update.html" aria-label="Go to slide 19: Context Update"></a>
+</nav>
+<div class="deck" id="deck">
+<section class="slide" id="slide-similarity">
+    <div class="slide-inner">
+      <div>
+        <div class="eyebrow"><span class="num">15</span> WHAT DID QKᵀ PRODUCE?</div>
+        <h1 class="title">A Map of<br>Word-to-Word Similarity</h1>
+        <p class="subtitle">Every cell answers: “How closely are these two token vectors aligned?”</p>
+        <p class="lead">The result is not yet the final attention output. It is a table of <b>pairwise scores</b> between every query word and every key word.</p>
+        <p class="lead">A large score means the two vectors point in similar directions. In our examples, <b>apple ↔ juicy</b> and <b>Apple ↔ laptop</b> receive strong scores.</p>
+        <div class="note">Use the tabs on the right to move from the score matrices to the same idea drawn in 2D.</div>
+      </div>
+
+      <div class="stage-panel s14-panel">
+        <div class="stage-caption"><b>Two ways to read the same pairwise relationships.</b></div>
+        <div class="s14-tabs" aria-label="Choose matrix or scatter view">
+          <button class="active" data-s14-view="0"><span>01</span> QKᵀ matrices</button>
+          <button data-s14-view="1"><span>02</span> 2D intuition →</button>
+        </div>
+        <div class="s14-carousel" id="s14-carousel">
+          <div class="s14-track">
+            <div class="s14-view s14-matrix-view">
+              <div class="s14-example fruit">
+                <div class="s14-example-head"><span>FRUIT CONTEXT</span><b>“I ate a juicy apple.”</b></div>
+                <div class="s14-matrix-layout">
+                  <strong>QKᵀ</strong>
+                  <div class="s14-matrix-labels top"><span>I</span><span>ate</span><span>a</span><span>juicy</span><span>apple</span></div>
+                  <div class="s14-matrix-labels side"><span>I</span><span>ate</span><span>a</span><span>juicy</span><span>apple</span></div>
+                  <div class="s14-big-grid"><i>1.00</i><i>.42</i><i>.18</i><i>.35</i><i>.28</i><i>.42</i><i>1.00</i><i>.22</i><i>.61</i><i>.49</i><i>.18</i><i>.22</i><i>1.00</i><i>.27</i><i>.31</i><i>.35</i><i>.61</i><i>.27</i><i>1.00</i><i class="near">.78</i><i>.28</i><i>.49</i><i>.31</i><i class="near">.78</i><i class="self">1.00</i></div>
+                </div>
+                <div class="s14-callout"><b>apple ↔ juicy = 0.78</b><span>Similar meaning in this sentence → large score</span></div>
+              </div>
+              <div class="s14-example company">
+                <div class="s14-example-head"><span>COMPANY CONTEXT</span><b>“I bought an Apple laptop.”</b></div>
+                <div class="s14-matrix-layout">
+                  <strong>QKᵀ</strong>
+                  <div class="s14-matrix-labels top"><span>I</span><span>bought</span><span>an</span><span>Apple</span><span>laptop</span></div>
+                  <div class="s14-matrix-labels side"><span>I</span><span>bought</span><span>an</span><span>Apple</span><span>laptop</span></div>
+                  <div class="s14-big-grid"><i>1.00</i><i>.38</i><i>.15</i><i>.29</i><i>.25</i><i>.38</i><i>1.00</i><i>.20</i><i>.67</i><i>.72</i><i>.15</i><i>.20</i><i>1.00</i><i>.24</i><i>.26</i><i>.29</i><i>.67</i><i>.24</i><i>1.00</i><i class="near">.84</i><i>.25</i><i>.72</i><i>.26</i><i class="near">.84</i><i class="self">1.00</i></div>
+                </div>
+                <div class="s14-callout"><b>Apple ↔ laptop = 0.84</b><span>Company meaning in this sentence → large score</span></div>
+              </div>
+            </div>
+
+            <div class="s14-view s14-scatter-view">
+              <div class="s14-scatter fruit">
+                <div class="s14-example-head"><span>FRUIT CONTEXT · 2D VIEW</span><b>Distances from apple to every word</b></div>
+                <svg viewBox="0 0 330 315" aria-label="Fruit context scatter plot">
+                  <g class="links"><line x1="230" y1="205" x2="64" y2="70"/><line x1="230" y1="205" x2="120" y2="120"/><line x1="230" y1="205" x2="175" y2="80"/><line class="strong" x1="230" y1="205" x2="205" y2="155"/></g>
+                  <g class="dots"><circle cx="64" cy="70" r="6"/><text x="49" y="55">I</text><circle cx="120" cy="120" r="6"/><text x="101" y="105">ate</text><circle cx="175" cy="80" r="6"/><text x="168" y="64">a</text><circle class="near" cx="205" cy="155" r="8"/><text x="174" y="139">juicy</text><circle class="focus" cx="230" cy="205" r="11"/><text x="242" y="226">apple</text></g>
+                </svg>
+                <p><b>Shorter / better-aligned relationship</b> → larger dot product</p>
+              </div>
+              <div class="s14-scatter company">
+                <div class="s14-example-head"><span>COMPANY CONTEXT · 2D VIEW</span><b>Distances from Apple to every word</b></div>
+                <svg viewBox="0 0 330 315" aria-label="Company context scatter plot">
+                  <g class="links"><line x1="112" y1="190" x2="54" y2="66"/><line x1="112" y1="190" x2="150" y2="90"/><line x1="112" y1="190" x2="204" y2="65"/><line class="strong" x1="112" y1="190" x2="162" y2="215"/></g>
+                  <g class="dots"><circle cx="54" cy="66" r="6"/><text x="40" y="50">I</text><circle cx="150" cy="90" r="6"/><text x="116" y="75">bought</text><circle cx="204" cy="65" r="6"/><text x="195" y="49">an</text><circle class="focus" cx="112" cy="190" r="11"/><text x="72" y="216">Apple</text><circle class="near" cx="162" cy="215" r="8"/><text x="174" y="235">laptop</text></g>
+                </svg>
+                <p><b>Apple sits close to laptop</b> in the company context.</p>
+              </div>
+              <div class="s14-scatter-note"><b>In 512 dimensions, QKᵀ does this for every pair at once.</b><span>The 2D plots are only a visual analogy: dot product measures alignment, not literal Euclidean distance.</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+<script src="js/app.js"></script>
+</body>
+</html>

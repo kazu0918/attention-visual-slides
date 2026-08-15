@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Matrix Transformation — How Translation AI Works</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="single-slide-page" data-slide-index="4" data-slide-count="19" data-prev-page="03-contextual-meaning.html" data-next-page="05-transformer-architecture.html">
+<div class="deck-header">
+  <span class="count" id="deck-count">04 / 19</span>
+  <span class="title-mini">How Translation AI Works</span>
+</div>
+<nav class="deck-nav" id="deck-nav" aria-label="Slide navigation">
+  <a href="01-encoder-decoder.html" aria-label="Go to slide 1: Encoder–Decoder Model"></a>
+  <a href="02-word-vectors.html" aria-label="Go to slide 2: Word Vectors"></a>
+  <a href="03-contextual-meaning.html" aria-label="Go to slide 3: Contextual Meaning"></a>
+  <a href="04-matrix-transformation.html" class="active" aria-current="page" aria-label="Go to slide 4: Matrix Transformation"></a>
+  <a href="05-transformer-architecture.html" aria-label="Go to slide 5: Transformer Architecture"></a>
+  <a href="06-token-embeddings.html" aria-label="Go to slide 6: Token Embeddings"></a>
+  <a href="07-positional-encoding.html" aria-label="Go to slide 7: Positional Encoding"></a>
+  <a href="08-similarity-matrix.html" aria-label="Go to slide 8: Similarity Matrix"></a>
+  <a href="09-attention-architecture.html" aria-label="Go to slide 9: Attention Architecture"></a>
+  <a href="10-softmax-weights.html" aria-label="Go to slide 10: Softmax Weights"></a>
+  <a href="11-weighted-sum.html" aria-label="Go to slide 11: Weighted Sum"></a>
+  <a href="12-context-outcomes.html" aria-label="Go to slide 12: Context Outcomes"></a>
+  <a href="13-query-key-value.html" aria-label="Go to slide 13: Query, Key, Value"></a>
+  <a href="14-qk-transpose.html" aria-label="Go to slide 14: QK Transpose"></a>
+  <a href="15-similarity.html" aria-label="Go to slide 15: Similarity"></a>
+  <a href="16-softmax.html" aria-label="Go to slide 16: Softmax"></a>
+  <a href="17-scaling.html" aria-label="Go to slide 17: Scaling"></a>
+  <a href="18-attention-summary.html" aria-label="Go to slide 18: Attention Summary"></a>
+  <a href="19-context-update.html" aria-label="Go to slide 19: Context Update"></a>
+</nav>
+<div class="deck" id="deck">
+<section class="slide" id="slide3b">
+    <div class="slide-inner">
+      <div>
+        <div class="eyebrow"><span class="num">04</span> MATRICES AS TRANSFORMATIONS</div>
+        <h1 class="title">A Matrix Transforms<br>One Vector Into Another</h1>
+        <p class="subtitle">A Linear Algebra View</p>
+        <p class="lead">A point on a coordinate plane is a <b>vector</b>. Multiplying it by a matrix transforms it into a new vector — shown as the point landing at a new position.</p>
+        <p class="lead">This is one way to view what we want for Apple: start with the same context-free vector, then transform it into a representation that <b>includes the sentence's meaning</b>.</p>
+        <div class="note">The matrix below is an intuition-building 2D example. In a Transformer, attention computes the context-dependent mixing weights from the sentence itself.</div>
+      </div>
+      <div class="stage-panel">
+        <div class="stage-caption" id="s3b-caption"><b>Fruit context —</b> A context-dependent transformation moves Apple toward the fruit region, matching slide 03.</div>
+        <div class="s3-toggle" id="s3b-toggle">
+          <button class="ctx-btn active" data-ctx="fruit">🍎 I ate a juicy apple.</button>
+          <button class="ctx-btn" data-ctx="company">💻 I bought an Apple laptop.</button>
+        </div>
+        <div class="s3b-equation" aria-label="A vector multiplied by a matrix becomes a context-aware vector">
+          <div class="s3b-plane-card">
+            <div class="s3b-card-label">BEFORE CONTEXT</div>
+            <div class="s3b-plane"><div class="s3b-axis s3b-axis-x"></div><div class="s3b-axis s3b-axis-y"></div><div class="s3b-point input"><span>Apple</span></div></div>
+            <div class="s3b-vector">x = <span>[+0.20, +0.60]</span></div>
+          </div>
+          <div class="s3b-operator">×</div>
+          <div class="s3b-matrix-card">
+            <div class="s3b-card-label">CONTEXT-DEPENDENT MATRIX</div>
+            <div class="s3b-matrix fruit" id="s3b-matrix"></div>
+            <div class="s3b-matrix-note" id="s3b-matrix-note">built from “ate” + “juicy”</div>
+          </div>
+          <div class="s3b-operator">=</div>
+          <div class="s3b-plane-card">
+            <div class="s3b-card-label">AFTER CONTEXT</div>
+            <div class="s3b-plane"><div class="s3b-region fruit" id="s3b-region"></div><div class="s3b-axis s3b-axis-x"></div><div class="s3b-axis s3b-axis-y"></div><div class="s3b-point fruit" id="s3b-output-point"><span>Apple</span></div></div>
+            <div class="s3b-vector">xA = <span id="s3b-output-vector">[−0.28, +0.52]</span></div>
+          </div>
+        </div>
+        <div class="s3b-question">So how can the model build the right transformation from the other words in the sentence? <b>That is the problem attention solves.</b></div>
+      </div>
+    </div>
+  </section>
+</div>
+<script src="js/app.js"></script>
+</body>
+</html>

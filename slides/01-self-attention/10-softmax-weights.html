@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Softmax Weights — How Translation AI Works</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="single-slide-page" data-slide-index="10" data-slide-count="19" data-prev-page="09-attention-architecture.html" data-next-page="11-weighted-sum.html">
+<div class="deck-header">
+  <span class="count" id="deck-count">10 / 19</span>
+  <span class="title-mini">How Translation AI Works</span>
+</div>
+<nav class="deck-nav" id="deck-nav" aria-label="Slide navigation">
+  <a href="01-encoder-decoder.html" aria-label="Go to slide 1: Encoder–Decoder Model"></a>
+  <a href="02-word-vectors.html" aria-label="Go to slide 2: Word Vectors"></a>
+  <a href="03-contextual-meaning.html" aria-label="Go to slide 3: Contextual Meaning"></a>
+  <a href="04-matrix-transformation.html" aria-label="Go to slide 4: Matrix Transformation"></a>
+  <a href="05-transformer-architecture.html" aria-label="Go to slide 5: Transformer Architecture"></a>
+  <a href="06-token-embeddings.html" aria-label="Go to slide 6: Token Embeddings"></a>
+  <a href="07-positional-encoding.html" aria-label="Go to slide 7: Positional Encoding"></a>
+  <a href="08-similarity-matrix.html" aria-label="Go to slide 8: Similarity Matrix"></a>
+  <a href="09-attention-architecture.html" aria-label="Go to slide 9: Attention Architecture"></a>
+  <a href="10-softmax-weights.html" class="active" aria-current="page" aria-label="Go to slide 10: Softmax Weights"></a>
+  <a href="11-weighted-sum.html" aria-label="Go to slide 11: Weighted Sum"></a>
+  <a href="12-context-outcomes.html" aria-label="Go to slide 12: Context Outcomes"></a>
+  <a href="13-query-key-value.html" aria-label="Go to slide 13: Query, Key, Value"></a>
+  <a href="14-qk-transpose.html" aria-label="Go to slide 14: QK Transpose"></a>
+  <a href="15-similarity.html" aria-label="Go to slide 15: Similarity"></a>
+  <a href="16-softmax.html" aria-label="Go to slide 16: Softmax"></a>
+  <a href="17-scaling.html" aria-label="Go to slide 17: Scaling"></a>
+  <a href="18-attention-summary.html" aria-label="Go to slide 18: Attention Summary"></a>
+  <a href="19-context-update.html" aria-label="Go to slide 19: Context Update"></a>
+</nav>
+<div class="deck" id="deck">
+<section class="slide" id="slide6">
+    <div class="slide-inner">
+      <div>
+        <div class="eyebrow"><span class="num">10</span> MULTI-HEAD ATTENTION</div>
+        <h1 class="title">Understanding Attention<br>in Two Steps</h1>
+        <p class="subtitle">From One Attention to Multiple Heads</p>
+        <p class="lead">First, we will use a simple example to understand what <b>Scaled Dot-Product Attention</b> actually does.</p>
+        <p class="lead">Then, we will update its inputs and run <b>several attention operations in parallel</b> to build Multi-Head Attention.</p>
+        <div class="note">The <b>√d<sub>k</sub></b> term scales the scores for stability. We will set it aside for now and focus on the core attention process.</div>
+      </div>
+
+      <div class="stage-panel s9-roadmap-panel">
+        <div class="stage-caption"><b>Roadmap —</b> Understand one attention operation, then expand it into multiple parallel heads.</div>
+        <div class="s9-formula s9-formula-feature" aria-label="Attention of Q, K, V equals softmax of Q K transpose divided by square root of d k, multiplied by V">
+          <span class="s9-function">Attention(Q, K, V)</span>
+          <span class="s9-equals">=</span>
+          <span>softmax</span>
+          <span class="s9-paren">(</span>
+          <span class="s9-frac"><span>QK<sup>T</sup></span><span>√d<sub>k</sub></span></span>
+          <span class="s9-paren">)</span>
+          <span>V</span>
+        </div>
+        <figure class="s9-paper-figure">
+          <img src="assets/attention-figure-2.png" alt="The Transformer paper diagram comparing Scaled Dot-Product Attention with Multi-Head Attention">
+          <figcaption><span>01</span> Scaled Dot-Product Attention <b>→</b> <span>02</span> Multi-Head Attention</figcaption>
+        </figure>
+        <div class="s9-focus-note">We will first ignore the scale term and unpack the left-hand process with a simple example. Then we will return to the full multi-head structure on the right.</div>
+      </div>
+    </div>
+  </section>
+</div>
+<script src="js/app.js"></script>
+</body>
+</html>

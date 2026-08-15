@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Weighted Sum — How Translation AI Works</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="single-slide-page" data-slide-index="11" data-slide-count="19" data-prev-page="10-softmax-weights.html" data-next-page="12-context-outcomes.html">
+<div class="deck-header">
+  <span class="count" id="deck-count">11 / 19</span>
+  <span class="title-mini">How Translation AI Works</span>
+</div>
+<nav class="deck-nav" id="deck-nav" aria-label="Slide navigation">
+  <a href="01-encoder-decoder.html" aria-label="Go to slide 1: Encoder–Decoder Model"></a>
+  <a href="02-word-vectors.html" aria-label="Go to slide 2: Word Vectors"></a>
+  <a href="03-contextual-meaning.html" aria-label="Go to slide 3: Contextual Meaning"></a>
+  <a href="04-matrix-transformation.html" aria-label="Go to slide 4: Matrix Transformation"></a>
+  <a href="05-transformer-architecture.html" aria-label="Go to slide 5: Transformer Architecture"></a>
+  <a href="06-token-embeddings.html" aria-label="Go to slide 6: Token Embeddings"></a>
+  <a href="07-positional-encoding.html" aria-label="Go to slide 7: Positional Encoding"></a>
+  <a href="08-similarity-matrix.html" aria-label="Go to slide 8: Similarity Matrix"></a>
+  <a href="09-attention-architecture.html" aria-label="Go to slide 9: Attention Architecture"></a>
+  <a href="10-softmax-weights.html" aria-label="Go to slide 10: Softmax Weights"></a>
+  <a href="11-weighted-sum.html" class="active" aria-current="page" aria-label="Go to slide 11: Weighted Sum"></a>
+  <a href="12-context-outcomes.html" aria-label="Go to slide 12: Context Outcomes"></a>
+  <a href="13-query-key-value.html" aria-label="Go to slide 13: Query, Key, Value"></a>
+  <a href="14-qk-transpose.html" aria-label="Go to slide 14: QK Transpose"></a>
+  <a href="15-similarity.html" aria-label="Go to slide 15: Similarity"></a>
+  <a href="16-softmax.html" aria-label="Go to slide 16: Softmax"></a>
+  <a href="17-scaling.html" aria-label="Go to slide 17: Scaling"></a>
+  <a href="18-attention-summary.html" aria-label="Go to slide 18: Attention Summary"></a>
+  <a href="19-context-update.html" aria-label="Go to slide 19: Context Update"></a>
+</nav>
+<div class="deck" id="deck">
+<section class="slide" id="slide7">
+    <div class="slide-inner">
+      <div>
+        <div class="eyebrow"><span class="num">11</span> THE GOAL OF ATTENTION</div>
+        <h1 class="title">Update a Vector<br>Using Its Context</h1>
+        <p class="subtitle">From Initial Embedding to Context-Aware Vector</p>
+        <p class="lead">After embedding, <b>apple starts with the same initial vector</b> wherever it appears.</p>
+        <p class="lead">Attention uses information from the other words in the sentence to update that vector. The result should represent <b>apple as a fruit</b> in one sentence and <b>Apple as a company</b> in the other.</p>
+        <div class="note">These are simplified 2D vectors for visualization. A real Transformer updates hundreds of dimensions at once.</div>
+      </div>
+
+      <div class="stage-panel s10-goal-panel">
+        <div class="stage-caption"><b>What should attention do?</b> Transform one initial vector differently depending on the surrounding words.</div>
+        <div class="s10-carousel-nav" aria-label="Choose the attention explanation view">
+          <button class="active" data-s10-view="0"><span>01</span> Concept map</button>
+          <button data-s10-view="1"><span>02</span> Concrete example →</button>
+        </div>
+        <div class="s10-carousel" id="s10-carousel">
+          <div class="s10-carousel-track">
+            <div class="s10-carousel-view">
+        <div class="s10-scatter" aria-label="A simplified embedding scatter plot showing apple moving toward fruit or company context">
+          <svg class="s10-scatter-arrows" viewBox="0 0 620 270" preserveAspectRatio="none" aria-hidden="true">
+            <defs>
+              <marker id="s10-fruit-arrow" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#7ed99a"/></marker>
+              <marker id="s10-company-arrow" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#8fb3ff"/></marker>
+            </defs>
+            <path d="M310 137 C255 145, 215 177, 168 205" marker-end="url(#s10-fruit-arrow)"/>
+            <path d="M310 137 C372 124, 420 78, 480 55" marker-end="url(#s10-company-arrow)"/>
+          </svg>
+          <div class="s10-cluster-label fruit">FRUIT CONTEXT</div>
+          <div class="s10-cluster-label company">COMPANY CONTEXT</div>
+          <div class="s10-point fruit" style="left:12%;top:70%"><i></i><span>banana</span></div>
+          <div class="s10-point fruit" style="left:22%;top:82%"><i></i><span>orange</span></div>
+          <div class="s10-point fruit strong" style="left:25%;top:62%"><i></i><span>juicy</span></div>
+          <div class="s10-point fruit" style="left:39%;top:65%"><i></i><span>ate</span></div>
+          <div class="s10-point fruit" style="left:9%;top:51%"><i></i><span>mango</span></div>
+          <div class="s10-point company" style="left:67%;top:16%"><i></i><span>computer</span></div>
+          <div class="s10-point company strong" style="left:88%;top:35%"><i></i><span>laptop</span></div>
+          <div class="s10-point company" style="left:69%;top:43%"><i></i><span>bought</span></div>
+          <div class="s10-point company" style="left:91%;top:14%"><i></i><span>Microsoft</span></div>
+          <div class="s10-point company" style="left:89%;top:49%"><i></i><span>Google</span></div>
+          <div class="s10-point initial" style="left:50%;top:50%"><i></i><span>apple / Apple</span><small>[+0.10, +0.10]</small></div>
+          <div class="s10-point outcome fruit" style="left:28%;top:74%"><i></i><span>apple</span><small>[−0.28, +0.52]</small></div>
+          <div class="s10-point outcome company" style="left:78%;top:24%"><i></i><span>Apple</span><small>[+0.54, +0.08]</small></div>
+        </div>
+
+        <div class="s10-matrix-flow">
+          <div class="s10-matrix-copy"><b>Other words provide the context</b><span>ate · juicy · bought · laptop · …</span></div>
+          <div class="s10-flow-arrow">→</div>
+          <div class="s10-attention-matrix">
+            <div class="s10-matrix-grid" aria-label="An illustrative attention matrix without numeric values">
+              <i></i><i></i><i></i><i></i><i></i>
+              <i></i><i></i><i></i><i></i><i></i>
+              <i></i><i></i><i></i><i></i><i></i>
+              <i></i><i></i><i></i><i></i><i></i>
+              <i></i><i></i><i></i><i></i><i></i>
+            </div>
+            <div><b>Scaled Dot-Product Attention</b><span>builds a context-mixing matrix</span></div>
+          </div>
+          <div class="s10-flow-arrow">→</div>
+          <div class="s10-matrix-copy output"><b>One vector, updated two ways</b><span>toward fruit or company context</span></div>
+        </div>
+            </div>
+
+            <div class="s10-carousel-view s10-concrete-view">
+              <div class="s10-concrete-kicker">CONCRETELY, THE SAME STARTING VECTOR BECOMES TWO DIFFERENT OUTPUTS</div>
+              <div class="s10-concrete-flow">
+                <div class="s10-concrete-initial">
+                  <span>INITIAL EMBEDDING</span>
+                  <b>apple / Apple</b>
+                  <code>[+0.10, +0.10]</code>
+                </div>
+                <div class="s10-concrete-arrow">→</div>
+                <div class="s10-concrete-matrix">
+                  <div class="s10-matrix-grid large" aria-hidden="true">
+                    <i></i><i></i><i></i><i></i><i></i>
+                    <i></i><i></i><i></i><i></i><i></i>
+                    <i></i><i></i><i></i><i></i><i></i>
+                    <i></i><i></i><i></i><i></i><i></i>
+                    <i></i><i></i><i></i><i></i><i></i>
+                  </div>
+                  <b>Scaled Dot-Product<br>Attention</b>
+                  <span>creates a different context-mixing matrix for each sentence</span>
+                </div>
+                <div class="s10-concrete-arrow split">⇢</div>
+                <div class="s10-concrete-results">
+                  <div class="s10-concrete-result fruit">
+                    <span>“I ate a juicy apple.”</span>
+                    <div><b>apple</b><code>[−0.28, +0.52]</code></div>
+                    <small>pulled toward <em>ate</em> + <em>juicy</em></small>
+                  </div>
+                  <div class="s10-concrete-result company">
+                    <span>“I bought an Apple laptop.”</span>
+                    <div><b>Apple</b><code>[+0.54, +0.08]</code></div>
+                    <small>pulled toward <em>bought</em> + <em>laptop</em></small>
+                  </div>
+                </div>
+              </div>
+              <div class="s10-concrete-takeaway"><b>The matrix is the transformation rule.</b> It decides how strongly the other words contribute to the updated vector.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+<script src="js/app.js"></script>
+</body>
+</html>

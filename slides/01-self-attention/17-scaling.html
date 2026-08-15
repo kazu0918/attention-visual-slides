@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Scaling — How Translation AI Works</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="single-slide-page" data-slide-index="17" data-slide-count="19" data-prev-page="16-softmax.html" data-next-page="18-attention-summary.html">
+<div class="deck-header">
+  <span class="count" id="deck-count">17 / 19</span>
+  <span class="title-mini">How Translation AI Works</span>
+</div>
+<nav class="deck-nav" id="deck-nav" aria-label="Slide navigation">
+  <a href="01-encoder-decoder.html" aria-label="Go to slide 1: Encoder–Decoder Model"></a>
+  <a href="02-word-vectors.html" aria-label="Go to slide 2: Word Vectors"></a>
+  <a href="03-contextual-meaning.html" aria-label="Go to slide 3: Contextual Meaning"></a>
+  <a href="04-matrix-transformation.html" aria-label="Go to slide 4: Matrix Transformation"></a>
+  <a href="05-transformer-architecture.html" aria-label="Go to slide 5: Transformer Architecture"></a>
+  <a href="06-token-embeddings.html" aria-label="Go to slide 6: Token Embeddings"></a>
+  <a href="07-positional-encoding.html" aria-label="Go to slide 7: Positional Encoding"></a>
+  <a href="08-similarity-matrix.html" aria-label="Go to slide 8: Similarity Matrix"></a>
+  <a href="09-attention-architecture.html" aria-label="Go to slide 9: Attention Architecture"></a>
+  <a href="10-softmax-weights.html" aria-label="Go to slide 10: Softmax Weights"></a>
+  <a href="11-weighted-sum.html" aria-label="Go to slide 11: Weighted Sum"></a>
+  <a href="12-context-outcomes.html" aria-label="Go to slide 12: Context Outcomes"></a>
+  <a href="13-query-key-value.html" aria-label="Go to slide 13: Query, Key, Value"></a>
+  <a href="14-qk-transpose.html" aria-label="Go to slide 14: QK Transpose"></a>
+  <a href="15-similarity.html" aria-label="Go to slide 15: Similarity"></a>
+  <a href="16-softmax.html" aria-label="Go to slide 16: Softmax"></a>
+  <a href="17-scaling.html" class="active" aria-current="page" aria-label="Go to slide 17: Scaling"></a>
+  <a href="18-attention-summary.html" aria-label="Go to slide 18: Attention Summary"></a>
+  <a href="19-context-update.html" aria-label="Go to slide 19: Context Update"></a>
+</nav>
+<div class="deck" id="deck">
+<section class="slide" id="slide-scaling">
+    <div class="slide-inner">
+      <div>
+        <div class="eyebrow"><span class="num">17</span> SCALING BEFORE SOFTMAX</div>
+        <h1 class="title">Large Scores Make<br>Softmax Too Certain</h1>
+        <p class="subtitle">Why attention divides by √d<sub>k</sub> before normalization</p>
+        <p class="lead">Softmax raises <b>e</b> to each score. When every score becomes larger, exponentiation magnifies even small gaps.</p>
+        <p class="lead">The ranking stays exactly the same, but the resulting attention can collapse onto one token.</p>
+        <div class="note">As the key dimension d<sub>k</sub> grows, a dot product adds more terms and its typical magnitude grows. Dividing by √d<sub>k</sub> keeps the score scale controlled before softmax.</div>
+      </div>
+
+      <div class="stage-panel s17-panel">
+        <div class="stage-caption"><b>Same ranking. Very different attention distribution.</b></div>
+        <div class="s17-compare">
+          <div class="s17-case stable">
+            <div class="s17-case-head"><span>ORIGINAL SCORES</span><b>apple's QKᵀ row</b></div>
+            <div class="s17-words"><span>I</span><span>ate</span><span>a</span><span>juicy</span><span>apple</span></div>
+            <div class="s17-values"><i>0.28</i><i>0.49</i><i>0.31</i><i>0.78</i><i class="top">1.00</i></div>
+            <div class="s17-softmax-step">SOFTMAX STEP 1 · APPLY e<sup>score</sup></div>
+            <div class="s17-downs"><span>↓</span><span>↓</span><span>↓</span><span>↓</span><span>↓</span></div>
+            <div class="s17-exps">
+              <div><code>e<sup>0.28</sup></code><b>1.323</b></div><div><code>e<sup>0.49</sup></code><b>1.632</b></div><div><code>e<sup>0.31</sup></code><b>1.363</b></div><div><code>e<sup>0.78</sup></code><b>2.181</b></div><div class="top"><code>e<sup>1.00</sup></code><b>2.718</b></div>
+            </div>
+            <div class="s17-arrow">SOFTMAX STEP 2 &nbsp;↓&nbsp; DIVIDE BY Σe<sup>score</sup></div>
+            <div class="s17-bars" aria-label="Softmax of original scores">
+              <div style="--p:14.35"><i></i><b>14.35%</b></div><div style="--p:17.71"><i></i><b>17.71%</b></div><div style="--p:14.79"><i></i><b>14.79%</b></div><div class="near" style="--p:23.66"><i></i><b>23.66%</b></div><div class="top" style="--p:29.49"><i></i><b>29.49%</b></div>
+            </div>
+          </div>
+
+          <div class="s17-multiplier"><b>×10</b><span>order unchanged</span></div>
+
+          <div class="s17-case exploded">
+            <div class="s17-case-head"><span>SAME SCORES × 10</span><b>larger magnitude only</b></div>
+            <div class="s17-words"><span>I</span><span>ate</span><span>a</span><span>juicy</span><span>apple</span></div>
+            <div class="s17-values"><i>2.8</i><i>4.9</i><i>3.1</i><i>7.8</i><i class="top">10.0</i></div>
+            <div class="s17-softmax-step">SOFTMAX STEP 1 · APPLY e<sup>score</sup></div>
+            <div class="s17-downs"><span>↓</span><span>↓</span><span>↓</span><span>↓</span><span>↓</span></div>
+            <div class="s17-exps danger">
+              <div><code>e<sup>2.8</sup></code><b>16.45</b></div><div><code>e<sup>4.9</sup></code><b>134.29</b></div><div><code>e<sup>3.1</sup></code><b>22.20</b></div><div><code>e<sup>7.8</sup></code><b>2,440.60</b></div><div class="top"><code>e<sup>10</sup></code><b>22,026.47</b></div>
+            </div>
+            <div class="s17-arrow">SOFTMAX STEP 2 &nbsp;↓&nbsp; DIVIDE BY Σe<sup>score</sup></div>
+            <div class="s17-bars" aria-label="Softmax of scores multiplied by ten">
+              <div style="--p:.07"><i></i><b>0.07%</b></div><div style="--p:.55"><i></i><b>0.55%</b></div><div style="--p:.09"><i></i><b>0.09%</b></div><div class="near" style="--p:9.91"><i></i><b>9.91%</b></div><div class="top" style="--p:89.39"><i></i><b>89.39%</b></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="s17-lower-grid">
+          <div class="s17-stabilizer">
+            <span>WHY DIVIDE BY √d<sub>k</sub>?</span>
+            <h3>√d<sub>k</sub> is a scale stabilizer.</h3>
+            <p>A dot product adds one product for every dimension. With more dimensions, its typical magnitude grows—even when the underlying relationship has not become stronger.</p>
+            <div class="s17-stabilizer-flow"><code>larger d<sub>k</sub></code><b>→</b><code>larger QKᵀ</code><b>→</b><code>sharper softmax</code></div>
+            <strong>Dividing by √d<sub>k</sub> removes this dimension-driven inflation while preserving the score order.</strong>
+          </div>
+          <div class="s17-lower-gap"></div>
+          <div class="s17-scale-wrap">
+            <div class="s17-drop"><span>▽</span><b>DIVIDE BEFORE SOFTMAX</b></div>
+            <div class="s17-scaling-demo">
+              <div class="s17-scale-copy">
+                <span>NOW CONTROL THE LARGE SCORES</span>
+                <b>d<sub>k</sub> = 512 &nbsp;→&nbsp; √512 ≈ 22.63</b>
+                <code>example: 0.28 ÷ √512 = 0.0124</code>
+              </div>
+              <div class="s17-scale-flow">
+                <div class="s17-scale-row labels"><span>I</span><span>ate</span><span>a</span><span>juicy</span><span>apple</span></div>
+                <div class="s17-scale-row raw"><i>2.8</i><i>4.9</i><i>3.1</i><i>7.8</i><i>10.0</i></div>
+                <div class="s17-divisor">÷ √512</div>
+                <div class="s17-scale-row scaled"><i>0.1237</i><i>0.2166</i><i>0.1370</i><i>0.3447</i><i>0.4419</i></div>
+              </div>
+              <div class="s17-scale-exp">
+                <span>SOFTMAX STEP 1 &nbsp;↓&nbsp; APPLY e<sup>scaled score</sup></span>
+                <div class="s17-scale-row exponentiated"><i>1.1317</i><i>1.2418</i><i>1.1468</i><i>1.4116</i><i>1.5557</i></div>
+              </div>
+              <div class="s17-scaled-result">
+                <span>STEP 2 &nbsp;↓&nbsp; DIVIDE BY Σe = 6.4877 — SAME VERTICAL SCALE</span>
+                <div class="s17-mini-bars">
+                  <div style="--p:17.44"><i></i><b>17.44%</b></div><div style="--p:19.14"><i></i><b>19.14%</b></div><div style="--p:17.68"><i></i><b>17.68%</b></div><div style="--p:21.76"><i></i><b>21.76%</b></div><div class="top" style="--p:23.98"><i></i><b>23.98%</b></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+<script src="js/app.js"></script>
+</body>
+</html>

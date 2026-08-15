@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Transformer Architecture — How Translation AI Works</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="single-slide-page" data-slide-index="5" data-slide-count="19" data-prev-page="04-matrix-transformation.html" data-next-page="06-token-embeddings.html">
+<div class="deck-header">
+  <span class="count" id="deck-count">05 / 19</span>
+  <span class="title-mini">How Translation AI Works</span>
+</div>
+<nav class="deck-nav" id="deck-nav" aria-label="Slide navigation">
+  <a href="01-encoder-decoder.html" aria-label="Go to slide 1: Encoder–Decoder Model"></a>
+  <a href="02-word-vectors.html" aria-label="Go to slide 2: Word Vectors"></a>
+  <a href="03-contextual-meaning.html" aria-label="Go to slide 3: Contextual Meaning"></a>
+  <a href="04-matrix-transformation.html" aria-label="Go to slide 4: Matrix Transformation"></a>
+  <a href="05-transformer-architecture.html" class="active" aria-current="page" aria-label="Go to slide 5: Transformer Architecture"></a>
+  <a href="06-token-embeddings.html" aria-label="Go to slide 6: Token Embeddings"></a>
+  <a href="07-positional-encoding.html" aria-label="Go to slide 7: Positional Encoding"></a>
+  <a href="08-similarity-matrix.html" aria-label="Go to slide 8: Similarity Matrix"></a>
+  <a href="09-attention-architecture.html" aria-label="Go to slide 9: Attention Architecture"></a>
+  <a href="10-softmax-weights.html" aria-label="Go to slide 10: Softmax Weights"></a>
+  <a href="11-weighted-sum.html" aria-label="Go to slide 11: Weighted Sum"></a>
+  <a href="12-context-outcomes.html" aria-label="Go to slide 12: Context Outcomes"></a>
+  <a href="13-query-key-value.html" aria-label="Go to slide 13: Query, Key, Value"></a>
+  <a href="14-qk-transpose.html" aria-label="Go to slide 14: QK Transpose"></a>
+  <a href="15-similarity.html" aria-label="Go to slide 15: Similarity"></a>
+  <a href="16-softmax.html" aria-label="Go to slide 16: Softmax"></a>
+  <a href="17-scaling.html" aria-label="Go to slide 17: Scaling"></a>
+  <a href="18-attention-summary.html" aria-label="Go to slide 18: Attention Summary"></a>
+  <a href="19-context-update.html" aria-label="Go to slide 19: Context Update"></a>
+</nav>
+<div class="deck" id="deck">
+<section class="slide" id="slide-architecture">
+    <div class="slide-inner">
+      <div>
+        <div class="eyebrow"><span class="num">05</span> THE TRANSFORMER</div>
+        <h1 class="title">Where Does<br>Attention Begin?</h1>
+        <p class="subtitle">Model Architecture</p>
+        <p class="lead">This is the complete Transformer architecture. Before the encoder can compare words with attention, every input token must first become a vector.</p>
+        <p class="lead">For now, focus on the first step highlighted in red: <b>Input Embedding</b>.</p>
+        <div class="note">On the next slide, we will zoom in and see exactly how the input sentence becomes embedding vectors.</div>
+      </div>
+
+      <div class="stage-panel architecture-panel">
+        <div class="stage-caption"><b>You are here —</b> The input sentence enters the Transformer through Input Embedding.</div>
+        <svg class="transformer-diagram paper-figure" viewBox="0 0 568 755" role="img" aria-labelledby="transformer-title transformer-desc">
+          <title id="transformer-title">Transformer encoder-decoder architecture from the original paper</title>
+          <desc id="transformer-desc">The original Transformer architecture figure with Input Embedding highlighted in red.</desc>
+          <defs>
+            <filter id="paper-red-glow" x="-35%" y="-55%" width="170%" height="210%"><feGaussianBlur stdDeviation="4" result="blur"/><feFlood flood-color="#ff334b" flood-opacity=".72"/><feComposite in2="blur" operator="in"/><feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+          </defs>
+          <image href="assets/transformer-architecture-paper.png" x="0" y="0" width="568" height="755" preserveAspectRatio="xMidYMid meet"/>
+          <g class="paper-input-focus" filter="url(#paper-red-glow)">
+            <rect x="146" y="572" width="113" height="52" rx="7"/>
+          </g>
+        </svg>
+      </div>
+    </div>
+  </section>
+</div>
+<script src="js/app.js"></script>
+</body>
+</html>

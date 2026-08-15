@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Token Embeddings — How Translation AI Works</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="single-slide-page" data-slide-index="6" data-slide-count="19" data-prev-page="05-transformer-architecture.html" data-next-page="07-positional-encoding.html">
+<div class="deck-header">
+  <span class="count" id="deck-count">06 / 19</span>
+  <span class="title-mini">How Translation AI Works</span>
+</div>
+<nav class="deck-nav" id="deck-nav" aria-label="Slide navigation">
+  <a href="01-encoder-decoder.html" aria-label="Go to slide 1: Encoder–Decoder Model"></a>
+  <a href="02-word-vectors.html" aria-label="Go to slide 2: Word Vectors"></a>
+  <a href="03-contextual-meaning.html" aria-label="Go to slide 3: Contextual Meaning"></a>
+  <a href="04-matrix-transformation.html" aria-label="Go to slide 4: Matrix Transformation"></a>
+  <a href="05-transformer-architecture.html" aria-label="Go to slide 5: Transformer Architecture"></a>
+  <a href="06-token-embeddings.html" class="active" aria-current="page" aria-label="Go to slide 6: Token Embeddings"></a>
+  <a href="07-positional-encoding.html" aria-label="Go to slide 7: Positional Encoding"></a>
+  <a href="08-similarity-matrix.html" aria-label="Go to slide 8: Similarity Matrix"></a>
+  <a href="09-attention-architecture.html" aria-label="Go to slide 9: Attention Architecture"></a>
+  <a href="10-softmax-weights.html" aria-label="Go to slide 10: Softmax Weights"></a>
+  <a href="11-weighted-sum.html" aria-label="Go to slide 11: Weighted Sum"></a>
+  <a href="12-context-outcomes.html" aria-label="Go to slide 12: Context Outcomes"></a>
+  <a href="13-query-key-value.html" aria-label="Go to slide 13: Query, Key, Value"></a>
+  <a href="14-qk-transpose.html" aria-label="Go to slide 14: QK Transpose"></a>
+  <a href="15-similarity.html" aria-label="Go to slide 15: Similarity"></a>
+  <a href="16-softmax.html" aria-label="Go to slide 16: Softmax"></a>
+  <a href="17-scaling.html" aria-label="Go to slide 17: Scaling"></a>
+  <a href="18-attention-summary.html" aria-label="Go to slide 18: Attention Summary"></a>
+  <a href="19-context-update.html" aria-label="Go to slide 19: Context Update"></a>
+</nav>
+<div class="deck" id="deck">
+<section class="slide" id="slide4">
+    <div class="slide-inner">
+      <div>
+        <div class="eyebrow"><span class="num">06</span> EMBEDDINGS</div>
+        <h1 class="title">From a Sentence<br>to 512-D Vectors</h1>
+        <p class="subtitle">BPE Tokenization + Embedding Lookup</p>
+        <p class="lead">First, <b>BPE splits the sentence into reusable subword tokens</b>. Each token is represented conceptually as a one-hot row with about <b>37,000 possible positions</b>.</p>
+        <p class="lead">One matrix multiplication selects a learned <b>512-number vector</b> for every token. There is <b>no hidden layer or activation function</b> inside the Input Embedding block.</p>
+        <div class="note">In code this is implemented as a fast row lookup, but it is mathematically equivalent to the matrix multiplication shown here.</div>
+      </div>
+
+      <div class="stage-panel embedding-pipeline-panel">
+        <div class="stage-caption"><b>One horizontal operation —</b> Token matrix × Embedding matrix = vector sequence</div>
+        <div class="embedding-horizontal">
+          <div class="embedding-tokenization-row">
+            <div class="embedding-sentence-compact">I ate a juicy apple</div>
+            <div class="embedding-mini-arrow">→</div>
+            <div class="embedding-bpe-compact">
+              <div class="embedding-step-label"><span>01</span> BPE</div>
+              <div class="bpe-tokens compact" aria-label="Illustrative BPE split">
+                <span>I</span><span>ate</span><span>a</span><span>juicy</span><span class="focus">apple</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="embedding-equation" aria-label="A five by thirty-seven-thousand one-hot matrix multiplied by a thirty-seven-thousand by five-hundred-twelve embedding matrix gives a five by five-hundred-twelve output matrix">
+            <div class="matrix-term input-matrix-term">
+              <div class="matrix-title">TOKEN MATRIX <b>X</b></div>
+              <div class="matrix-bracket onehot-matrix">
+                <div><b>I</b><code>0 ··· 1 ··· 0</code></div>
+                <div><b>ate</b><code>0 ··· 1 ··· 0</code></div>
+                <div><b>a</b><code>0 ··· 1 ··· 0</code></div>
+                <div><b>juicy</b><code>0 ··· 1 ··· 0</code></div>
+                <div class="focus"><b>apple</b><code>0 ··· 1 ··· 0</code></div>
+              </div>
+              <div class="matrix-shape">5 × 37,000</div>
+              <div class="matrix-caption">one “1” per token</div>
+            </div>
+
+            <div class="matrix-operator">×</div>
+
+            <div class="matrix-term embedding-matrix-term">
+              <div class="matrix-title">EMBEDDING MATRIX <b>E</b></div>
+              <div class="embedding-table-visual">
+                <div class="embedding-axis top">512 columns →</div>
+                <div class="embedding-table-rows">
+                  <i></i><i></i><i class="selected"></i><i></i><i></i><i></i><i class="selected"></i><i></i><i></i><i class="ellipsis">⋮</i><i></i><i class="selected focus"></i><i></i><i></i>
+                </div>
+                <div class="embedding-axis side">37,000 rows</div>
+              </div>
+              <div class="matrix-shape">37,000 × 512</div>
+              <div class="matrix-caption">one learned row per token type</div>
+            </div>
+
+            <div class="matrix-operator equals">=</div>
+
+            <div class="matrix-term output-matrix-term">
+              <div class="matrix-title">OUTPUT <b>H</b></div>
+              <div class="matrix-bracket output-vector-matrix">
+                <div><b>I</b><code>[0.12, −0.44, …, 0.31]</code></div>
+                <div><b>ate</b><code>[−0.21, 0.63, …, −0.06]</code></div>
+                <div><b>a</b><code>[0.04, 0.19, …, 0.28]</code></div>
+                <div><b>juicy</b><code>[0.71, −0.08, …, 0.14]</code></div>
+                <div class="focus"><b>apple</b><code>[−0.18, 0.52, …, 0.67]</code></div>
+              </div>
+              <div class="matrix-shape">5 × 512</div>
+              <div class="matrix-caption">one 512-D vector per token</div>
+            </div>
+          </div>
+
+          <div class="embedding-equation-note"><b>Actual implementation:</b> use each Token ID to fetch the matching row of E—no dense one-hot matrix is created.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+<script src="js/app.js"></script>
+</body>
+</html>

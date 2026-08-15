@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Context Outcomes — How Translation AI Works</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="single-slide-page" data-slide-index="12" data-slide-count="19" data-prev-page="11-weighted-sum.html" data-next-page="13-query-key-value.html">
+<div class="deck-header">
+  <span class="count" id="deck-count">12 / 19</span>
+  <span class="title-mini">How Translation AI Works</span>
+</div>
+<nav class="deck-nav" id="deck-nav" aria-label="Slide navigation">
+  <a href="01-encoder-decoder.html" aria-label="Go to slide 1: Encoder–Decoder Model"></a>
+  <a href="02-word-vectors.html" aria-label="Go to slide 2: Word Vectors"></a>
+  <a href="03-contextual-meaning.html" aria-label="Go to slide 3: Contextual Meaning"></a>
+  <a href="04-matrix-transformation.html" aria-label="Go to slide 4: Matrix Transformation"></a>
+  <a href="05-transformer-architecture.html" aria-label="Go to slide 5: Transformer Architecture"></a>
+  <a href="06-token-embeddings.html" aria-label="Go to slide 6: Token Embeddings"></a>
+  <a href="07-positional-encoding.html" aria-label="Go to slide 7: Positional Encoding"></a>
+  <a href="08-similarity-matrix.html" aria-label="Go to slide 8: Similarity Matrix"></a>
+  <a href="09-attention-architecture.html" aria-label="Go to slide 9: Attention Architecture"></a>
+  <a href="10-softmax-weights.html" aria-label="Go to slide 10: Softmax Weights"></a>
+  <a href="11-weighted-sum.html" aria-label="Go to slide 11: Weighted Sum"></a>
+  <a href="12-context-outcomes.html" class="active" aria-current="page" aria-label="Go to slide 12: Context Outcomes"></a>
+  <a href="13-query-key-value.html" aria-label="Go to slide 13: Query, Key, Value"></a>
+  <a href="14-qk-transpose.html" aria-label="Go to slide 14: QK Transpose"></a>
+  <a href="15-similarity.html" aria-label="Go to slide 15: Similarity"></a>
+  <a href="16-softmax.html" aria-label="Go to slide 16: Softmax"></a>
+  <a href="17-scaling.html" aria-label="Go to slide 17: Scaling"></a>
+  <a href="18-attention-summary.html" aria-label="Go to slide 18: Attention Summary"></a>
+  <a href="19-context-update.html" aria-label="Go to slide 19: Context Update"></a>
+</nav>
+<div class="deck" id="deck">
+<section class="slide" id="slide8">
+    <div class="slide-inner">
+      <div>
+        <div class="eyebrow"><span class="num">12</span> DOT PRODUCT</div>
+        <h1 class="title">A Score for<br>Vector Similarity</h1>
+        <p class="subtitle">Similar Direction → Larger Dot Product</p>
+        <p class="lead">Words with related meanings tend to point in <b>similar directions</b> in an embedding space. Their dot product is therefore large.</p>
+        <p class="lead">When two word vectors point in very different directions, their dot product becomes <b>small—or even negative</b>.</p>
+        <div class="note">For this intuition, the vectors are normalized to the same length. Dot product measures directional alignment, not literal distance between the arrow tips.</div>
+      </div>
+
+      <div class="stage-panel s11-dot-panel">
+        <div class="stage-caption"><b>Compare the angle —</b> The closer the directions, the larger the dot product.</div>
+        <div class="s11-carousel-nav" aria-label="Choose the dot product explanation view">
+          <button class="active" data-s11-view="0"><span>01</span> Word examples</button>
+          <button data-s11-view="1"><span>02</span> Try it yourself →</button>
+        </div>
+        <div class="s11-carousel" id="s11-carousel">
+          <div class="s11-carousel-track">
+            <div class="s11-carousel-view">
+        <div class="s11-comparison">
+          <div class="s11-case similar">
+            <div class="s11-case-head"><span>SIMILAR MEANING</span><b>cat ↔ kitten</b></div>
+            <div class="s11-plane">
+              <svg viewBox="0 0 260 210" preserveAspectRatio="none" aria-hidden="true">
+                <defs><marker id="s11-arrow-coral" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#ff8a65"/></marker><marker id="s11-arrow-teal" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#4fd1c5"/></marker></defs>
+                <line class="axis" x1="28" y1="176" x2="244" y2="176"/><line class="axis" x1="28" y1="192" x2="28" y2="18"/>
+                <line class="vector cat" x1="28" y1="176" x2="205" y2="62" marker-end="url(#s11-arrow-coral)"/>
+                <line class="vector match" x1="28" y1="176" x2="188" y2="45" marker-end="url(#s11-arrow-teal)"/>
+              </svg>
+              <div class="s11-vector-label cat">cat</div><div class="s11-vector-label kitten">kitten</div>
+              <div class="s11-angle small">small angle</div>
+            </div>
+            <div class="s11-equation"><span>(0.84 × 0.77) + (0.54 × 0.64)</span><b>= +0.99</b></div>
+            <div class="s11-meaning">Nearly the same direction → <b>large score</b></div>
+          </div>
+
+          <div class="s11-case different">
+            <div class="s11-case-head"><span>DIFFERENT MEANING</span><b>cat ↔ airplane</b></div>
+            <div class="s11-plane">
+              <svg viewBox="0 0 260 210" preserveAspectRatio="none" aria-hidden="true">
+                <defs><marker id="s11-arrow-coral2" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#ff8a65"/></marker><marker id="s11-arrow-blue" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#8fb3ff"/></marker></defs>
+                <line class="axis" x1="28" y1="176" x2="244" y2="176"/><line class="axis" x1="28" y1="192" x2="28" y2="18"/>
+                <line class="vector cat" x1="28" y1="176" x2="205" y2="62" marker-end="url(#s11-arrow-coral2)"/>
+                <line class="vector far" x1="28" y1="176" x2="82" y2="28" marker-end="url(#s11-arrow-blue)"/>
+              </svg>
+              <div class="s11-vector-label cat">cat</div><div class="s11-vector-label airplane">airplane</div>
+              <div class="s11-angle large">large angle</div>
+            </div>
+            <div class="s11-equation"><span>(0.84 × −0.54) + (0.54 × 0.84)</span><b>= 0.00</b></div>
+            <div class="s11-meaning">Different directions → <b>small score</b></div>
+          </div>
+        </div>
+        <div class="s11-takeaway"><b>In attention:</b> dot products score how strongly one token should pay attention to another.</div>
+            </div>
+
+            <div class="s11-carousel-view s11-lab">
+              <div class="s11-lab-grid">
+                <div class="s11-lab-plane">
+                  <svg id="s11-drag-plane" viewBox="0 0 420 330" aria-label="Drag the endpoints of vectors A and B">
+                    <defs><marker id="s11-lab-a-arrow" markerWidth="9" markerHeight="9" refX="8" refY="3.5" orient="auto"><path d="M0,0 L8,3.5 L0,7 Z" fill="#ff8a65"/></marker><marker id="s11-lab-b-arrow" markerWidth="9" markerHeight="9" refX="8" refY="3.5" orient="auto"><path d="M0,0 L8,3.5 L0,7 Z" fill="#4fd1c5"/></marker></defs>
+                    <line class="axis" x1="35" y1="165" x2="395" y2="165"/><line class="axis" x1="210" y1="310" x2="210" y2="20"/>
+                    <line id="s11-vector-a" class="lab-vector a" x1="210" y1="165" x2="335" y2="92" marker-end="url(#s11-lab-a-arrow)"/>
+                    <line id="s11-vector-b" class="lab-vector b" x1="210" y1="165" x2="286" y2="38" marker-end="url(#s11-lab-b-arrow)"/>
+                    <line id="s11-hit-a" class="lab-hit" x1="210" y1="165" x2="335" y2="92"/>
+                    <line id="s11-hit-b" class="lab-hit" x1="210" y1="165" x2="286" y2="38"/>
+                    <circle id="s11-handle-a" class="lab-handle a" cx="335" cy="92" r="11"/>
+                    <circle id="s11-handle-b" class="lab-handle b" cx="286" cy="38" r="11"/>
+                    <text id="s11-label-a" class="lab-label a" x="342" y="86">A</text>
+                    <text id="s11-label-b" class="lab-label b" x="292" y="32">B</text>
+                    <circle cx="210" cy="165" r="5" class="origin"/>
+                  </svg>
+                  <div class="s11-drag-hint">Drag either arrowhead</div>
+                </div>
+                <div class="s11-lab-controls">
+                  <div class="s11-slider-row a">
+                    <div><b>Vector A</b><code id="s11-a-coords">[+0.87, +0.50]</code></div>
+                    <p>Drag the coral arrowhead.</p>
+                  </div>
+                  <div class="s11-slider-row b">
+                    <div><b>Vector B</b><code id="s11-b-coords">[+0.50, +0.87]</code></div>
+                    <p>Drag the teal arrowhead.</p>
+                  </div>
+                  <div class="s11-live-result">
+                    <span>ANGLE BETWEEN THEM</span><b id="s11-angle-diff">30°</b>
+                    <span class="formula-label">DOT PRODUCT FORMULA</span><code class="formula" id="s11-dot-formula">(+0.87 × +0.50) + (+0.50 × +0.87)</code>
+                    <span>DOT PRODUCT</span><strong id="s11-dot-result">+0.87</strong>
+                  </div>
+                </div>
+              </div>
+              <div class="s11-lab-caption" id="s11-lab-caption"><b>Similar directions:</b> the dot product is large.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+<script src="js/app.js"></script>
+</body>
+</html>

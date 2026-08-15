@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Query, Key, Value — How Translation AI Works</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="single-slide-page" data-slide-index="13" data-slide-count="19" data-prev-page="12-context-outcomes.html" data-next-page="14-qk-transpose.html">
+<div class="deck-header">
+  <span class="count" id="deck-count">13 / 19</span>
+  <span class="title-mini">How Translation AI Works</span>
+</div>
+<nav class="deck-nav" id="deck-nav" aria-label="Slide navigation">
+  <a href="01-encoder-decoder.html" aria-label="Go to slide 1: Encoder–Decoder Model"></a>
+  <a href="02-word-vectors.html" aria-label="Go to slide 2: Word Vectors"></a>
+  <a href="03-contextual-meaning.html" aria-label="Go to slide 3: Contextual Meaning"></a>
+  <a href="04-matrix-transformation.html" aria-label="Go to slide 4: Matrix Transformation"></a>
+  <a href="05-transformer-architecture.html" aria-label="Go to slide 5: Transformer Architecture"></a>
+  <a href="06-token-embeddings.html" aria-label="Go to slide 6: Token Embeddings"></a>
+  <a href="07-positional-encoding.html" aria-label="Go to slide 7: Positional Encoding"></a>
+  <a href="08-similarity-matrix.html" aria-label="Go to slide 8: Similarity Matrix"></a>
+  <a href="09-attention-architecture.html" aria-label="Go to slide 9: Attention Architecture"></a>
+  <a href="10-softmax-weights.html" aria-label="Go to slide 10: Softmax Weights"></a>
+  <a href="11-weighted-sum.html" aria-label="Go to slide 11: Weighted Sum"></a>
+  <a href="12-context-outcomes.html" aria-label="Go to slide 12: Context Outcomes"></a>
+  <a href="13-query-key-value.html" class="active" aria-current="page" aria-label="Go to slide 13: Query, Key, Value"></a>
+  <a href="14-qk-transpose.html" aria-label="Go to slide 14: QK Transpose"></a>
+  <a href="15-similarity.html" aria-label="Go to slide 15: Similarity"></a>
+  <a href="16-softmax.html" aria-label="Go to slide 16: Softmax"></a>
+  <a href="17-scaling.html" aria-label="Go to slide 17: Scaling"></a>
+  <a href="18-attention-summary.html" aria-label="Go to slide 18: Attention Summary"></a>
+  <a href="19-context-update.html" aria-label="Go to slide 19: Context Update"></a>
+</nav>
+<div class="deck" id="deck">
+<section class="slide" id="slide-qkv">
+    <div class="slide-inner">
+      <div>
+        <div class="eyebrow"><span class="num">13</span> BUILDING Q, K, AND V</div>
+        <h1 class="title">One Input,<br>Three Views</h1>
+        <p class="subtitle">From the input matrix H to Q, K, and V</p>
+        <p class="lead">Self-attention starts with one matrix <b>H</b>: one row for every token in the sentence.</p>
+        <p class="lead">It creates three working views. <b>Q</b> asks what each token is looking for, <b>K</b> describes what each token offers, and <b>V</b> carries the information to collect.</p>
+        <div class="note s12-note">For now, picture Q, K, and V as three copies of H. This conceptual shortcut makes the attention calculation easier to follow.</div>
+      </div>
+
+      <div class="stage-panel s12-panel">
+        <div class="stage-caption"><b>Watch H branch into three working matrices.</b></div>
+        <div class="s12-animation is-playing" id="s12-animation">
+          <svg class="s12-connectors" viewBox="0 0 520 360" preserveAspectRatio="none" aria-hidden="true">
+            <path class="s12-input-path" d="M147 180 L196 180"/>
+            <path class="s12-path q" d="M294 180 C330 180 326 67 365 67"/>
+            <path class="s12-path k" d="M294 180 C330 180 326 180 365 180"/>
+            <path class="s12-path v" d="M294 180 C330 180 326 293 365 293"/>
+          </svg>
+          <div class="s12-token-matrix">
+            <div class="s12-sentence"><span>I</span><span>ate</span><span>a</span><span>juicy</span><span>apple</span></div>
+            <div class="s12-bracket-matrix" aria-label="Five by 512 input matrix">
+              <div><b>I</b><code>[0.12, −0.44, …, 0.31]</code></div>
+              <div><b>ate</b><code>[−0.21, 0.63, …, −0.06]</code></div>
+              <div><b>a</b><code>[0.04, 0.19, …, 0.28]</code></div>
+              <div><b>juicy</b><code>[0.71, −0.08, …, 0.14]</code></div>
+              <div><b>apple</b><code>[−0.18, 0.52, …, 0.67]</code></div>
+            </div>
+            <strong>5 × 512</strong><small>one 512-D vector per token</small>
+          </div>
+          <div class="s12-matrix-card source">
+            <span class="s12-matrix-name">H</span>
+            <small>INPUT MATRIX</small>
+            <div class="s12-matrix" aria-label="Input matrix H">
+              <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+            </div>
+            <code>same 5 × 512 matrix</code>
+          </div>
+          <div class="s12-output-stack">
+            <div class="s12-matrix-card output q"><span class="s12-matrix-name"><em>H</em> = Q</span><small>SAME MATRIX · QUERY</small><div class="s12-matrix"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></div>
+            <div class="s12-matrix-card output k"><span class="s12-matrix-name"><em>H</em> = K</span><small>SAME MATRIX · KEY</small><div class="s12-matrix"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></div>
+            <div class="s12-matrix-card output v"><span class="s12-matrix-name"><em>H</em> = V</span><small>SAME MATRIX · VALUE</small><div class="s12-matrix"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></div>
+          </div>
+        </div>
+        <div class="s12-reality">
+          <span>CONCEPTUAL MODEL</span>
+          <b>H = Q &nbsp;&nbsp;&nbsp; H = K &nbsp;&nbsp;&nbsp; H = V</b>
+          <p>Not literal copies in practice: each view uses a different learned linear projection — Q = HW<sub>Q</sub>, K = HW<sub>K</sub>, V = HW<sub>V</sub>.</p>
+        </div>
+        <button class="step-btn s12-replay" id="s12-replay">↻ Replay animation</button>
+      </div>
+    </div>
+  </section>
+</div>
+<script src="js/app.js"></script>
+</body>
+</html>

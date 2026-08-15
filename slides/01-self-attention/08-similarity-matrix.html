@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Similarity Matrix — How Translation AI Works</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="single-slide-page" data-slide-index="8" data-slide-count="19" data-prev-page="07-positional-encoding.html" data-next-page="09-attention-architecture.html">
+<div class="deck-header">
+  <span class="count" id="deck-count">08 / 19</span>
+  <span class="title-mini">How Translation AI Works</span>
+</div>
+<nav class="deck-nav" id="deck-nav" aria-label="Slide navigation">
+  <a href="01-encoder-decoder.html" aria-label="Go to slide 1: Encoder–Decoder Model"></a>
+  <a href="02-word-vectors.html" aria-label="Go to slide 2: Word Vectors"></a>
+  <a href="03-contextual-meaning.html" aria-label="Go to slide 3: Contextual Meaning"></a>
+  <a href="04-matrix-transformation.html" aria-label="Go to slide 4: Matrix Transformation"></a>
+  <a href="05-transformer-architecture.html" aria-label="Go to slide 5: Transformer Architecture"></a>
+  <a href="06-token-embeddings.html" aria-label="Go to slide 6: Token Embeddings"></a>
+  <a href="07-positional-encoding.html" aria-label="Go to slide 7: Positional Encoding"></a>
+  <a href="08-similarity-matrix.html" class="active" aria-current="page" aria-label="Go to slide 8: Similarity Matrix"></a>
+  <a href="09-attention-architecture.html" aria-label="Go to slide 9: Attention Architecture"></a>
+  <a href="10-softmax-weights.html" aria-label="Go to slide 10: Softmax Weights"></a>
+  <a href="11-weighted-sum.html" aria-label="Go to slide 11: Weighted Sum"></a>
+  <a href="12-context-outcomes.html" aria-label="Go to slide 12: Context Outcomes"></a>
+  <a href="13-query-key-value.html" aria-label="Go to slide 13: Query, Key, Value"></a>
+  <a href="14-qk-transpose.html" aria-label="Go to slide 14: QK Transpose"></a>
+  <a href="15-similarity.html" aria-label="Go to slide 15: Similarity"></a>
+  <a href="16-softmax.html" aria-label="Go to slide 16: Softmax"></a>
+  <a href="17-scaling.html" aria-label="Go to slide 17: Scaling"></a>
+  <a href="18-attention-summary.html" aria-label="Go to slide 18: Attention Summary"></a>
+  <a href="19-context-update.html" aria-label="Go to slide 19: Context Update"></a>
+</nav>
+<div class="deck" id="deck">
+<section class="slide" id="slide5">
+    <div class="slide-inner">
+      <div>
+        <div class="eyebrow"><span class="num">08</span> SELF-ATTENTION</div>
+        <h1 class="title">Starting From the<br>Initial Vectors</h1>
+        <p class="subtitle">The Starting Point of Self-Attention</p>
+        <p class="lead">Every BPE token now has an initial embedding. The red marker shows <b>where we are now: before attention has added any context</b>.</p>
+        <p class="lead">The diagram uses only <b>2 dimensions so it can be drawn</b>. As shown on the previous slide, the real model represents every token with <b>512 numbers</b>.</p>
+        <div class="note">To focus on attention, this teaching example temporarily omits the ×√512 scaling, Positional Encoding addition, and Dropout.</div>
+      </div>
+
+      <div class="stage-panel">
+        <div class="stage-caption" id="s5-caption"><b>Initial vector —</b> We are here, just before self-attention begins.</div>
+
+        <div id="s5-step0">
+          <div class="s7-recap-tabs" aria-label="Contextualization stages">
+            <div class="active"><small>YOU ARE HERE</small><b>① Initial vector</b></div>
+            <div><b>② Fruit context</b><span>after attention</span></div>
+            <div><b>③ Company context</b><span>after attention</span></div>
+          </div>
+          <div class="s7-recap-plot" aria-label="A two-dimensional view of Apple's initial vector between fruit and technology regions">
+            <svg viewBox="0 0 600 230" preserveAspectRatio="none" aria-hidden="true">
+              <path class="fruit-path" d="M300 113C230 130 190 158 132 177"/>
+              <path class="company-path" d="M300 113C375 96 422 67 478 49"/>
+            </svg>
+            <div class="s7-region fruit"><span>FRUIT CONTEXT</span></div>
+            <div class="s7-region company"><span>COMPANY CONTEXT</span></div>
+            <div class="cluster-node" data-c="fruit" style="left:14%;top:76%"><div class="dot"></div><div class="lbl">banana</div></div>
+            <div class="cluster-node" data-c="fruit" style="left:24%;top:84%"><div class="dot"></div><div class="lbl">orange</div></div>
+            <div class="cluster-node" data-c="fruit" style="left:21%;top:61%"><div class="dot"></div><div class="lbl">juicy</div></div>
+            <div class="cluster-node" data-c="tech" style="left:79%;top:18%"><div class="dot"></div><div class="lbl">laptop</div></div>
+            <div class="cluster-node" data-c="tech" style="left:89%;top:29%"><div class="dot"></div><div class="lbl">computer</div></div>
+            <div class="cluster-node" data-c="tech" style="left:75%;top:39%"><div class="dot"></div><div class="lbl">bought</div></div>
+            <div class="s7-initial-vector">
+              <div class="s7-you-are-here">YOU ARE HERE</div>
+              <div class="s3-apple-dot"></div>
+              <div class="s3-apple-lbl">apple — initial vector</div>
+              <div class="s7-vector-value">[x, y] <span>2-D view</span></div>
+            </div>
+          </div>
+          <div class="s7-recap-notes">
+            <div><span class="dimension-icon">2D</span><p><b>Shown here:</b> 2 numbers per token, only so positions can be plotted.</p></div>
+            <div><span class="dimension-icon real">512D</span><p><b>Actual model:</b> 512 numbers for every single token.</p></div>
+            <div class="omitted"><span>OMITTED FOR NOW</span><p>×√512 · Positional Encoding · Dropout</p></div>
+          </div>
+          <div class="s5-vec-row s7-data-only" id="s5-vec-row" aria-hidden="true"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+<script src="js/app.js"></script>
+</body>
+</html>

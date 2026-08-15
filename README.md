@@ -10,6 +10,10 @@ An interactive slide collection that explains attention mechanisms by theme.
 `-- slides/
     |-- 01-self-attention/
     |   |-- index.html
+    |   |-- 01-encoder-decoder.html
+    |   |-- 02-word-vectors.html
+    |   |-- ...
+    |   |-- 19-context-update.html
     |   |-- css/
     |   |   `-- styles.css
     |   `-- js/
@@ -30,7 +34,9 @@ An interactive slide collection that explains attention mechanisms by theme.
 
 Open the repository-level `index.html` in a browser. It currently redirects to the Self-Attention deck.
 
-Each deck is self-contained. Place topic-specific HTML, CSS, and JavaScript inside its corresponding directory.
+Each slide is a standalone HTML page. Slides in the same deck share the deck's CSS, JavaScript, and assets, while navigation dots and arrow/Page Up/Page Down keys move between pages.
+
+Each deck is self-contained. Place topic-specific HTML, CSS, JavaScript, and assets inside its corresponding directory.
 
 ## Acknowledgements
 

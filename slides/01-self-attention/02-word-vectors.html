@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Word Vectors — How Translation AI Works</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="single-slide-page" data-slide-index="2" data-slide-count="19" data-prev-page="01-encoder-decoder.html" data-next-page="03-contextual-meaning.html">
+<div class="deck-header">
+  <span class="count" id="deck-count">02 / 19</span>
+  <span class="title-mini">How Translation AI Works</span>
+</div>
+<nav class="deck-nav" id="deck-nav" aria-label="Slide navigation">
+  <a href="01-encoder-decoder.html" aria-label="Go to slide 1: Encoder–Decoder Model"></a>
+  <a href="02-word-vectors.html" class="active" aria-current="page" aria-label="Go to slide 2: Word Vectors"></a>
+  <a href="03-contextual-meaning.html" aria-label="Go to slide 3: Contextual Meaning"></a>
+  <a href="04-matrix-transformation.html" aria-label="Go to slide 4: Matrix Transformation"></a>
+  <a href="05-transformer-architecture.html" aria-label="Go to slide 5: Transformer Architecture"></a>
+  <a href="06-token-embeddings.html" aria-label="Go to slide 6: Token Embeddings"></a>
+  <a href="07-positional-encoding.html" aria-label="Go to slide 7: Positional Encoding"></a>
+  <a href="08-similarity-matrix.html" aria-label="Go to slide 8: Similarity Matrix"></a>
+  <a href="09-attention-architecture.html" aria-label="Go to slide 9: Attention Architecture"></a>
+  <a href="10-softmax-weights.html" aria-label="Go to slide 10: Softmax Weights"></a>
+  <a href="11-weighted-sum.html" aria-label="Go to slide 11: Weighted Sum"></a>
+  <a href="12-context-outcomes.html" aria-label="Go to slide 12: Context Outcomes"></a>
+  <a href="13-query-key-value.html" aria-label="Go to slide 13: Query, Key, Value"></a>
+  <a href="14-qk-transpose.html" aria-label="Go to slide 14: QK Transpose"></a>
+  <a href="15-similarity.html" aria-label="Go to slide 15: Similarity"></a>
+  <a href="16-softmax.html" aria-label="Go to slide 16: Softmax"></a>
+  <a href="17-scaling.html" aria-label="Go to slide 17: Scaling"></a>
+  <a href="18-attention-summary.html" aria-label="Go to slide 18: Attention Summary"></a>
+  <a href="19-context-update.html" aria-label="Go to slide 19: Context Update"></a>
+</nav>
+<div class="deck" id="deck">
+<section class="slide" id="slide2">
+    <div class="slide-inner">
+      <div>
+        <div class="eyebrow"><span class="num">02</span> WORDS AS NUMBERS</div>
+        <h1 class="title">Turning Meaning<br>Into Numbers</h1>
+        <p class="subtitle">word2vec</p>
+        <p class="lead">The core idea behind word2vec is to represent a word's meaning as <b>a list of numbers — a vector</b>. More numbers (dimensions) can capture finer shades of meaning.</p>
+        <p class="lead">Words with similar meanings end up close together in this numeric space.</p>
+        <div class="note">Click a point in the diagram to see that word's vector.</div>
+      </div>
+
+      <div class="stage-panel">
+        <div class="stage-caption">Click a word to see its <b>vector</b>, and use the button below to see how <b>meaning relationships</b> look as vector directions.</div>
+        <div class="s2-layout">
+          <div class="s2-plot-wrap">
+            <div class="s2-plot" id="s2-plot">
+              <svg class="s2-lines" id="s2-lines"></svg>
+            </div>
+          </div>
+          <div class="s2-detail" id="s2-detail">
+            <div class="s2-detail-empty">Click a word to see<br>its vector here.</div>
+          </div>
+        </div>
+        <div class="s2-controls">
+          <button class="step-btn" id="s2-analogy-btn">🔎 See how "Japan → Tokyo" and "France → Paris" relate</button>
+        </div>
+        <div class="s2-analogy-caption" id="s2-analogy-caption"></div>
+      </div>
+    </div>
+  </section>
+</div>
+<script src="js/app.js"></script>
+</body>
+</html>

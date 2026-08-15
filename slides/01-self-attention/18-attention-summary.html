@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Attention Summary — How Translation AI Works</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="single-slide-page" data-slide-index="18" data-slide-count="19" data-prev-page="17-scaling.html" data-next-page="19-context-update.html">
+<div class="deck-header">
+  <span class="count" id="deck-count">18 / 19</span>
+  <span class="title-mini">How Translation AI Works</span>
+</div>
+<nav class="deck-nav" id="deck-nav" aria-label="Slide navigation">
+  <a href="01-encoder-decoder.html" aria-label="Go to slide 1: Encoder–Decoder Model"></a>
+  <a href="02-word-vectors.html" aria-label="Go to slide 2: Word Vectors"></a>
+  <a href="03-contextual-meaning.html" aria-label="Go to slide 3: Contextual Meaning"></a>
+  <a href="04-matrix-transformation.html" aria-label="Go to slide 4: Matrix Transformation"></a>
+  <a href="05-transformer-architecture.html" aria-label="Go to slide 5: Transformer Architecture"></a>
+  <a href="06-token-embeddings.html" aria-label="Go to slide 6: Token Embeddings"></a>
+  <a href="07-positional-encoding.html" aria-label="Go to slide 7: Positional Encoding"></a>
+  <a href="08-similarity-matrix.html" aria-label="Go to slide 8: Similarity Matrix"></a>
+  <a href="09-attention-architecture.html" aria-label="Go to slide 9: Attention Architecture"></a>
+  <a href="10-softmax-weights.html" aria-label="Go to slide 10: Softmax Weights"></a>
+  <a href="11-weighted-sum.html" aria-label="Go to slide 11: Weighted Sum"></a>
+  <a href="12-context-outcomes.html" aria-label="Go to slide 12: Context Outcomes"></a>
+  <a href="13-query-key-value.html" aria-label="Go to slide 13: Query, Key, Value"></a>
+  <a href="14-qk-transpose.html" aria-label="Go to slide 14: QK Transpose"></a>
+  <a href="15-similarity.html" aria-label="Go to slide 15: Similarity"></a>
+  <a href="16-softmax.html" aria-label="Go to slide 16: Softmax"></a>
+  <a href="17-scaling.html" aria-label="Go to slide 17: Scaling"></a>
+  <a href="18-attention-summary.html" class="active" aria-current="page" aria-label="Go to slide 18: Attention Summary"></a>
+  <a href="19-context-update.html" aria-label="Go to slide 19: Context Update"></a>
+</nav>
+<div class="deck" id="deck">
+<section class="slide" id="slide-attention-summary">
+    <div class="slide-inner s18-inner">
+      <div>
+        <div class="eyebrow"><span class="num">18</span> PUTTING IT ALL TOGETHER</div>
+        <h1 class="title">One Attention Formula,<br>Five Connected Steps</h1>
+        <p class="subtitle">The architecture, matrix operations, and equation are the same process</p>
+        <p class="lead">Follow the red frame from the inputs upward. The center shows what happens to the matrices; the formula highlights the matching operation.</p>
+        <div class="note">Q and K decide <b>where to attend</b>. V carries <b>what information to collect</b>. The final multiplication combines those two roles.</div>
+      </div>
+
+      <div class="stage-panel s18-panel">
+        <div class="stage-caption"><b>Three views of the same Scaled Dot-Product Attention calculation.</b></div>
+        <div class="s18-controls">
+          <button class="step-btn" id="s18-prev">← Previous</button>
+          <button class="step-btn primary" id="s18-next">Next →</button>
+        </div>
+        <div class="s18-step-head"><span id="s18-step-number">RECAP · STEP 1 / 4</span><b id="s18-step-title">Create Q, K, and V</b><em id="s18-phase-label">WHAT WE HAVE COVERED</em></div>
+
+        <div class="s18-columns stage-0" id="s18-animation">
+          <div class="s18-column architecture">
+            <div class="s18-col-title"><span>01</span><b>ARCHITECTURE</b></div>
+            <div class="s18-paper-crop" aria-label="Scaled Dot-Product Attention figure cropped from the original paper">
+              <img src="assets/scaled-dot-product-attention-crop.png" alt="Scaled Dot-Product Attention diagram cropped from Attention Is All You Need">
+              <div class="s18-focus"></div>
+            </div>
+          </div>
+
+          <div class="s18-column matrices">
+            <div class="s18-col-title"><span>02</span><b>MATRICES</b></div>
+            <div class="s18-scenes">
+              <div class="s18-carry-qkv" aria-label="Q K and V carried forward from step 1">
+                <div><b>Q</b><small>5 × 512</small></div><div><b>K</b><small>5 × 512</small></div><div class="value"><b>V</b><small>5 × 512</small></div>
+              </div>
+              <div class="s18-scene scene-0">
+                <div class="s18-s1-flow">
+                  <div class="s18-token-table"><span>I</span><span>ate</span><span>a</span><span>juicy</span><span>apple</span><b>5 token IDs · embedding lookup</b></div>
+                  <div class="s18-flow-arrow">→</div>
+                  <div class="s18-h-matrix"><b>H</b><small>5 × 512</small><div><i></i><i></i><i></i><i></i><i></i></div></div>
+                  <svg class="s18-branch" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+                    <path d="M0 50 C34 50 58 20 100 20"/>
+                    <path d="M0 50 C36 50 64 52 100 52"/>
+                    <path d="M0 50 C34 50 58 84 100 84"/>
+                  </svg>
+                </div>
+                <p>Five embedding lookups form H, then branch into Q, K, and V.</p>
+              </div>
+              <div class="s18-scene scene-1">
+                <div class="s18-s2-work">
+                  <div class="s18-q-large"><b>Q</b><small>5 × 512</small><div class="rows"><i></i><i></i><i></i><i></i><i></i></div></div>
+                  <strong>×</strong>
+                  <div class="s18-k-turn"><div class="k-before"><b>K</b><small>5 × 512</small></div><span>TRANSPOSE K</span><div class="k-after"><b>Kᵀ</b><small>512 × 5</small></div></div>
+                  <strong>=</strong>
+                  <div class="s18-qkt-result"><b>QKᵀ</b><em>5 × 5</em><div class="grid25"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></div>
+                </div>
+                <p>Transpose K, then repeat row × column dot products to create a 5 × 5 score matrix.</p>
+              </div>
+              <div class="s18-scene scene-2">
+                <div class="s18-s3-work">
+                  <div class="s18-qkt-result s18-scale-matrix source"><b>QKᵀ</b><em>5 × 5</em><div class="grid25"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></div>
+                  <div class="s18-scale-factor"><b>×</b><span class="s18-scale-fraction"><span>1</span><span>√d<sub>k</sub></span></span></div>
+                  <strong class="s18-scale-equals">=</strong>
+                  <div class="s18-qkt-result s18-scale-matrix result"><b>Scaled QKᵀ</b><em>5 × 5</em><div class="grid25"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></div>
+                </div>
+                <p>Scaling applies the same factor to all 25 cells—not only to one selected row.</p>
+              </div>
+              <div class="s18-scene scene-3">
+                <div class="s18-s4-work">
+                  <div class="s18-qkt-result s18-soft-matrix source"><b>Scaled QKᵀ</b><em>5 × 5</em><div class="grid25"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><div class="s18-row-frames"><span></span><span></span><span></span><span></span><span></span></div></div>
+                  <div class="s18-soft-op" aria-label="Softmax is applied to each row in sequence"><div class="s18-softmax-stack"><span><b>softmax</b><i>→</i></span><span><b>softmax</b><i>→</i></span><span><b>softmax</b><i>→</i></span><span><b>softmax</b><i>→</i></span><span><b>softmax</b><i>→</i></span></div></div>
+                  <div class="s18-qkt-result s18-soft-matrix target"><b>Attention Weights</b><em>5 × 5</em><div class="grid25"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></div>
+                </div>
+                <p>Softmax moves across the 5 rows; each resulting row sums to 100%.</p>
+              </div>
+              <div class="s18-scene scene-4">
+                <div class="s18-final-work">
+                  <div class="s18-qkt-result s18-final-weights"><b>Attention Weights</b><em>5 × 5</em><div class="grid25"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></div>
+                  <strong class="s18-final-times">×</strong>
+                  <div class="s18-final-v-space" aria-hidden="true"></div>
+                  <strong class="s18-final-equals">=</strong>
+                  <div class="s18-final-output"><b>Output</b><small>5 × 512</small><div class="s18-output-rows"><i></i><i></i><i></i><i></i><i></i></div><span>Attention(Q, K, V)</span></div>
+                </div>
+                <p>Attention Weights mix the Value vectors into the final contextualized matrix.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="s18-column equation">
+            <div class="s18-col-title"><span>03</span><b>EQUATION</b></div>
+            <div class="s18-formula" aria-label="Attention of Q K V equals softmax of Q K transpose divided by square root of d k multiplied by V">
+              <span class="s18-fn">Attention</span><span class="formula-inputs">(Q, K, V)</span><strong>=</strong>
+              <span class="formula-softmax">softmax</span><span>(</span>
+              <span class="formula-frac"><span class="formula-qk">QK<sup>T</sup></span><span class="formula-divide">√d<sub>k</sub></span></span><span>)</span>
+              <span class="formula-v">V</span>
+            </div>
+            <div class="s18-formula-note"><span id="s18-formula-caption">Q, K, and V enter the calculation</span></div>
+            <div class="s18-legend"><i></i><span>Current operation</span><em></em><span>Used later</span></div>
+          </div>
+        </div>
+
+        <div class="s18-progress" aria-label="Choose an attention calculation step"><button class="active" aria-label="Step 1"></button><button aria-label="Step 2"></button><button aria-label="Step 3"></button><button aria-label="Step 4"></button><button aria-label="Step 5"></button></div>
+      </div>
+    </div>
+  </section>
+</div>
+<script src="js/app.js"></script>
+</body>
+</html>

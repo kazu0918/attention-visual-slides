@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Positional Encoding — How Translation AI Works</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="single-slide-page" data-slide-index="7" data-slide-count="19" data-prev-page="06-token-embeddings.html" data-next-page="08-similarity-matrix.html">
+<div class="deck-header">
+  <span class="count" id="deck-count">07 / 19</span>
+  <span class="title-mini">How Translation AI Works</span>
+</div>
+<nav class="deck-nav" id="deck-nav" aria-label="Slide navigation">
+  <a href="01-encoder-decoder.html" aria-label="Go to slide 1: Encoder–Decoder Model"></a>
+  <a href="02-word-vectors.html" aria-label="Go to slide 2: Word Vectors"></a>
+  <a href="03-contextual-meaning.html" aria-label="Go to slide 3: Contextual Meaning"></a>
+  <a href="04-matrix-transformation.html" aria-label="Go to slide 4: Matrix Transformation"></a>
+  <a href="05-transformer-architecture.html" aria-label="Go to slide 5: Transformer Architecture"></a>
+  <a href="06-token-embeddings.html" aria-label="Go to slide 6: Token Embeddings"></a>
+  <a href="07-positional-encoding.html" class="active" aria-current="page" aria-label="Go to slide 7: Positional Encoding"></a>
+  <a href="08-similarity-matrix.html" aria-label="Go to slide 8: Similarity Matrix"></a>
+  <a href="09-attention-architecture.html" aria-label="Go to slide 9: Attention Architecture"></a>
+  <a href="10-softmax-weights.html" aria-label="Go to slide 10: Softmax Weights"></a>
+  <a href="11-weighted-sum.html" aria-label="Go to slide 11: Weighted Sum"></a>
+  <a href="12-context-outcomes.html" aria-label="Go to slide 12: Context Outcomes"></a>
+  <a href="13-query-key-value.html" aria-label="Go to slide 13: Query, Key, Value"></a>
+  <a href="14-qk-transpose.html" aria-label="Go to slide 14: QK Transpose"></a>
+  <a href="15-similarity.html" aria-label="Go to slide 15: Similarity"></a>
+  <a href="16-softmax.html" aria-label="Go to slide 16: Softmax"></a>
+  <a href="17-scaling.html" aria-label="Go to slide 17: Scaling"></a>
+  <a href="18-attention-summary.html" aria-label="Go to slide 18: Attention Summary"></a>
+  <a href="19-context-update.html" aria-label="Go to slide 19: Context Update"></a>
+</nav>
+<div class="deck" id="deck">
+<section class="slide" id="slide-positional-encoding">
+    <div class="slide-inner">
+      <div>
+        <div class="eyebrow"><span class="num">07</span> POSITIONAL ENCODING</div>
+        <h1 class="title">How the model understands position</h1>
+        <p class="lead">There's no mechanism inside the encoder or decoder that accounts for the position of a word. <span class="s12-sentence">[you eat salad]</span> and <span class="s12-sentence">[salad eat you]</span> look the same to the model.</p>
+        <p class="lead">We need to somehow represent word positions so the model learns. Just a meaningful wobble is enough.</p>
+      </div>
+
+      <div class="stage-panel s12-position-panel">
+        <div class="s12-card-title"><b>Positional Encoding</b><span>position becomes a direction</span></div>
+        <div class="s12-tabs" role="tablist" aria-label="Positional encoding views">
+          <button class="active" data-s12-view="encoding" role="tab" aria-selected="true">Encoding</button>
+          <button data-s12-view="application" role="tab" aria-selected="false"><b>Application</b></button>
+        </div>
+        <div class="s12-tab-view" id="s12-encoding-view">
+          <div class="s12-vector-layout">
+          <div class="s12-vector-copy">
+            <div class="s12-mini-label">3-D VECTOR</div>
+            <div class="s12-vector-values" id="s12-vector-values" aria-live="polite">[+0.00, +1.00, +0.00]</div>
+            <div class="s12-vector-position">position <output id="s12-position-value">0</output></div>
+          </div>
+          <svg class="s12-vector-box" id="s12-vector-box" viewBox="0 0 320 220" role="img" aria-labelledby="s12-vector-title s12-vector-desc">
+            <title id="s12-vector-title">Three-dimensional positional encoding vector</title>
+            <desc id="s12-vector-desc">A translucent blue path traces the three-dimensional positional encoding trajectory as the selected word position changes.</desc>
+            <g class="s12-3d-scene" aria-hidden="true">
+              <g class="s12-3d-axis-set">
+                <line class="s12-3d-axis axis-x" id="s12-axis-x-neg" /><line class="s12-3d-axis axis-x" id="s12-axis-x-pos" />
+                <line class="s12-3d-axis axis-y" id="s12-axis-y-neg" /><line class="s12-3d-axis axis-y" id="s12-axis-y-pos" />
+                <line class="s12-3d-axis axis-z" id="s12-axis-z-neg" /><line class="s12-3d-axis axis-z" id="s12-axis-z-pos" />
+                <text id="s12-label-x-neg">−x</text><text id="s12-label-x-pos">+x</text>
+                <text id="s12-label-y-neg">−y</text><text id="s12-label-y-pos">+y</text>
+                <text id="s12-label-z-neg">−z</text><text id="s12-label-z-pos">+z</text>
+              </g>
+              <path class="s12-trace-path" id="s12-trace-path" />
+              <circle class="s12-trace-point" id="s12-trace-point" cx="160" cy="108" r="5" />
+            </g>
+          </svg>
+          </div>
+          <div class="s12-graph-wrap">
+          <div class="s12-graph-heading"><span>3 sinusoidal signals</span><small>the third signal changes more slowly</small></div>
+          <svg class="s12-graph" id="s12-graph" viewBox="0 0 620 205" preserveAspectRatio="none" role="img" aria-labelledby="s12-graph-title s12-graph-desc">
+            <title id="s12-graph-title">Sinusoidal positional encodings by position</title>
+            <desc id="s12-graph-desc">Three sinusoidal curves show the values added to a token vector. The third curve changes more slowly. A vertical marker identifies the selected position.</desc>
+            <g class="s12-graph-grid" aria-hidden="true">
+              <line x1="42" y1="18" x2="42" y2="170" /><line x1="42" y1="94" x2="600" y2="94" /><line x1="42" y1="18" x2="600" y2="18" /><line x1="42" y1="170" x2="600" y2="170" />
+            </g>
+            <path class="s12-curve curve-a" id="s12-curve-a" />
+            <path class="s12-curve curve-b" id="s12-curve-b" />
+            <path class="s12-curve curve-c" id="s12-curve-c" />
+            <line class="s12-graph-marker" id="s12-graph-marker" x1="42" y1="18" x2="42" y2="170" />
+            <circle class="s12-graph-dot dot-a" id="s12-dot-a" cx="42" cy="94" r="4" />
+            <circle class="s12-graph-dot dot-b" id="s12-dot-b" cx="42" cy="94" r="4" />
+            <circle class="s12-graph-dot dot-c" id="s12-dot-c" cx="42" cy="94" r="4" />
+            <text class="s12-axis-label" x="30" y="22">+1</text><text class="s12-axis-label" x="30" y="98">0</text><text class="s12-axis-label" x="25" y="174">−1</text>
+            <text class="s12-axis-label" x="42" y="190">0</text><text class="s12-axis-label" x="320" y="190">position</text><text class="s12-axis-label" x="590" y="190">20</text>
+          </svg>
+          <input class="s12-position-slider" id="s12-position-slider" type="range" min="0" max="20" value="0" step="0.1" aria-label="Select word position for positional encoding">
+            <div class="s12-legend" aria-label="Encoding channels"><span class="channel-a">sin(pos)</span><span class="channel-b">cos(pos)</span><span class="channel-c">sin(pos / 4)</span></div>
+          </div>
+        </div>
+        <div class="s12-tab-view" id="s12-application-view" hidden>
+          <div class="s12-application-head"><b>Application</b><span>actual vector + position = placed vector</span></div>
+          <svg class="s12-application-plot" id="s12-application-plot" viewBox="0 0 620 250" role="img" aria-labelledby="s12-application-title s12-application-desc">
+            <title id="s12-application-title">Word vectors shifted by positional encoding</title>
+            <desc id="s12-application-desc">Three word vectors move to different positions when their order changes.</desc>
+            <g class="s12-app-grid" aria-hidden="true">
+              <line x1="310" y1="20" x2="310" y2="218" /><line x1="45" y1="119" x2="575" y2="119" />
+            </g>
+            <text class="s12-app-axis-label" x="566" y="113">x</text><text class="s12-app-axis-label" x="317" y="27">y</text>
+            <g id="s12-application-items"></g>
+          </svg>
+          <div class="s12-app-formula"><span>actual vector</span><b>+</b><span class="position-key">position vector</span><b>→</b><strong>placed vector</strong></div>
+          <div class="s12-app-chips" role="tablist" aria-label="Choose word order">
+            <button class="active" data-s12-order="you-eat-salad" role="tab" aria-selected="true">[you eat salad]</button>
+            <button data-s12-order="salad-eat-you" role="tab" aria-selected="false">[salad eat you]</button>
+            <button data-s12-order="you-salad-eat" role="tab" aria-selected="false">[you salad eat]</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+<script src="js/app.js"></script>
+</body>
+</html>

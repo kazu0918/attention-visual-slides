@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Encoder–Decoder Model — How Translation AI Works</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="single-slide-page" data-slide-index="1" data-slide-count="19" data-prev-page="" data-next-page="02-word-vectors.html">
+<div class="deck-header">
+  <span class="count" id="deck-count">01 / 19</span>
+  <span class="title-mini">How Translation AI Works</span>
+</div>
+<nav class="deck-nav" id="deck-nav" aria-label="Slide navigation">
+  <a href="01-encoder-decoder.html" class="active" aria-current="page" aria-label="Go to slide 1: Encoder–Decoder Model"></a>
+  <a href="02-word-vectors.html" aria-label="Go to slide 2: Word Vectors"></a>
+  <a href="03-contextual-meaning.html" aria-label="Go to slide 3: Contextual Meaning"></a>
+  <a href="04-matrix-transformation.html" aria-label="Go to slide 4: Matrix Transformation"></a>
+  <a href="05-transformer-architecture.html" aria-label="Go to slide 5: Transformer Architecture"></a>
+  <a href="06-token-embeddings.html" aria-label="Go to slide 6: Token Embeddings"></a>
+  <a href="07-positional-encoding.html" aria-label="Go to slide 7: Positional Encoding"></a>
+  <a href="08-similarity-matrix.html" aria-label="Go to slide 8: Similarity Matrix"></a>
+  <a href="09-attention-architecture.html" aria-label="Go to slide 9: Attention Architecture"></a>
+  <a href="10-softmax-weights.html" aria-label="Go to slide 10: Softmax Weights"></a>
+  <a href="11-weighted-sum.html" aria-label="Go to slide 11: Weighted Sum"></a>
+  <a href="12-context-outcomes.html" aria-label="Go to slide 12: Context Outcomes"></a>
+  <a href="13-query-key-value.html" aria-label="Go to slide 13: Query, Key, Value"></a>
+  <a href="14-qk-transpose.html" aria-label="Go to slide 14: QK Transpose"></a>
+  <a href="15-similarity.html" aria-label="Go to slide 15: Similarity"></a>
+  <a href="16-softmax.html" aria-label="Go to slide 16: Softmax"></a>
+  <a href="17-scaling.html" aria-label="Go to slide 17: Scaling"></a>
+  <a href="18-attention-summary.html" aria-label="Go to slide 18: Attention Summary"></a>
+  <a href="19-context-update.html" aria-label="Go to slide 19: Context Update"></a>
+</nav>
+<div class="deck" id="deck">
+<section class="slide" id="slide1">
+    <div class="slide-inner">
+      <div>
+        <div class="eyebrow"><span class="num">01</span> TRANSLATION AI</div>
+        <h1 class="title">AI That Translates —<br>The Encoder–Decoder Model</h1>
+        <p class="subtitle">Encoder–Decoder Model</p>
+        <p class="lead">Because word order differs across languages, translation isn't just word-by-word. Instead, the model <b>first "digests" the whole sentence into a single meaning</b>, then builds the output from that.</p>
+        <p class="lead">The input sentence is turned entirely into numbers (a vector) that capture its meaning, and the output words are generated from that vector.</p>
+        <div class="note">In this simplified encoder–decoder diagram, the meaning vector is a numeric summary of the whole sentence—not a translation of any single word. It carries information such as who did what to whom, allowing the decoder to rebuild the sentence in a different word order.</div>
+      </div>
+
+      <div class="stage-panel">
+        <div class="stage-caption" id="s1-caption"><b>Step 0 —</b> The sentence to translate is fed into the encoder.</div>
+        <div class="s1-stage">
+          <svg class="s1-lines" id="s1-lines"></svg>
+          <div class="s1-row" id="s1-row">
+            <div class="s1-block s1-input">
+              <div class="s1-block-label">Input</div>
+              <div class="s1-input-text">The cat ate the fish</div>
+            </div>
+            <div class="s1-arrow" id="arrow-1">→</div>
+            <div class="s1-block s1-encoder" id="s1-encoder">
+              <div class="s1-block-label">Encoder</div>
+              <div class="s1-tokens" id="s1-tokens"></div>
+            </div>
+            <div class="s1-arrow" id="arrow-2">→</div>
+            <div class="s1-block s1-meaning">
+              <div class="s1-block-label">Sentence<br>Meaning Vector</div>
+              <div class="s1-meaning-grid" id="s1-meaning-grid">
+                <div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div>
+              </div>
+              <div class="s1-meaning-desc">A numeric summary of the whole sentence</div>
+            </div>
+            <div class="s1-arrow" id="arrow-3">→</div>
+            <div class="s1-block s1-decoder" id="s1-decoder">
+              <div class="s1-block-label">Decoder</div>
+              <div class="s1-output" id="s1-output"></div>
+            </div>
+          </div>
+          <div class="s1-alignment" id="s1-alignment" aria-label="Word alignment between the English input and Japanese output">
+            <div class="s1-alignment-title">WORD ALIGNMENT <span>Lines cross because the word order changes</span></div>
+            <div class="s1-alignment-map" id="s1-alignment-map">
+              <svg class="s1-alignment-lines" id="s1-alignment-lines"></svg>
+              <div class="s1-alignment-row" id="s1-source-row"></div>
+              <div class="s1-alignment-row" id="s1-target-row"></div>
+            </div>
+            <div class="s1-alignment-note">English articles are omitted; Japanese particles are generated from the sentence meaning.</div>
+          </div>
+        </div>
+        <div class="s1-controls">
+          <button class="step-btn" id="s1-prev">← Back</button>
+          <div class="step-dots" id="s1-dots"></div>
+          <button class="step-btn" id="s1-next">Next →</button>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+<script src="js/app.js"></script>
+</body>
+</html>
