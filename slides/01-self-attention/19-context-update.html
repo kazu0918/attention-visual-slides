@@ -3,15 +3,15 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Context Update — How Translation AI Works</title>
+<title>Attention Weights × V — How Translation AI Works</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/styles.css">
 </head>
-<body class="single-slide-page" data-slide-index="19" data-slide-count="19" data-prev-page="18-attention-summary.html" data-next-page="">
+<body class="single-slide-page" data-slide-index="19" data-slide-count="20" data-prev-page="18-attention-summary.html" data-next-page="20-vector-mixing.html">
 <div class="deck-header">
-  <span class="count" id="deck-count">19 / 19</span>
+  <span class="count" id="deck-count">19 / 20</span>
   <span class="title-mini">How Translation AI Works</span>
 </div>
 <nav class="deck-nav" id="deck-nav" aria-label="Slide navigation">
@@ -34,46 +34,86 @@
   <a href="17-scaling.html" aria-label="Go to slide 17: Scaling"></a>
   <a href="18-attention-summary.html" aria-label="Go to slide 18: Attention Summary"></a>
   <a href="19-context-update.html" class="active" aria-current="page" aria-label="Go to slide 19: Context Update"></a>
+  <a href="20-vector-mixing.html" aria-label="Go to slide 20: Mixing Value Vectors"></a>
 </nav>
 <div class="deck" id="deck">
 <section class="slide" id="slide-context-update">
     <div class="slide-inner">
       <div>
-        <div class="eyebrow"><span class="num">19</span> USING THE WEIGHTS</div>
-        <h1 class="title">Move Each Token<br>Toward Its Context</h1>
-        <p class="subtitle">A weighted mixture of Value vectors creates a new representation</p>
-        <p class="lead">The scores decide how much information to collect from each word. <b>Important words pull more strongly</b>; unrelated words contribute only a little.</p>
-        <p class="lead">The result is usually <b>not another existing word vector</b>. It is a new point that combines the information needed for this sentence.</p>
-        <div class="note">Attention does not simply add every vector equally. After softmax, the weights sum to 1, producing a weighted mixture: <b>output = Σ attention weight × Value vector</b>.</div>
+        <div class="eyebrow"><span class="num">19</span> LAST STEP · WEIGHTS × V</div>
+        <h1 class="title">Use the Weights<br>to Mix V</h1>
+        <p class="subtitle">Attention finishes by combining the original token information</p>
+        <p class="lead"><b>V comes from the original embeddings</b>: each token embedding is passed through the learned V projection, so every row still carries that token’s information.</p>
+        <p class="lead">The attention-weight matrix now tells us <b>how much of every V row to collect</b>. Each output row becomes a weighted mixture of all five token vectors.</p>
+        <div class="note">For one output token: <b>new vector = Σ attention weight × V row</b>. The weights do not replace the embeddings—they control how the embedding information is mixed.</div>
       </div>
 
-      <div class="stage-panel s15-panel">
-        <div class="stage-caption"><b>The same starting vector moves in two different directions.</b></div>
-        <button class="step-btn s15-replay" id="s15-replay">↻ Replay animation</button>
-        <div class="s15-cases is-playing" id="s15-cases">
-          <div class="s15-case fruit">
-            <div class="s15-case-head"><span>FRUIT CONTEXT</span><b>“I ate a juicy apple.”</b></div>
-            <svg viewBox="0 0 340 285" aria-label="Apple vector moves toward juicy">
-              <defs><marker id="s15-fruit-arrow" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#78c991"/></marker></defs>
-              <g class="s15-links"><line x1="235" y1="205" x2="86" y2="70"/><line x1="235" y1="205" x2="135" y2="112"/><line x1="235" y1="205" x2="185" y2="82"/><line class="pull" x1="235" y1="205" x2="205" y2="145" marker-end="url(#s15-fruit-arrow)"/></g>
-              <g class="s15-points"><circle cx="86" cy="70" r="5"/><text x="78" y="55">I</text><circle cx="135" cy="112" r="5"/><text x="119" y="98">ate</text><circle cx="185" cy="82" r="5"/><text x="181" y="67">a</text><circle class="context" cx="205" cy="145" r="8"/><text x="176" y="130">juicy</text><circle class="start" cx="235" cy="205" r="10"/><text x="247" y="225">apple · initial</text><circle class="updated" cx="214" cy="163" r="11"/><text class="updated-label" x="226" y="158">apple · updated</text></g>
-            </svg>
-            <div class="s15-weights"><span>juicy <b>0.48</b></span><span>apple <b>0.34</b></span><span>ate <b>0.09</b></span><span>others <b>0.09</b></span></div>
-            <div class="s15-formula"><b>apple<sub>updated</sub> =</b><code>0.48 × juicy vector + 0.34 × apple vector<br>+ 0.09 × ate vector + 0.09 × others</code></div>
-          </div>
+      <div class="stage-panel s19-panel">
+        <div class="stage-caption"><b>Each row of attention weights mixes all rows of V.</b></div>
+        <button class="step-btn s19-replay" id="s19-replay">↻ Replay multiplication</button>
 
-          <div class="s15-case company">
-            <div class="s15-case-head"><span>COMPANY CONTEXT</span><b>“I bought an Apple laptop.”</b></div>
-            <svg viewBox="0 0 340 285" aria-label="Apple vector moves toward laptop">
-              <defs><marker id="s15-company-arrow" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#8fb3ff"/></marker></defs>
-              <g class="s15-links"><line x1="112" y1="195" x2="54" y2="65"/><line x1="112" y1="195" x2="148" y2="86"/><line x1="112" y1="195" x2="210" y2="65"/><line class="pull" x1="112" y1="195" x2="182" y2="210" marker-end="url(#s15-company-arrow)"/></g>
-              <g class="s15-points"><circle cx="54" cy="65" r="5"/><text x="47" y="50">I</text><circle cx="148" cy="86" r="5"/><text x="117" y="72">bought</text><circle cx="210" cy="65" r="5"/><text x="202" y="50">an</text><circle class="context" cx="182" cy="210" r="8"/><text x="192" y="231">laptop</text><circle class="start" cx="112" cy="195" r="10"/><text x="72" y="220">Apple · initial</text><circle class="updated" cx="160" cy="205" r="11"/><text class="updated-label" x="171" y="190">Apple · updated</text></g>
-            </svg>
-            <div class="s15-weights"><span>laptop <b>0.52</b></span><span>Apple <b>0.30</b></span><span>bought <b>0.13</b></span><span>others <b>0.05</b></span></div>
-            <div class="s15-formula"><b>Apple<sub>updated</sub> =</b><code>0.52 × laptop vector + 0.30 × Apple vector<br>+ 0.13 × bought vector + 0.05 × others</code></div>
-          </div>
+        <div class="s19-equation is-playing" id="s19-equation">
+          <section class="s19-matrix-card weights" aria-label="Five by five attention weight matrix">
+            <header><span>ATTENTION WEIGHTS</span><b>5 × 5</b></header>
+            <div class="s19-axis-note">rows = who is looking · columns = what is collected</div>
+            <div class="s19-matrix s19-weight-matrix">
+              <span></span><b>I</b><b>ate</b><b>a</b><b>juicy</b><b>apple</b>
+              <b>I</b><i style="--w:.44">.44</i><i style="--w:.17">.17</i><i style="--w:.08">.08</i><i style="--w:.12">.12</i><i style="--w:.19">.19</i>
+              <b>ate</b><i style="--w:.14">.14</i><i style="--w:.29">.29</i><i style="--w:.08">.08</i><i style="--w:.19">.19</i><i style="--w:.30">.30</i>
+              <b>a</b><i style="--w:.10">.10</i><i style="--w:.12">.12</i><i style="--w:.41">.41</i><i style="--w:.14">.14</i><i style="--w:.23">.23</i>
+              <b>juicy</b><i style="--w:.05">.05</i><i style="--w:.08">.08</i><i style="--w:.04">.04</i><i style="--w:.46">.46</i><i style="--w:.37">.37</i>
+              <b>apple</b><i style="--w:.04">.04</i><i style="--w:.10">.10</i><i style="--w:.03">.03</i><i style="--w:.48">.48</i><i style="--w:.35">.35</i>
+            </div>
+            <small>Every row sums to 1.00</small>
+          </section>
+
+          <div class="s19-operator"><b>×</b><span>WEIGHT<br>THE ROWS</span></div>
+
+          <section class="s19-matrix-card values" aria-label="Value matrix derived from the five token embeddings">
+            <header><span>VALUE MATRIX · V</span><b>5 × 512</b></header>
+            <div class="s19-axis-note">one Value row per original token embedding</div>
+            <div class="s19-matrix s19-value-matrix">
+              <span></span><b>d₁</b><b>d₂</b><b>d₃</b><b>d₄</b><b>d₅₁₂</b>
+              <b>I</b><i>.18</i><i>−.42</i><i>.31</i><i>−.12</i><i>.07</i>
+              <b>ate</b><i>−.24</i><i>.63</i><i>.11</i><i>.35</i><i>−.16</i>
+              <b>a</b><i>.09</i><i>−.18</i><i>.27</i><i>.08</i><i>.22</i>
+              <b>juicy</b><i>.72</i><i>.44</i><i>−.38</i><i>−.21</i><i>.51</i>
+              <b>apple</b><i>.61</i><i>.28</i><i>−.47</i><i>.43</i><i>.66</i>
+            </div>
+            <small>V = H W<sub>V</sub> · projected embedding information</small>
+          </section>
+
+          <div class="s19-operator equals"><b>=</b><span>NEW TOKEN<br>VECTORS</span></div>
+
+          <section class="s19-matrix-card output" aria-label="Contextualized output matrix">
+            <header><span>CONTEXTUALIZED OUTPUT</span><b>5 × 512</b></header>
+            <div class="s19-axis-note">same shape · context is now mixed into every row</div>
+            <div class="s19-matrix s19-output-matrix">
+              <span></span><b>d₁</b><b>d₂</b><b>d₃</b><b>d₄</b><b>d₅₁₂</b>
+              <b>I′</b><i>.25</i><i>.01</i><i>.04</i><i>.07</i><i>.21</i>
+              <b>ate′</b><i>.28</i><i>.28</i><i>−.12</i><i>.18</i><i>.28</i>
+              <b>a′</b><i>.27</i><i>.09</i><i>−.01</i><i>.13</i><i>.30</i>
+              <b>juicy′</b><i>.55</i><i>.33</i><i>−.31</i><i>.09</i><i>.48</i>
+              <b>apple′</b><i>.55</i><i>.35</i><i>−.32</i><i>.08</i><i>.47</i>
+            </div>
+            <small>Each row now includes information from the other words</small>
+          </section>
         </div>
-        <div class="s15-takeaway"><b>Not replacement—contextualization.</b><span>The updated vector does not become “juicy” or “laptop”; it becomes an apple representation influenced by those words.</span></div>
+
+        <div class="s19-trace" id="s19-trace" aria-label="Six horizontal steps showing output cells of the matrix multiplication">
+          <button class="s19-trace-arrow prev" id="s19-trace-prev" aria-label="Previous output cell">←</button>
+          <div class="s19-trace-viewport"><div class="s19-trace-track" id="s19-trace-track">
+            <article class="s19-trace-page cell-page"><span>1 / 6 · OUTPUT CELL I′, d₁</span><h3>Weight row I × V column d₁</h3><div class="s19-cell-products"><code><b>.44</b>×<em>.18</em>=.0792</code><code><b>.17</b>×<em>−.24</em>=−.0408</code><code><b>.08</b>×<em>.09</em>=.0072</code><code><b>.12</b>×<em>.72</em>=.0864</code><code><b>.19</b>×<em>.61</em>=.1159</code></div><small>ADD → .2479 ≈ <b>.25</b></small></article>
+            <article class="s19-trace-page cell-page"><span>2 / 6 · NEXT OUTPUT CELL I′, d₂</span><h3>Weight row I × V column d₂</h3><div class="s19-cell-products"><code><b>.44</b>×<em>−.42</em>=−.1848</code><code><b>.17</b>×<em>.63</em>=.1071</code><code><b>.08</b>×<em>−.18</em>=−.0144</code><code><b>.12</b>×<em>.44</em>=.0528</code><code><b>.19</b>×<em>.28</em>=.0532</code></div><small>ADD → .0139 ≈ <b>.01</b></small></article>
+            <article class="s19-trace-page cell-page"><span>3 / 6 · NEXT OUTPUT CELL I′, d₃</span><h3>Weight row I × V column d₃</h3><div class="s19-cell-products"><code><b>.44</b>×<em>.31</em>=.1364</code><code><b>.17</b>×<em>.11</em>=.0187</code><code><b>.08</b>×<em>.27</em>=.0216</code><code><b>.12</b>×<em>−.38</em>=−.0456</code><code><b>.19</b>×<em>−.47</em>=−.0893</code></div><small>ADD → .0418 ≈ <b>.04</b></small></article>
+            <article class="s19-trace-page cell-page"><span>4 / 6 · NEXT OUTPUT CELL I′, d₄</span><h3>Weight row I × V column d₄</h3><div class="s19-cell-products"><code><b>.44</b>×<em>−.12</em>=−.0528</code><code><b>.17</b>×<em>.35</em>=.0595</code><code><b>.08</b>×<em>.08</em>=.0064</code><code><b>.12</b>×<em>−.21</em>=−.0252</code><code><b>.19</b>×<em>.43</em>=.0817</code></div><small>ADD → .0696 ≈ <b>.07</b></small></article>
+            <article class="s19-trace-page cell-page final-i"><span>5 / 6 · REPRESENTATIVE LAST DIMENSION I′, d₅₁₂</span><h3>Weight row I × V column d₅₁₂</h3><div class="s19-cell-products"><code><b>.44</b>×<em>.07</em>=.0308</code><code><b>.17</b>×<em>−.16</em>=−.0272</code><code><b>.08</b>×<em>.22</em>=.0176</code><code><b>.12</b>×<em>.51</em>=.0612</code><code><b>.19</b>×<em>.66</em>=.1254</code></div><small>ADD → .2078 ≈ <b>.21</b> · I′ row complete</small></article>
+            <article class="s19-trace-page fast-finish"><span>6 / 6 · REPEAT FOR THE REMAINING ROWS</span><h3>Finish the matrix</h3><div class="s19-fast-rows"><b>ate′</b><b>a′</b><b>juicy′</b><b>apple′</b></div><p>Apply the same row-by-column operation to every remaining output cell.</p><small>Attention weights × V = <b>contextualized output</b></small></article>
+          </div></div>
+          <button class="s19-trace-arrow next" id="s19-trace-next" aria-label="Next output cell">→</button>
+          <div class="s19-trace-dots" id="s19-trace-dots" aria-label="Output-cell steps"><button class="active" aria-label="Step 1"></button><button aria-label="Step 2"></button><button aria-label="Step 3"></button><button aria-label="Step 4"></button><button aria-label="Step 5"></button><button aria-label="Step 6"></button></div>
+        </div>
+        <div class="s19-takeaway"><b>Attention is information routing.</b><span>The weights decide how strongly each original token’s Value information contributes to every new token representation.</span></div>
       </div>
     </div>
   </section>

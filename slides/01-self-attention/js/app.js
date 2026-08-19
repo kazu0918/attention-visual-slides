@@ -152,6 +152,142 @@ function blendedPosition(key){
   });
 })();
 
+// Slide 20: pair apple-weight cells with V cells and land products directly in V rows.
+(()=>{
+  const stage=document.getElementById('s20-mix');
+  const replay=document.getElementById('s20-replay');
+  const nextStep=document.getElementById('s20-next');
+  const attentionCells=[...document.querySelectorAll('.s20v3-attention i')];
+  const valueCells=[...document.querySelectorAll('.s20v3-value i')];
+  const factorRows=[...document.querySelectorAll('.s20v3-factor-row')];
+  const final=document.querySelector('.s20v3-final');
+  if(!stage||!replay||!nextStep||!final||attentionCells.length!==25||valueCells.length!==25||factorRows.length!==5) return;
+  const weights=['.04','.10','.03','.48','.35'];
+  const tokens=['I','ate','a','juicy','apple'];
+  const dimensions=['d₁','d₂','d₃','d₄…d₅₁₁','d₅₁₂'];
+  let timers=[];
+  let directCells=[];
+  const later=(fn,delay)=>{const id=setTimeout(fn,delay);timers.push(id);return id;};
+  const clear=()=>{
+    timers.forEach(clearTimeout);timers=[];
+    stage.querySelectorAll('.s20v3-fly').forEach(el=>el.remove());
+    stage.classList.remove('has-products','cells-complete','is-grouping');
+    [...attentionCells,...valueCells].forEach(cell=>cell.classList.remove('source-active'));
+    directCells=[];
+    factorRows.forEach((row,rowIndex)=>{
+      row.classList.remove('active','factor-weight','factor-arrow','factor-result','group-vector','factored');
+      const destination=row.querySelector('div');
+      destination.replaceChildren();
+      for(let column=0;column<5;column++){
+        const cell=document.createElement('i');
+        cell.className='s20v3-direct-cell';
+        cell.style.setProperty('--cell-index',column);
+        cell.style.setProperty('--cell-delay',`${column*.09}s`);
+        cell.setAttribute('aria-label',`${weights[rowIndex]} × V_${tokens[rowIndex]}[${dimensions[column]}]`);
+        destination.appendChild(cell);
+        directCells.push(cell);
+      }
+    });
+    nextStep.disabled=true;
+    nextStep.classList.remove('ready');
+    nextStep.textContent='Next: factor rows →';
+    final.classList.remove('active');
+  };
+  const fly=(source,target,text,kind,duration,offsetX)=>{
+    const root=stage.getBoundingClientRect();
+    const from=source.getBoundingClientRect();
+    const to=target.getBoundingClientRect();
+    const startX=from.left+from.width/2-root.left;
+    const startY=from.top+from.height/2-root.top;
+    const endX=to.left+to.width/2-root.left+offsetX;
+    const endY=to.top+to.height/2-root.top;
+    const chip=document.createElement('span');
+    chip.className=`s20v3-fly ${kind}`;
+    chip.textContent=text;
+    chip.style.left=`${startX}px`;chip.style.top=`${startY}px`;
+    chip.style.setProperty('--fly-time',`${duration}ms`);
+    chip.style.transform='translate(-50%,-50%)';
+    stage.appendChild(chip);
+    requestAnimationFrame(()=>{chip.style.transform=`translate(calc(-50% + ${endX-startX}px),calc(-50% + ${endY-startY}px)) scale(.72)`;});
+    later(()=>chip.remove(),duration+40);
+  };
+  const revealCell=(row,column,duration)=>{
+    const weightCell=attentionCells[20+row];
+    const valueCell=valueCells[row*5+column];
+    const target=directCells[row*5+column];
+    weightCell.classList.add('source-active');
+    valueCell.classList.add('source-active');
+    fly(weightCell,target,weights[row],'weight',duration,-19);
+    fly(valueCell,target,`V_${tokens[row]}[${dimensions[column]}]`,'value',duration,12);
+    later(()=>{
+      fillDirectCell(target,row,column);
+      target.classList.add('filled');
+      weightCell.classList.remove('source-active');
+      valueCell.classList.remove('source-active');
+    },duration*.78);
+  };
+  const fillDirectCell=(cell,row,column)=>{
+    const weight=document.createElement('span');
+    const times=document.createElement('span');
+    const value=document.createElement('span');
+    weight.className='s20v3-cell-weight';weight.textContent=weights[row];
+    times.className='s20v3-cell-times';times.textContent='×';
+    value.className='s20v3-cell-value';value.textContent=`V_${tokens[row]}[${dimensions[column]}]`;
+    cell.replaceChildren(weight,times,value);
+  };
+  const completeStepOne=()=>{
+    stage.classList.add('has-products','cells-complete');
+    nextStep.disabled=false;
+    nextStep.classList.add('ready');
+  };
+  const factorRowsOnRequest=()=>{
+    if(nextStep.disabled) return;
+    nextStep.disabled=true;
+    nextStep.classList.remove('ready');
+    nextStep.textContent='Step 2: grouping rows…';
+    stage.classList.remove('cells-complete');
+    stage.classList.add('is-grouping');
+    const rowDuration=2400;
+    factorRows.forEach((factor,row)=>{
+      const start=row*rowDuration;
+      later(()=>factor.classList.add('factor-weight'),start);
+      later(()=>factor.classList.add('factor-arrow'),start+500);
+      later(()=>factor.classList.add('factor-result'),start+950);
+      later(()=>factor.classList.add('group-vector'),start+1250);
+      later(()=>factor.classList.add('factored'),start+2160);
+    });
+    later(()=>{final.classList.add('active');nextStep.textContent='Step 2 complete';},factorRows.length*rowDuration+120);
+  };
+  const run=()=>{
+    clear();
+    if(window.matchMedia?.('(prefers-reduced-motion: reduce)').matches){
+      directCells.forEach((cell,index)=>{const row=Math.floor(index/5),column=index%5;fillDirectCell(cell,row,column);cell.classList.add('filled');});
+      completeStepOne();return;
+    }
+    let elapsed=120;
+    for(let column=0;column<5;column++){
+      for(let row=0;row<5;row++){
+        const duration=column===0?260:115;
+        later(()=>revealCell(row,column,duration),elapsed);
+        elapsed+=column===0?330:135;
+      }
+    }
+    later(completeStepOne,elapsed+220);
+  };
+  replay.addEventListener('click',run);
+  nextStep.addEventListener('click',factorRowsOnRequest);
+  run();
+  const slide=document.getElementById('slide-vector-mixing');
+  if('IntersectionObserver' in window&&slide){
+    let visibleBefore=true;
+    new IntersectionObserver(entries=>{
+      const visible=entries[0].isIntersecting&&entries[0].intersectionRatio>.55;
+      if(visible&&!visibleBefore) run();
+      visibleBefore=visible;
+    },{threshold:[.55]}).observe(slide);
+  }
+})();
+
 /* ---------------------------------------------------------
    SLIDE 4 : A matrix transforms Apple's vector
 --------------------------------------------------------- */
@@ -1375,6 +1511,102 @@ function blendedPosition(key){
   }
 })();
 
+// Slide 19: replay attention-weights times V multiplication.
+(()=>{
+  const equation=document.getElementById('s19-equation');
+  const replay=document.getElementById('s19-replay');
+  const trace=document.getElementById('s19-trace');
+  const track=document.getElementById('s19-trace-track');
+  const prev=document.getElementById('s19-trace-prev');
+  const next=document.getElementById('s19-trace-next');
+  const pages=[...document.querySelectorAll('.s19-trace-page')];
+  const dots=[...document.querySelectorAll('#s19-trace-dots button')];
+  const weightMatrix=equation?.querySelector('.s19-weight-matrix');
+  const valueMatrix=equation?.querySelector('.s19-value-matrix');
+  const outputCells=[...document.querySelectorAll('.s19-output-matrix i')];
+  const weightCells=[...document.querySelectorAll('.s19-weight-matrix i')];
+  const valueCells=[...document.querySelectorAll('.s19-value-matrix i')];
+  const fastRows=[...document.querySelectorAll('.s19-fast-rows b')];
+  if(!equation||!trace||!track||!prev||!next||!replay||!weightMatrix||!valueMatrix||pages.length!==6||weightCells.length!==25||valueCells.length!==25||outputCells.length!==25) return;
+  const rowOutline=document.createElement('span');
+  const columnOutline=document.createElement('span');
+  rowOutline.className='s19-scan-outline row';
+  columnOutline.className='s19-scan-outline column';
+  weightMatrix.appendChild(rowOutline);
+  valueMatrix.appendChild(columnOutline);
+  let scanTimers=[];
+  const clearScan=()=>{
+    scanTimers.forEach(clearTimeout);
+    scanTimers=[];
+    rowOutline.classList.remove('active');
+    columnOutline.classList.remove('active');
+    outputCells.forEach(cell=>cell.classList.remove('s19-scan-filled'));
+    fastRows.forEach(row=>row.classList.remove('done'));
+  };
+  const placeOutline=(outline,matrix,cells)=>{
+    const root=matrix.getBoundingClientRect();
+    const boxes=cells.map(cell=>cell.getBoundingClientRect());
+    const left=Math.min(...boxes.map(box=>box.left))-root.left-2;
+    const top=Math.min(...boxes.map(box=>box.top))-root.top-2;
+    const right=Math.max(...boxes.map(box=>box.right))-root.left+2;
+    const bottom=Math.max(...boxes.map(box=>box.bottom))-root.top+2;
+    Object.assign(outline.style,{left:`${left}px`,top:`${top}px`,width:`${right-left}px`,height:`${bottom-top}px`});
+    outline.classList.add('active');
+  };
+  const startFastScan=()=>{
+    clearScan();
+    let step=0;
+    const advance=()=>{
+      if(current!==5||step>=20){
+        if(step>=20){rowOutline.classList.remove('active');columnOutline.classList.remove('active');}
+        return;
+      }
+      const row=Math.floor(step/5)+1;
+      const column=step%5;
+      placeOutline(rowOutline,weightMatrix,weightCells.slice(row*5,row*5+5));
+      placeOutline(columnOutline,valueMatrix,[0,1,2,3,4].map(index=>valueCells[index*5+column]));
+      const output=outputCells[row*5+column];
+      scanTimers.push(setTimeout(()=>{
+        output.classList.add('s19-scan-filled');
+        if(column===4) fastRows[row-1]?.classList.add('done');
+      },85));
+      step+=1;
+      scanTimers.push(setTimeout(advance,155));
+    };
+    advance();
+  };
+  let current=0;
+  const show=index=>{
+    clearScan();
+    current=Math.max(0,Math.min(pages.length-1,index));
+    equation.className='s19-equation';
+    trace.className='s19-trace';
+    track.style.transform=`translateX(-${current*100}%)`;
+    pages.forEach((page,i)=>page.classList.toggle('active',i===current));
+    dots.forEach((dot,i)=>dot.classList.toggle('active',i===current));
+    prev.disabled=current===0;
+    next.disabled=current===pages.length-1;
+    void equation.offsetWidth;
+    equation.classList.add(`stage-${current}`,'is-playing');
+    trace.classList.add(`stage-${current}`,'is-playing');
+    if(current===5) requestAnimationFrame(startFastScan);
+  };
+  prev.addEventListener('click',()=>show(current-1));
+  next.addEventListener('click',()=>show(current+1));
+  replay.addEventListener('click',()=>show(current));
+  dots.forEach((dot,i)=>dot.addEventListener('click',()=>show(i)));
+  show(0);
+  const slide=document.getElementById('slide-context-update');
+  if('IntersectionObserver' in window&&slide){
+    let visibleBefore=false;
+    new IntersectionObserver(entries=>{
+      const visible=entries[0].isIntersecting&&entries[0].intersectionRatio>.55;
+      if(visible&&!visibleBefore) show(0);
+      visibleBefore=visible;
+    },{threshold:[.55]}).observe(slide);
+  }
+})();
+
 // Slide 15: horizontal matrix/scatter explanation carousel.
 (()=>{
   const carousel=document.getElementById('s14-carousel');
@@ -1488,6 +1720,33 @@ function blendedPosition(key){
   const panel=stage?.closest('.s18-panel');
   const dots=[...document.querySelectorAll('.s18-progress button')];
   if(!stage||!prev||!next||!number||!title||!caption||!phase||!panel) return;
+  const scenes=stage.querySelector('.s18-scenes');
+  const branch=stage.querySelector('.s18-branch');
+  const hMatrix=stage.querySelector('.s18-h-matrix');
+  const qkvCards=[...stage.querySelectorAll('.s18-carry-qkv > div')];
+
+  // Keep the branch attached to the rendered boxes instead of fixed SVG coordinates.
+  function drawBranch(){
+    if(!scenes||!branch||!hMatrix||qkvCards.length!==3) return;
+    const root=scenes.getBoundingClientRect();
+    const source=hMatrix.getBoundingClientRect();
+    if(!root.width||!root.height||!source.width) return;
+    branch.setAttribute('viewBox',`0 0 ${root.width} ${root.height}`);
+    branch.setAttribute('preserveAspectRatio','none');
+    const start={x:source.right-root.left,y:source.top+source.height/2-root.top};
+    [...branch.querySelectorAll('path')].forEach((path,index)=>{
+      const target=qkvCards[index].getBoundingClientRect();
+      const end={x:target.left-root.left,y:target.top+target.height/2-root.top};
+      const distance=Math.max(18,end.x-start.x);
+      const bend=Math.min(72,distance*.48);
+      path.setAttribute('d',`M${start.x} ${start.y} C${start.x+bend} ${start.y} ${end.x-bend} ${end.y} ${end.x} ${end.y}`);
+    });
+  }
+  let branchFrame=0;
+  function scheduleBranch(){
+    cancelAnimationFrame(branchFrame);
+    branchFrame=requestAnimationFrame(drawBranch);
+  }
   const steps=[
     ['Create Q, K, and V','Q, K, and V enter the calculation as three learned views of the input.'],
     ['Compare every Query with every Key','QKᵀ is active; V waits until the attention weights are ready.'],
@@ -1513,10 +1772,14 @@ function blendedPosition(key){
     dots.forEach((dot,i)=>dot.classList.toggle('active',i===current));
     prev.disabled=current===0;
     next.disabled=current===steps.length-1;
+    scheduleBranch();
   }
   prev.addEventListener('click',()=>show(current-1));
   next.addEventListener('click',()=>show(current+1));
   dots.forEach((dot,index)=>dot.addEventListener('click',()=>show(index)));
+  window.addEventListener('resize',scheduleBranch,{passive:true});
+  if('ResizeObserver' in window&&scenes) new ResizeObserver(scheduleBranch).observe(scenes);
+  scheduleBranch();
   const slide=document.getElementById('slide-attention-summary');
   if('IntersectionObserver' in window&&slide){
     let visibleBefore=false;
