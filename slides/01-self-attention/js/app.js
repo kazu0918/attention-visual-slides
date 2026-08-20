@@ -119,15 +119,108 @@ function blendedPosition(key){
 (function(){
   const deck = document.getElementById('deck');
   const slides = [...document.querySelectorAll('.slide')];
-  const navBtns = [...document.querySelectorAll('#deck-nav a')];
   const countEl = document.getElementById('deck-count');
   if(!deck || !slides.length) return;
+
   const pageIndex = Number(document.body.dataset.slideIndex || 1);
   const pageCount = Number(document.body.dataset.slideCount || slides.length);
   if(countEl) countEl.textContent = String(pageIndex).padStart(2,'0') + ' / ' + String(pageCount).padStart(2,'0');
 
   const prev = document.body.dataset.prevPage;
   const next = document.body.dataset.nextPage;
+  const deckTitle = document.querySelector('.deck-header .title-mini')?.textContent?.trim()
+    || 'How Translation AI Works';
+
+  const DECK_MANIFEST = [
+    {
+      label:'Before the Transformer',
+      slides:[
+        ['slides/00-before-transformers/01-recurrence.html','Recurrence'],
+        ['slides/00-before-transformers/02-sequential.html','Sequential computation'],
+        ['slides/00-before-transformers/03-path-length.html','Path length'],
+        ['slides/00-before-transformers/04-what-2014-fixed.html','What 2014 fixed'],
+      ]
+    },
+    {
+      label:'How Translation AI Works',
+      slides:[
+        ['slides/01-self-attention/01-encoder-decoder.html','Encoder–Decoder model'],
+        ['slides/01-self-attention/02-word-vectors.html','Word vectors'],
+        ['slides/01-self-attention/03-contextual-meaning.html','Contextual meaning'],
+        ['slides/01-self-attention/04-matrix-transformation.html','Matrix transformation'],
+        ['slides/01-self-attention/05-transformer-architecture.html','Transformer architecture'],
+        ['slides/01-self-attention/06-token-embeddings.html','Token embeddings'],
+        ['slides/01-self-attention/07-positional-encoding.html','Positional encoding'],
+        ['slides/01-self-attention/08-similarity-matrix.html','Similarity matrix'],
+        ['slides/01-self-attention/09-attention-architecture.html','Attention architecture'],
+        ['slides/01-self-attention/10-softmax-weights.html','Softmax weights'],
+        ['slides/01-self-attention/11-weighted-sum.html','Weighted sum'],
+        ['slides/01-self-attention/12-context-outcomes.html','Context outcomes'],
+        ['slides/01-self-attention/13-query-key-value.html','Query, Key, Value'],
+        ['slides/01-self-attention/14-qk-transpose.html','QK transpose'],
+        ['slides/01-self-attention/15-similarity.html','Similarity scores'],
+        ['slides/01-self-attention/16-softmax.html','Softmax'],
+        ['slides/01-self-attention/17-scaling.html','Scaling'],
+        ['slides/01-self-attention/18-attention-summary.html','Attention summary'],
+        ['slides/01-self-attention/19-context-update.html','Context update'],
+        ['slides/01-self-attention/20-vector-mixing.html','Mixing value vectors'],
+        ['slides/01-self-attention/21-multi-head.html','Multi-head attention'],
+      ]
+    },
+    {
+      label:'Quiz',
+      slides:[
+        ['slides/99-quiz/index.html','Attention Is All You Need - Quiz'],
+      ]
+    }
+  ];
+
+  function hrefFromRepo(path){
+    const parts = window.location.pathname.split('/');
+    const slidesIdx = parts.indexOf('slides');
+    const prefix = slidesIdx === -1 ? '' : '../'.repeat(parts.length - slidesIdx - 1);
+    return prefix + path;
+  }
+
+  function currentPath(){
+    const path = window.location.pathname;
+    const idx = path.indexOf('/slides/');
+    return idx === -1 ? path : path.slice(idx + 1);
+  }
+
+  function buildJumpSelect(){
+    const wrap = document.createElement('div');
+    wrap.className = 'deck-jump';
+    wrap.innerHTML = '<span class="deck-jump-label">Jump to</span>';
+    const select = document.createElement('select');
+    select.id = 'deck-jump-select';
+    select.setAttribute('aria-label', 'Jump to any section or slide');
+    const here = currentPath();
+
+    DECK_MANIFEST.forEach(section=>{
+      const group = document.createElement('optgroup');
+      group.label = section.label;
+      section.slides.forEach(([path, title], i)=>{
+        const option = document.createElement('option');
+        option.value = hrefFromRepo(path);
+        option.textContent = `${i + 1}. ${title}`;
+        if(here === path) option.selected = true;
+        group.appendChild(option);
+      });
+      select.appendChild(group);
+    });
+
+    select.addEventListener('change', ()=>{
+      if(select.value) window.location.href = select.value;
+    });
+    wrap.appendChild(select);
+    return wrap;
+  }
+
+  const toolbar = document.createElement('header');
+  toolbar.className = 'deck-toolbar';
+  toolbar.setAttribute('aria-label', 'Slide navigation');
+
   const pager = document.createElement('nav');
   pager.className = 'deck-pager';
   pager.setAttribute('aria-label', 'Previous and next slide');
@@ -135,13 +228,17 @@ function blendedPosition(key){
     ${prev ? `<a href="${prev}" rel="prev">← Previous</a>` : '<span aria-disabled="true">← Previous</span>'}
     <div class="deck-pager-identity">
       <strong>${pageIndex} / ${pageCount}</strong>
-      <span>How Translation AI Works</span>
+      <span>${deckTitle}</span>
     </div>
     ${next ? `<a href="${next}" rel="next">Next →</a>` : '<span aria-disabled="true">Next →</span>'}
   `;
-  document.body.appendChild(pager);
+
+  toolbar.appendChild(pager);
+  toolbar.appendChild(buildJumpSelect());
+  document.body.insertBefore(toolbar, document.body.firstChild);
 
   document.addEventListener('keydown', (e)=>{
+    if(e.target.tagName === 'SELECT' || e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
     if((e.key === 'ArrowDown' || e.key === 'ArrowRight' || e.key === 'PageDown') && next){
       e.preventDefault();
       window.location.href = next;

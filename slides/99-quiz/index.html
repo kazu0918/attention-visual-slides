@@ -21,16 +21,44 @@
   --font-mono:'IBM Plex Mono',ui-monospace,monospace;
 }
 *{box-sizing:border-box;}
-html,body{margin:0;padding:0;min-height:100%;background:var(--bg);color:var(--text);
-  font-family:var(--font-disp);-webkit-font-smoothing:antialiased;}
-body{background-image:
-  radial-gradient(circle at 12% 8%, rgba(79,209,197,0.06), transparent 40%),
-  radial-gradient(circle at 88% 85%, rgba(167,139,250,0.07), transparent 42%);
-  background-attachment:fixed;}
+html{
+  margin:0;padding:0;
+  min-height:100%;
+  background:var(--bg);
+}
+body{
+  margin:0;padding:0;
+  min-height:100vh;
+  min-height:100dvh;
+  color:var(--text);
+  font-family:var(--font-disp);
+  -webkit-font-smoothing:antialiased;
+  background:var(--bg);
+  position:relative;
+}
+body::before{
+  content:'';
+  position:fixed;
+  inset:0;
+  z-index:-1;
+  pointer-events:none;
+  background-color:var(--bg);
+  background-image:
+    radial-gradient(circle at 12% 8%, rgba(79,209,197,0.06), transparent 40%),
+    radial-gradient(circle at 88% 85%, rgba(167,139,250,0.07), transparent 42%),
+    radial-gradient(circle at 50% 50%, rgba(255,255,255,0.015) 0, transparent 2px);
+  background-size:auto, auto, 26px 26px;
+}
 ::selection{background:var(--teal-dim);}
 button{font-family:inherit;color:inherit;}
 
-.wrap{max-width:1080px;margin:0 auto;padding:32px 5vw 96px;}
+.wrap{
+  max-width:1080px;
+  margin:0 auto;
+  padding:40px 5vw 96px;
+  min-height:100vh;
+  min-height:100dvh;
+}
 
 /* ---------- shared bits ---------- */
 .eyebrow{font-family:var(--font-mono);font-size:11px;letter-spacing:.18em;
@@ -66,7 +94,7 @@ code,.mono{font-family:var(--font-mono);}
 .btn.ghost:hover{color:var(--text);border-color:var(--border-strong);}
 
 /* ---------- quiz screen ---------- */
-.topbar{position:sticky;top:0;z-index:20;background:rgba(11,14,21,.88);
+.topbar{position:sticky;top:0;z-index:20;background:rgba(11,14,21,.92);
   backdrop-filter:blur(12px);border-bottom:1px solid var(--border);
   padding:12px 5vw;display:flex;align-items:center;gap:16px;}
 .topbar .count{font-family:var(--font-mono);font-size:12px;color:var(--text-dim);
