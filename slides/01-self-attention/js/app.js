@@ -119,32 +119,89 @@ function blendedPosition(key){
 (function(){
   const deck = document.getElementById('deck');
   const slides = [...document.querySelectorAll('.slide')];
-  const nav=document.getElementById('deck-nav');
-  if(nav&&!nav.querySelector('a[href="19-masked-attention.html"]')){
-    const summaryLink=nav.querySelector('a[href="18-attention-summary.html"]');
-    if(summaryLink){
-      const maskedLink=document.createElement('a');
-      maskedLink.href='19-masked-attention.html';
-      maskedLink.setAttribute('aria-label','Go to slide 19: Causal Mask');
-      summaryLink.insertAdjacentElement('afterend',maskedLink);
-    }
-  }
-  const navBtns = [...document.querySelectorAll('#deck-nav a')];
   const countEl = document.getElementById('deck-count');
   if(!deck || !slides.length) return;
-  const currentPath=window.location.pathname.split('/').pop();
-  const activeIndex=navBtns.findIndex(link=>link.getAttribute('href')===currentPath);
-  const pageIndex=activeIndex>=0?activeIndex+1:Number(document.body.dataset.slideIndex||1);
-  const pageCount=navBtns.length||Number(document.body.dataset.slideCount||slides.length);
-  navBtns.forEach((link,index)=>{
-    link.classList.toggle('active',index===pageIndex-1);
-    if(index===pageIndex-1) link.setAttribute('aria-current','page');
-    else link.removeAttribute('aria-current');
-  });
+  const manifest = [
+    {
+      label:'Before the Transformer',
+      slides:[
+        ['slides/00-before-transformers/01-recurrence.html','Recurrence'],
+        ['slides/00-before-transformers/02-sequential.html','Sequential computation'],
+        ['slides/00-before-transformers/03-path-length.html','Path length'],
+        ['slides/00-before-transformers/04-what-2014-fixed.html','What 2014 fixed'],
+      ]
+    },
+    {
+      label:'How Translation AI Works',
+      slides:[
+        ['slides/01-self-attention/01-encoder-decoder.html','Encoder–Decoder model'],
+        ['slides/01-self-attention/02-word-vectors.html','Word vectors'],
+        ['slides/01-self-attention/03-contextual-meaning.html','Contextual meaning'],
+        ['slides/01-self-attention/04-matrix-transformation.html','Matrix transformation'],
+        ['slides/01-self-attention/05-transformer-architecture.html','Transformer architecture'],
+        ['slides/01-self-attention/06-token-embeddings.html','Token embeddings'],
+        ['slides/01-self-attention/07-positional-encoding.html','Positional encoding'],
+        ['slides/01-self-attention/08-similarity-matrix.html','Similarity matrix'],
+        ['slides/01-self-attention/09-attention-architecture.html','Attention architecture'],
+        ['slides/01-self-attention/10-softmax-weights.html','Softmax weights'],
+        ['slides/01-self-attention/11-weighted-sum.html','Weighted sum'],
+        ['slides/01-self-attention/12-context-outcomes.html','Context outcomes'],
+        ['slides/01-self-attention/13-query-key-value.html','Query, Key, Value'],
+        ['slides/01-self-attention/14-qk-transpose.html','QK transpose'],
+        ['slides/01-self-attention/15-similarity.html','Similarity scores'],
+        ['slides/01-self-attention/16-softmax.html','Softmax'],
+        ['slides/01-self-attention/17-scaling.html','Scaling'],
+        ['slides/01-self-attention/18-attention-summary.html','Attention summary'],
+        ['slides/01-self-attention/19-masked-attention.html','Causal mask'],
+        ['slides/01-self-attention/19-context-update.html','Context update'],
+        ['slides/01-self-attention/20-vector-mixing.html','Mixing value vectors'],
+        ['slides/01-self-attention/21-weighted-vector-lab.html','Weighted vector lab'],
+        ['slides/01-self-attention/21-multi-head.html','Multi-head overview'],
+        ['slides/01-self-attention/22-multi-head-attention.html','Multi-head attention'],
+        ['slides/01-self-attention/23-five-changes.html','Five multi-head changes'],
+        ['slides/01-self-attention/24-branch-and-project.html','Branch and project'],
+        ['slides/01-self-attention/25-why-learn-projections.html','Why learn projections'],
+        ['slides/01-self-attention/26-attention-per-head.html','Attention in every head'],
+        ['slides/01-self-attention/27-concat-output-projection.html','Concat and output projection'],
+      ]
+    },
+    {
+      label:'Quiz',
+      slides:[['slides/99-quiz/index.html','Attention Is All You Need — Quiz']]
+    }
+  ];
+  const flatSlides=manifest.flatMap(section=>section.slides.map(slide=>({...slide,path:slide[0],title:slide[1],section:section.label})));
+  const pathName=window.location.pathname.replace(/\\/g,'/');
+  const slidesAt=pathName.lastIndexOf('/slides/');
+  const currentPath=slidesAt>=0?pathName.slice(slidesAt+1):pathName.replace(/^\//,'');
+  const globalIndex=flatSlides.findIndex(slide=>currentPath.endsWith(slide.path));
+  const currentSection=manifest.find(section=>section.slides.some(([path])=>currentPath.endsWith(path)));
+  const sectionSlides=currentSection?currentSection.slides:[];
+  const sectionIndex=sectionSlides.findIndex(([path])=>currentPath.endsWith(path));
+  const pageIndex=sectionIndex>=0?sectionIndex+1:Number(document.body.dataset.slideIndex||1);
+  const pageCount=sectionSlides.length||Number(document.body.dataset.slideCount||slides.length);
+  const repoHref=(path)=>{
+    const depth=currentPath.split('/').length-1;
+    return '../'.repeat(depth)+path;
+  };
+  const nav=document.getElementById('deck-nav');
+  if(nav&&sectionSlides.length){
+    nav.innerHTML='';
+    sectionSlides.forEach(([path,title],index)=>{
+      const link=document.createElement('a');
+      link.href=repoHref(path);
+      link.setAttribute('aria-label',`Go to slide ${index+1}: ${title}`);
+      if(index===sectionIndex){ link.className='active'; link.setAttribute('aria-current','page'); }
+      nav.appendChild(link);
+    });
+  }
   if(countEl) countEl.textContent = String(pageIndex).padStart(2,'0') + ' / ' + String(pageCount).padStart(2,'0');
 
-  const prev=navBtns[pageIndex-2]?.getAttribute('href')||'';
-  const next=navBtns[pageIndex]?.getAttribute('href')||'';
+  const prev=globalIndex>0?repoHref(flatSlides[globalIndex-1].path):'';
+  const next=globalIndex>=0&&globalIndex<flatSlides.length-1?repoHref(flatSlides[globalIndex+1].path):'';
+  const toolbar=document.createElement('header');
+  toolbar.className='deck-toolbar';
+  toolbar.setAttribute('aria-label','Slide navigation');
   const pager = document.createElement('nav');
   pager.className = 'deck-pager';
   pager.setAttribute('aria-label', 'Previous and next slide');
@@ -152,13 +209,36 @@ function blendedPosition(key){
     ${prev ? `<a href="${prev}" rel="prev">← Previous</a>` : '<span aria-disabled="true">← Previous</span>'}
     <div class="deck-pager-identity">
       <strong>${pageIndex} / ${pageCount}</strong>
-      <span>How Translation AI Works</span>
+      <span>${currentSection?.label||'How Translation AI Works'}</span>
     </div>
     ${next ? `<a href="${next}" rel="next">Next →</a>` : '<span aria-disabled="true">Next →</span>'}
   `;
-  document.body.appendChild(pager);
+  const jump=document.createElement('div');
+  jump.className='deck-jump';
+  jump.innerHTML='<span class="deck-jump-label">Jump to</span>';
+  const select=document.createElement('select');
+  select.id='deck-jump-select';
+  select.setAttribute('aria-label','Jump to any section or slide');
+  manifest.forEach(section=>{
+    const group=document.createElement('optgroup');
+    group.label=section.label;
+    section.slides.forEach(([path,title],index)=>{
+      const option=document.createElement('option');
+      option.value=repoHref(path);
+      option.textContent=`${index+1}. ${title}`;
+      option.selected=currentPath.endsWith(path);
+      group.appendChild(option);
+    });
+    select.appendChild(group);
+  });
+  select.addEventListener('change',()=>{ if(select.value) window.location.href=select.value; });
+  jump.appendChild(select);
+  toolbar.appendChild(pager);
+  toolbar.appendChild(jump);
+  document.body.insertBefore(toolbar,document.body.firstChild);
 
   document.addEventListener('keydown', (e)=>{
+    if(['SELECT','INPUT','TEXTAREA'].includes(e.target.tagName)) return;
     if((e.key === 'ArrowDown' || e.key === 'ArrowRight' || e.key === 'PageDown') && next){
       e.preventDefault();
       window.location.href = next;

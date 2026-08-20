@@ -1,0 +1,1614 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Attention Is All You Need - Quiz</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0b0e15; --bg-2:#080a10; --panel:#141a26; --panel-2:#1a2233;
+  --border:rgba(255,255,255,0.08); --border-strong:rgba(255,255,255,0.16);
+  --text:#eef0f4; --text-dim:#8b93a7; --text-faint:#565f75;
+  --teal:#4fd1c5; --teal-dim:rgba(79,209,197,0.14);
+  --coral:#ff8a65; --coral-dim:rgba(255,138,101,0.14);
+  --purple:#a78bfa; --purple-dim:rgba(167,139,250,0.14);
+  --gold:#f2c94c; --green:#7ed99a; --green-dim:rgba(126,217,154,0.14);
+  --red:#ff6b6b; --red-dim:rgba(255,107,107,0.14);
+  --font-disp:'Space Grotesk','Hiragino Sans',system-ui,sans-serif;
+  --font-mono:'IBM Plex Mono',ui-monospace,monospace;
+}
+*{box-sizing:border-box;}
+html{
+  margin:0;padding:0;
+  min-height:100%;
+  background:var(--bg);
+}
+body{
+  margin:0;padding:0;
+  min-height:100vh;
+  min-height:100dvh;
+  color:var(--text);
+  font-family:var(--font-disp);
+  -webkit-font-smoothing:antialiased;
+  background:var(--bg);
+  position:relative;
+}
+body::before{
+  content:'';
+  position:fixed;
+  inset:0;
+  z-index:-1;
+  pointer-events:none;
+  background-color:var(--bg);
+  background-image:
+    radial-gradient(circle at 12% 8%, rgba(79,209,197,0.06), transparent 40%),
+    radial-gradient(circle at 88% 85%, rgba(167,139,250,0.07), transparent 42%),
+    radial-gradient(circle at 50% 50%, rgba(255,255,255,0.015) 0, transparent 2px);
+  background-size:auto, auto, 26px 26px;
+}
+::selection{background:var(--teal-dim);}
+button{font-family:inherit;color:inherit;}
+
+.wrap{
+  max-width:1080px;
+  margin:0 auto;
+  padding:40px 5vw 96px;
+  min-height:100vh;
+  min-height:100dvh;
+}
+.quiz-deck-nav{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:28px;}
+.quiz-deck-nav a{font-family:var(--font-mono);font-size:11px;color:var(--text-dim);
+  text-decoration:none;border:1px solid var(--border);border-radius:999px;padding:7px 12px;
+  background:var(--panel);transition:.15s;}
+.quiz-deck-nav a:hover{color:var(--teal);border-color:var(--teal);}
+
+/* ---------- shared bits ---------- */
+.eyebrow{font-family:var(--font-mono);font-size:11px;letter-spacing:.18em;
+  text-transform:uppercase;color:var(--teal);display:flex;align-items:center;gap:10px;}
+.eyebrow .num{color:var(--text-faint);}
+h1.title{font-size:clamp(30px,5vw,52px);line-height:1.06;font-weight:700;
+  letter-spacing:-0.02em;margin:14px 0 10px;}
+.lead{color:var(--text-dim);font-size:15px;line-height:1.65;max-width:64ch;margin:0 0 12px;}
+code,.mono{font-family:var(--font-mono);}
+.kbd{font-family:var(--font-mono);font-size:11px;padding:2px 6px;border-radius:5px;
+  border:1px solid var(--border-strong);background:var(--panel-2);color:var(--text-dim);}
+
+/* ---------- start screen ---------- */
+.section-label{font-family:var(--font-mono);font-size:11px;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--text-faint);margin:32px 0 12px;}
+.topics{display:flex;flex-wrap:wrap;gap:8px;}
+.topic-chip{background:var(--panel);border:1px solid var(--border);border-radius:999px;
+  padding:8px 15px;font-size:13px;cursor:pointer;transition:.15s;color:var(--text-dim);
+  display:flex;align-items:center;gap:8px;}
+.topic-chip:hover{border-color:var(--border-strong);color:var(--text);}
+.topic-chip.on{background:var(--purple-dim);border-color:var(--purple);color:var(--text);}
+.topic-chip .n{font-family:var(--font-mono);font-size:10px;color:var(--text-faint);}
+.topic-chip.on .n{color:var(--purple);}
+
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+.btn{background:var(--panel-2);border:1px solid var(--border-strong);border-radius:10px;
+  padding:11px 20px;font-size:14px;font-weight:500;cursor:pointer;transition:.15s;}
+.btn:hover:not(:disabled){border-color:var(--teal);color:var(--teal);}
+.btn:disabled{opacity:.4;cursor:not-allowed;}
+.btn.primary{background:var(--teal);color:#06231f;border-color:var(--teal);font-weight:600;}
+.btn.primary:hover:not(:disabled){filter:brightness(1.1);color:#06231f;}
+.btn.ghost{background:transparent;border-color:var(--border);color:var(--text-dim);}
+.btn.ghost:hover{color:var(--text);border-color:var(--border-strong);}
+
+/* ---------- quiz screen ---------- */
+.topbar{position:sticky;top:0;z-index:20;background:rgba(11,14,21,.92);
+  backdrop-filter:blur(12px);border-bottom:1px solid var(--border);
+  padding:12px 5vw;display:flex;align-items:center;gap:16px;}
+.topbar .count{font-family:var(--font-mono);font-size:12px;color:var(--text-dim);
+  white-space:nowrap;}
+.bar{flex:1;height:4px;background:var(--panel-2);border-radius:99px;overflow:hidden;}
+.bar i{display:block;height:100%;background:var(--teal);border-radius:99px;transition:width .3s;}
+.topbar .score{font-family:var(--font-mono);font-size:12px;color:var(--green);white-space:nowrap;}
+.topbar .quit{font-size:12px;color:var(--text-faint);background:none;border:none;
+  cursor:pointer;padding:4px;}
+.topbar .quit:hover{color:var(--text);}
+
+.qhead{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:16px;}
+.pill{font-family:var(--font-mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;
+  padding:4px 9px;border-radius:999px;border:1px solid var(--border-strong);color:var(--text-dim);}
+.pill.d1{color:var(--green);border-color:rgba(126,217,154,.35);}
+.pill.d2{color:var(--gold);border-color:rgba(242,201,76,.35);}
+.pill.d3{color:var(--coral);border-color:rgba(255,138,101,.35);}
+.pill.topic{color:var(--purple);border-color:rgba(167,139,250,.35);}
+.pill.beyond{color:var(--teal);border-color:rgba(79,209,197,.35);}
+
+.qtext{font-size:clamp(19px,2.6vw,27px);line-height:1.4;font-weight:600;
+  letter-spacing:-0.01em;margin:0 0 8px;}
+.qsub{color:var(--text-dim);font-size:14px;line-height:1.6;margin:0 0 22px;}
+.qsub code{background:var(--panel-2);padding:2px 6px;border-radius:5px;font-size:13px;}
+
+.opts{display:flex;flex-direction:column;gap:10px;margin-bottom:22px;}
+.opt{display:flex;align-items:flex-start;gap:14px;background:var(--panel);
+  border:1px solid var(--border);border-radius:12px;padding:15px 17px;cursor:pointer;
+  text-align:left;font-size:15px;line-height:1.5;width:100%;
+  -webkit-tap-highlight-color:transparent;touch-action:manipulation;}
+.opt:hover:not(.locked):not(.sel){border-color:var(--border-strong);background:var(--panel-2);}
+.opt .key{font-family:var(--font-mono);font-size:11px;color:var(--text-faint);
+  border:1px solid var(--border-strong);border-radius:6px;min-width:22px;height:22px;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;}
+.opt.sel{border-color:var(--teal);background:var(--teal-dim);}
+.opt.sel .key{border-color:transparent;background:transparent;color:var(--text-dim);}
+.opt.locked{cursor:default;}
+.opt.correct{border-color:var(--green);background:var(--green-dim);}
+.opt.correct .key{border-color:transparent;background:transparent;color:var(--text-dim);}
+.opt.wrong{border-color:var(--red);background:var(--red-dim);}
+.opt.wrong .key{border-color:transparent;background:transparent;color:var(--text-dim);}
+.opt .mark{margin-left:auto;font-family:var(--font-mono);font-size:12px;flex-shrink:0;
+  padding-left:10px;}
+.opt.correct .mark{color:var(--green);}
+.opt.wrong .mark{color:var(--red);}
+
+.numwrap{display:flex;gap:10px;align-items:center;margin-bottom:22px;flex-wrap:wrap;}
+.numwrap input{background:var(--panel);border:1px solid var(--border-strong);
+  border-radius:10px;padding:14px 18px;font-family:var(--font-mono);font-size:20px;
+  color:var(--text);width:200px;outline:none;}
+.numwrap input:focus{border-color:var(--teal);}
+.numwrap .unit{font-family:var(--font-mono);font-size:14px;color:var(--text-dim);}
+.numwrap.correct input{border-color:var(--green);}
+.numwrap.wrong input{border-color:var(--red);}
+
+.orderwrap{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:22px;}
+@media(max-width:720px){.orderwrap{grid-template-columns:1fr;}}
+.orderbox{background:var(--panel);border:1px dashed var(--border-strong);border-radius:12px;
+  padding:12px;min-height:120px;}
+.orderbox h4{margin:0 0 10px;font-family:var(--font-mono);font-size:10px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--text-faint);font-weight:500;}
+.oitem{background:var(--panel-2);border:1px solid var(--border);border-radius:9px;
+  padding:11px 13px;font-size:14px;cursor:pointer;margin-bottom:8px;transition:.14s;
+  display:flex;gap:10px;align-items:flex-start;line-height:1.45;}
+.oitem:hover:not(.locked){border-color:var(--teal);}
+.oitem .idx{font-family:var(--font-mono);font-size:11px;color:var(--teal);flex-shrink:0;
+  min-width:16px;}
+.oitem.ok{border-color:var(--green);background:var(--green-dim);}
+.oitem.bad{border-color:var(--red);background:var(--red-dim);}
+.oitem.locked{cursor:default;}
+
+.hintline{font-size:13px;color:var(--text-faint);margin:-10px 0 18px;font-style:italic;}
+
+.explain{border-left:3px solid var(--teal);background:var(--panel);border-radius:0 12px 12px 0;
+  padding:18px 20px;margin-bottom:22px;animation:fade .25s ease;}
+.explain.bad{border-left-color:var(--coral);}
+@keyframes fade{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
+.explain .verdict{font-family:var(--font-mono);font-size:11px;letter-spacing:.14em;
+  text-transform:uppercase;margin-bottom:9px;}
+.explain.good .verdict{color:var(--green);}
+.explain.bad .verdict{color:var(--coral);}
+.explain p{margin:0 0 10px;font-size:14.5px;line-height:1.68;color:var(--text);}
+.explain p:last-child{margin-bottom:0;}
+.explain code{background:var(--panel-2);padding:2px 6px;border-radius:5px;
+  font-family:var(--font-mono);font-size:13px;color:var(--teal);}
+.explain .ref{font-family:var(--font-mono);font-size:11px;color:var(--text-faint);
+  margin-top:12px;padding-top:10px;border-top:1px solid var(--border);}
+.explain .trap{color:var(--gold);}
+
+.footrow{display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
+.footrow .hintbtn{margin-left:auto;}
+
+/* ---------- results ---------- */
+.bigscore{font-size:clamp(56px,12vw,110px);font-weight:700;letter-spacing:-0.04em;
+  line-height:1;margin:10px 0 4px;}
+.bigscore small{font-size:.32em;color:var(--text-faint);font-weight:500;letter-spacing:0;}
+.verdict-line{font-size:17px;color:var(--text-dim);margin-bottom:32px;max-width:60ch;
+  line-height:1.6;}
+.tbreak{display:flex;flex-direction:column;gap:9px;margin-bottom:32px;}
+.tb-row{display:grid;grid-template-columns:minmax(150px,220px) 1fr auto;gap:14px;
+  align-items:center;font-size:13.5px;}
+.tb-row .tname{color:var(--text-dim);}
+.tb-bar{height:7px;background:var(--panel-2);border-radius:99px;overflow:hidden;}
+.tb-bar i{display:block;height:100%;border-radius:99px;transition:width .5s;}
+.tb-row .tnum{font-family:var(--font-mono);font-size:12px;color:var(--text-faint);
+  min-width:44px;text-align:right;}
+.missed{background:var(--panel);border:1px solid var(--border);border-radius:12px;
+  padding:16px 18px;margin-bottom:10px;}
+.missed .mq{font-size:14.5px;font-weight:500;line-height:1.5;margin-bottom:8px;}
+.missed .ma{font-size:13.5px;color:var(--green);line-height:1.55;}
+.missed .ma b{color:var(--text-faint);font-weight:500;font-family:var(--font-mono);
+  font-size:11px;letter-spacing:.1em;text-transform:uppercase;display:block;margin-bottom:3px;}
+
+.hidden{display:none !important;}
+.spacer{height:28px;}
+.divider{height:1px;background:var(--border);margin:34px 0;}
+</style>
+</head>
+<body>
+
+<!-- ================= TOPBAR ================= -->
+<div class="topbar hidden" id="topbar">
+  <span class="count" id="tb-count">01 / 20</span>
+  <div class="bar"><i id="tb-bar" style="width:0%"></i></div>
+  <span class="score" id="tb-score">0 correct</span>
+  <button class="quit" id="tb-quit">exit</button>
+</div>
+
+<div class="wrap">
+
+<!-- ================= START ================= -->
+<section id="screen-start">
+  <nav class="quiz-deck-nav" aria-label="Deck navigation">
+    <a href="../../index.html">Start of presentation</a>
+    <a href="../01-self-attention/27-concat-output-projection.html">← Previous slide</a>
+  </nav>
+  <div class="eyebrow"><span class="num">POTM 01</span> UWA AI CLUB · PAPER OF THE MONTH</div>
+  <h1 class="title">Attention Is All You Need - Quiz</h1>
+  <p class="lead">Vaswani et al., NeurIPS 2017. Every answer is checked against the paper, with the
+  section it comes from. A handful of questions go past the paper into things people usually get
+  asked afterwards. Those are marked <span class="pill beyond" style="display:inline-block">beyond paper</span>.</p>
+
+  <div class="section-label">Topics <span style="text-transform:none;letter-spacing:0;">(click to toggle)</span></div>
+  <div class="topics" id="topic-list"></div>
+
+  <div class="spacer"></div>
+  <div class="row">
+    <button class="btn primary" id="btn-start">Start →</button>
+    <button class="btn ghost" id="btn-shuffle">Shuffle order: <b id="shuf-state">off</b></button>
+    <span class="mono" style="font-size:12px;color:var(--text-faint);" id="q-count">-</span>
+  </div>
+  <p class="lead" style="margin-top:22px;font-size:13px;">
+    Keys: <span class="kbd">1</span>–<span class="kbd">9</span> pick · <span class="kbd">Enter</span>
+    submit / next · <span class="kbd">H</span> hint
+  </p>
+</section>
+
+<!-- ================= QUIZ ================= -->
+<section id="screen-quiz" class="hidden">
+  <div class="qhead" id="q-head"></div>
+  <h2 class="qtext" id="q-text"></h2>
+  <p class="qsub hidden" id="q-sub"></p>
+  <div id="q-body"></div>
+  <p class="hintline hidden" id="q-hint"></p>
+  <div id="q-explain"></div>
+  <div class="footrow">
+    <button class="btn primary" id="btn-submit">Check</button>
+    <button class="btn hidden" id="btn-next">Next →</button>
+    <button class="btn ghost hintbtn" id="btn-hint">Hint</button>
+  </div>
+</section>
+
+<!-- ================= RESULTS ================= -->
+<section id="screen-done" class="hidden">
+  <div class="eyebrow"><span class="num">RESULT</span> <span id="r-mode"></span></div>
+  <div class="bigscore" id="r-score">0<small>/0</small></div>
+  <p class="verdict-line" id="r-verdict"></p>
+
+  <div class="section-label">By topic</div>
+  <div class="tbreak" id="r-topics"></div>
+
+  <div id="r-missed-wrap">
+    <div class="section-label">What you missed</div>
+    <div id="r-missed"></div>
+  </div>
+
+  <div class="divider"></div>
+  <div class="row">
+    <button class="btn primary" id="btn-retry-wrong">Retry the misses →</button>
+    <button class="btn" id="btn-again">Run it again</button>
+    <button class="btn ghost" id="btn-home">Back to start</button>
+  </div>
+</section>
+
+</div>
+
+<script>
+/* =========================================================
+   QUESTION BANK
+   d: 1-3 used only to sort easier questions first within a topic
+   beyond: true -> not stated in the paper; context/aftermath
+========================================================= */
+const TOPICS = {
+  before:   'Before Transformers',
+  core:     'Attention core & scaling',
+  heads:    'Multi-head',
+  pos:      'Positional encoding',
+  wiring:   'Masking & cross-attention',
+  block:    'FFN, residual, norm',
+  arch:     'Full architecture',
+  cost:     'Complexity (Table 1)',
+  train:    'Training setup',
+  results:  'Results & ablations',
+  critique: 'Critique & legacy'
+};
+
+const QUESTIONS = [
+
+/* ============ BEFORE TRANSFORMERS ============ */
+{
+  topic:'before', d:1, aud:true, type:'mcq',
+  q:'What exactly is it about an RNN that blocks parallelisation <i>within</i> a single training example?',
+  opts:[
+    'The hidden state h<sub>t</sub> is a function of h<sub>t−1</sub>, so position t cannot be computed until t−1 is done',
+    'The gradients vanish over long distances',
+    'RNNs need far more parameters than attention layers',
+    'The softmax over the vocabulary has to run once per token'
+  ],
+  a:0,
+  why:'The paper is precise about this: recurrent models "generate a sequence of hidden states h<sub>t</sub>, as a function of the previous hidden state h<sub>t−1</sub> and the input for position t. This inherently sequential nature precludes parallelization within training examples." It is a <i>dependency chain</i> problem, not a gradient problem.',
+  trap:'Vanishing gradients are a real and separate RNN weakness - the paper raises it under path length, not under parallelisation. Keep the two arguments apart when you present, because people conflate them constantly.',
+  hint:'Ask what a GPU physically cannot start until something else finishes.',
+  ref:'§1 Introduction'
+},
+{
+  topic:'before', d:2, aud:true, type:'mcq',
+  q:'At the time this paper was written, what was the status of attention in translation?',
+  opts:[
+    'Already standard and widely used - but almost always bolted onto a recurrent network',
+    'Brand new: this paper introduced the attention mechanism',
+    'Known but abandoned, because it performed worse than pure LSTMs',
+    'Used only in computer vision, never in NLP'
+  ],
+  a:0,
+  why:'§2: "Attention mechanisms have become an integral part of compelling sequence modeling… In all but a few cases, however, such attention mechanisms are used in conjunction with a recurrent network." Bahdanau et al. (2014, reference [2]) had introduced attention for translation three years earlier.',
+  trap:'This is the single most common misreading of the paper, and it matters for your session: the contribution is <b>attention without recurrence</b>, not attention. The title is "Attention Is All You Need", not "Attention Exists".',
+  hint:'Read the title as a claim about sufficiency, not novelty.',
+  ref:'§2 Background; reference [2] = Bahdanau, Cho & Bengio 2014'
+},
+{
+  topic:'before', d:3, type:'mcq',
+  q:'§2 concedes a cost of collapsing the path between two positions to a constant number of operations. What is the cost, and what does the paper say counteracts it?',
+  opts:[
+    'Reduced effective resolution from averaging attention-weighted positions - counteracted by multi-head attention',
+    'Quadratic memory in sequence length - counteracted by restricted attention windows',
+    'Loss of word order - counteracted by positional encoding',
+    'Training instability - counteracted by the learning-rate warmup'
+  ],
+  a:0,
+  why:'The exact sentence: "In the Transformer this is reduced to a constant number of operations, albeit at the cost of reduced effective resolution due to averaging attention-weighted positions, an effect we counteract with Multi-Head Attention as described in section 3.2." Averaging over many positions blurs; running several heads lets different heads keep sharp, different views.',
+  trap:'This is the paper\'s own stated motivation for multi-head - and it is a much better one than "different heads learn different things", which is the version everyone repeats. Use the paper\'s reason.',
+  hint:'It is in the same paragraph that compares against ByteNet and ConvS2S.',
+  ref:'§2 Background, final sentence of paragraph 1'
+},
+{
+  topic:'before', d:2, type:'multi',
+  q:'According to §2, which of these are true of the convolutional alternatives (ByteNet, ConvS2S) the paper positions itself against?',
+  opts:[
+    'They compute hidden representations in parallel for all input and output positions',
+    'Operations needed to relate two positions grow linearly with distance for ConvS2S',
+    'Operations needed to relate two positions grow logarithmically with distance for ByteNet',
+    'They were already free of the sequential-computation bottleneck at inference time for the decoder',
+    'They had already replaced attention entirely'
+  ],
+  a:[0,1,2],
+  why:'§2: all of ByteNet, ConvS2S and Extended Neural GPU "use convolutional neural networks as basic building block, computing hidden representations in parallel for all input and output positions… the number of operations required to relate signals from two arbitrary input or output positions grows in the distance between positions, linearly for ConvS2S and logarithmically for ByteNet."',
+  trap:'Option 4 is a distractor: autoregressive decoding is still sequential at inference for every model here, including the Transformer. The paper\'s speed claim is about <i>training</i>.',
+  ref:'§2 Background'
+},
+{
+  topic:'before', d:2, type:'mcq',
+  q:'The pre-attention seq2seq "bottleneck" - squeezing a whole source sentence into one fixed-length vector - is best described in this deck as:',
+  opts:[
+    'The problem that attention (Bahdanau 2014) was invented to solve, before the Transformer existed',
+    'How the Transformer encoder works',
+    'A limitation the Transformer introduced in exchange for parallelism',
+    'A property of the decoder\'s final softmax layer'
+  ],
+  a:0,
+  why:'The single-vector bottleneck belongs to Sutskever-style seq2seq (2014). Attention fixed it by letting the decoder look back at <i>every</i> encoder state. In the Transformer the encoder emits one vector <b>per token</b> - a matrix of shape n × d<sub>model</sub> - never a single sentence vector.',
+  trap:'Your current slide 1 shows a single "Meaning Vector" box between encoder and decoder. That picture is pre-2014 seq2seq, not this paper. Frame it as the thing attention <i>fixed</i>, or the room will carry the wrong mental model into the mechanics section.',
+  hint:'Count how many vectors the encoder hands over.',
+  ref:'§3 Model Architecture; contrast with reference [35] Sutskever et al.'
+},
+
+/* ============ ATTENTION CORE & SCALING ============ */
+{
+  topic:'core', d:1, aud:true, type:'mcq',
+  q:'In Attention(Q,K,V) = softmax(QK<sup>T</sup>/√d<sub>k</sub>)V, what is the softmax normalising over?',
+  opts:[
+    'Over the keys, separately for each query - each row of the score matrix sums to 1',
+    'Over the queries, separately for each key - each column sums to 1',
+    'Over the whole matrix at once, so all n² entries sum to 1',
+    'Over the d<sub>v</sub> feature dimensions of V'
+  ],
+  a:0,
+  why:'Each query gets its own probability distribution over all the keys, so row i answers "how should token i distribute its attention across the sequence?" That row then weights the value vectors: output<sub>i</sub> = Σ<sub>j</sub> w<sub>ij</sub> v<sub>j</sub>.',
+  trap:'Rows sum to 1, columns do not. Nothing forces a token to be attended to by anyone - a token can be almost entirely ignored by the whole sequence.',
+  hint:'One distribution per what?',
+  ref:'§3.2 / §3.2.1, Equation (1)'
+},
+{
+  topic:'core', d:2, aud:true, type:'mcq',
+  q:'Why divide the dot products by √d<sub>k</sub>?',
+  opts:[
+    'Dot products of d<sub>k</sub>-dimensional vectors grow with d<sub>k</sub>; large scores push softmax into regions with extremely small gradients',
+    'It makes the attention weights sum to 1',
+    'It compensates for the number of heads h',
+    'It keeps the output the same magnitude as the input for the residual connection'
+  ],
+  a:0,
+  why:'§3.2.1: "We suspect that for large values of d<sub>k</sub>, the dot products grow large in magnitude, pushing the softmax function into regions where it has extremely small gradients. To counteract this effect, we scale the dot products by 1/√d<sub>k</sub>." Saturated softmax ≈ one-hot ≈ near-zero gradient ≈ no learning.',
+  trap:'Note the hedge - "we suspect". It is a well-argued hypothesis with a variance calculation in footnote 4, not a proof. Fair game for your critique section.',
+  hint:'What happens to a softmax when you feed it very large numbers?',
+  ref:'§3.2.1 Scaled Dot-Product Attention'
+},
+{
+  topic:'core', d:3, type:'num',
+  q:'Footnote 4: assume the components of q and k are independent random variables with mean 0 and variance 1. What is the variance of the dot product q·k?',
+  sub:'Give the answer as a formula result for the paper\'s base model, where d<sub>k</sub> = 64.',
+  a:64, tol:0, unit:'',
+  why:'q·k = Σ<sub>i=1..d<sub>k</sub></sub> q<sub>i</sub>k<sub>i</sub>. Each term has mean 0 and variance 1, and independence means variances add - so the sum has mean 0 and variance d<sub>k</sub>. With d<sub>k</sub> = 64 that is a standard deviation of 8, meaning scores routinely land in the ±16 range before scaling. Softmax is thoroughly saturated there.',
+  trap:'This is the whole argument for √d<sub>k</sub> in one line, and it is the best thing to put on a slide: variance d<sub>k</sub> → std dev √d<sub>k</sub> → divide by √d<sub>k</sub> → variance back to 1.',
+  hint:'Variances of independent terms add.',
+  ref:'§3.2.1, footnote 4'
+},
+{
+  topic:'core', d:2, type:'num',
+  q:'After dividing those same dot products by √d<sub>k</sub>, what is the variance of the resulting score?',
+  a:1, tol:0,
+  why:'Dividing a random variable by a constant c divides its variance by c². Here c = √d<sub>k</sub>, so the variance goes from d<sub>k</sub> to d<sub>k</sub>/d<sub>k</sub> = 1 - independent of head width. That is the point: the same softmax temperature works whether d<sub>k</sub> is 16 or 512.',
+  hint:'Var(X/c) = Var(X)/c².',
+  ref:'§3.2.1, footnote 4'
+},
+{
+  topic:'core', d:2, aud:true, type:'mcq',
+  q:'A demo computes attention by taking the dot product of each token\'s embedding with every other token\'s embedding directly. What is that demo missing, relative to the paper?',
+  opts:[
+    'The three learned projections - the paper first maps each embedding to a query, a key and a value with separate learned matrices W<sup>Q</sup>, W<sup>K</sup>, W<sup>V</sup>',
+    'Nothing - that is exactly what the paper does',
+    'The residual connection',
+    'The ReLU inside the feed-forward network'
+  ],
+  a:0,
+  why:'Raw embedding·embedding is a fixed similarity: it can only ever measure "are these two words alike?". The learned projections let the model ask a <i>different</i> question - "what am I looking for" (Q) versus "what do I advertise" (K) versus "what do I pass on if selected" (V). Those three roles are what make attention learnable rather than a lookup table of similarity.',
+  trap:'Worth building explicitly as a bridge slide: the toy version is Q = K = V = E. Show that, then show the three W matrices being inserted, and the jump from intuition to paper is one screen instead of a leap of faith.',
+  hint:'Count how many learned matrices exist per head.',
+  ref:'§3.2.2, MultiHead equations'
+},
+{
+  topic:'core', d:3, beyond:true, type:'mcq',
+  q:'Suppose you tied the query and key projections to a single shared matrix W, so scores were (xW)·(yW). What capability would you lose?',
+  opts:[
+    'Asymmetry - the score matrix becomes symmetric, forcing "i attends to j" to equal "j attends to i"',
+    'The ability to use more than one head',
+    'The residual connection would no longer typecheck',
+    'Nothing - the paper notes this is an equivalent formulation'
+  ],
+  a:0,
+  why:'(xW)·(yW) = x<sup>T</sup>WW<sup>T</sup>y, and WW<sup>T</sup> is symmetric, so score(i,j) = score(j,i) always. But real linguistic relations are directional: an adjective wants its noun far more than the noun wants that particular adjective; a pronoun wants its antecedent, not vice versa. Separate W<sup>Q</sup> and W<sup>K</sup> give an unconstrained bilinear form x<sup>T</sup>W<sup>Q</sup>W<sup>K T</sup>y, which can be asymmetric.',
+  trap:'Not in the paper - but it is the best answer to "why not just one projection?", which someone in the room will ask. Have it ready.',
+  hint:'Write out the matrix product and look at its transpose.',
+  ref:'Beyond the paper - implied by §3.2.2'
+},
+{
+  topic:'core', d:3, type:'mcq',
+  q:'What does the paper claim about dot-product attention versus additive (Bahdanau-style) attention?',
+  opts:[
+    'Similar theoretical complexity, but dot-product is much faster and more space-efficient in practice because it is one optimised matrix multiply',
+    'Dot-product is strictly more expressive, which is why it wins',
+    'Additive attention cannot be parallelised at all',
+    'Dot-product attention has fewer parameters, which is the entire advantage'
+  ],
+  a:0,
+  why:'§3.2.1: "While the two are similar in theoretical complexity, dot-product attention is much faster and more space-efficient in practice, since it can be implemented using highly optimized matrix multiplication code." The argument is about hardware, not expressiveness.',
+  trap:'A nice thread for the critique section: a design choice justified by what GPUs happened to be good at in 2017. That is engineering pragmatism driving architecture - the same force that later produced FlashAttention.',
+  ref:'§3.2.1'
+},
+{
+  topic:'core', d:3, type:'mcq',
+  q:'What does the paper report about additive vs dot-product attention specifically when d<sub>k</sub> is large and no scaling is applied?',
+  opts:[
+    'Additive attention outperforms unscaled dot-product attention for larger d<sub>k</sub>',
+    'They remain indistinguishable at every d<sub>k</sub>',
+    'Unscaled dot-product wins, which is why scaling was optional',
+    'The paper does not compare them'
+  ],
+  a:0,
+  why:'§3.2.1: "While for small values of d<sub>k</sub> the two mechanisms perform similarly, additive attention outperforms dot product attention without scaling for larger values of d<sub>k</sub>" - citing Britz et al. [3]. That empirical gap is the evidence that motivates the √d<sub>k</sub> fix.',
+  trap:'The finding is cited from another paper, not measured here. The Transformer paper never runs its own scaled-vs-unscaled ablation - Table 3 has no such row.',
+  ref:'§3.2.1, citing reference [3] Britz et al. 2017'
+},
+{
+  topic:'core', d:2, type:'multi',
+  q:'Take n queries, m key–value pairs, key dimension d<sub>k</sub>, value dimension d<sub>v</sub>. Which shapes are right?',
+  opts:[
+    'Q is n × d<sub>k</sub>',
+    'K is m × d<sub>k</sub>',
+    'QK<sup>T</sup> is n × m',
+    'The attention output is n × d<sub>v</sub>',
+    'The attention output is m × d<sub>k</sub>'
+  ],
+  a:[0,1,2,3],
+  why:'Queries and keys must share d<sub>k</sub> so the dot product is defined. The score matrix is one row per query, one column per key: n × m. Softmax leaves that shape alone, then multiplying by V (m × d<sub>v</sub>) contracts the m and gives n × d<sub>v</sub> - one output per query.',
+  trap:'n and m differ in cross-attention: n is the decoder length, m the encoder length. Everyone tests their understanding on self-attention where n = m and the asymmetry hides.',
+  hint:'Track which index gets summed away.',
+  ref:'§3.2.1, Equation (1)'
+},
+{
+  topic:'core', d:2, aud:true, type:'mcq',
+  q:'What breaks if you delete the softmax and weight the values by the raw scaled scores instead?',
+  opts:[
+    'The weights no longer sum to 1 and can be negative - the output stops being a convex combination and its scale drifts with sequence length',
+    'The model can no longer be parallelised',
+    'Q, K and V collapse into a single matrix',
+    'Nothing - softmax is only there for interpretability'
+  ],
+  a:0,
+  why:'Softmax does two jobs: it forces non-negativity and it normalises. Without it, a long sequence accumulates a larger and larger sum, so activation magnitude depends on n, and negative scores would subtract value vectors. The residual stream and LayerNorm downstream assume a stable scale.',
+  trap:'A good demo: run the deck\'s toy attention with softmax removed and show the output vector blowing up as tokens are added.',
+  ref:'§3.2.1'
+},
+
+/* ============ MULTI-HEAD ============ */
+{
+  topic:'heads', d:1, aud:true, type:'num',
+  q:'The base model uses d<sub>model</sub> = 512 and h = 8 heads. What is d<sub>k</sub> for each head?',
+  a:64, tol:0,
+  why:'§3.2.2: "we employ h = 8 parallel attention layers, or heads. For each of these we use d<sub>k</sub> = d<sub>v</sub> = d<sub>model</sub>/h = 64." Each head works in a narrow 64-dimensional slice, and the eight slices are concatenated back to 512 before W<sup>O</sup>.',
+  hint:'512 / 8.',
+  ref:'§3.2.2'
+},
+{
+  topic:'heads', d:2, type:'mcq',
+  q:'Why is multi-head attention roughly as cheap as single-head attention at full dimensionality?',
+  opts:[
+    'Each head operates in d<sub>model</sub>/h dimensions, so h heads cost about the same as one full-width head',
+    'The heads share their W<sup>Q</sup>, W<sup>K</sup> and W<sup>V</sup> matrices',
+    'Only one head is active at a time; the rest are masked out',
+    'The heads are computed sequentially and cached'
+  ],
+  a:0,
+  why:'§3.2.2: "Due to the reduced dimension of each head, the total computational cost is similar to that of single-head attention with full dimensionality." Splitting 512 into 8 × 64 keeps the total width constant - you get eight views for roughly the price of one.',
+  trap:'"Roughly" is doing work. The n × n score matrix is now computed h times, so attention-matrix memory grows with h even though the projection FLOPs stay flat. That is exactly the cost that later motivated multi-query and grouped-query attention.',
+  ref:'§3.2.2'
+},
+{
+  topic:'heads', d:3, type:'mcq',
+  q:'What is the shape of the output projection W<sup>O</sup>?',
+  opts:[
+    'h·d<sub>v</sub> × d<sub>model</sub>',
+    'd<sub>model</sub> × d<sub>k</sub>',
+    'd<sub>model</sub> × d<sub>ff</sub>',
+    'h × d<sub>model</sub>'
+  ],
+  a:0,
+  why:'The h heads each produce a d<sub>v</sub>-wide output; concatenating gives h·d<sub>v</sub>. W<sup>O</sup> ∈ ℝ<sup>h·d<sub>v</sub> × d<sub>model</sub></sup> maps that back to the residual stream width. In the base model h·d<sub>v</sub> = 8 × 64 = 512 = d<sub>model</sub>, so it is square - but that is a consequence of the hyperparameter choice, not a requirement.',
+  trap:'Because it happens to be 512 × 512 in the base model, people assume W<sup>O</sup> is definitionally square. Table 3 row (A) varies h and d<sub>k</sub> together precisely to keep it so.',
+  ref:'§3.2.2, projection definitions'
+},
+{
+  topic:'heads', d:3, type:'mcq',
+  q:'Table 3 rows (A) vary the number of heads at constant compute. What actually happens?',
+  opts:[
+    'Single-head is 0.9 BLEU worse than the best setting, and quality also drops off with too many heads',
+    'BLEU rises monotonically with more heads',
+    'Head count makes no measurable difference',
+    'Only h = 8 was tested; the rest of row (A) varies d<sub>ff</sub>'
+  ],
+  a:0,
+  why:'§6.2: "While single-head attention is 0.9 BLEU worse than the best setting, quality also drops off with too many heads." The numbers: h=1 → 24.9, h=4 → 25.5, h=8 → 25.8 (base), h=16 → 25.8, h=32 → 25.4. It is an inverted U, not a ramp.',
+  trap:'h=16 ties the base at 25.8 - so the "optimal" 8 is not uniquely optimal, it is a plateau. Worth flagging when someone treats 8 heads as a magic number.',
+  hint:'Look for the shape of the curve, not the direction.',
+  ref:'§6.2 and Table 3, rows (A)'
+},
+{
+  topic:'heads', d:3, type:'mcq',
+  q:'Table 3 rows (B) reduce d<sub>k</sub> while holding other things fixed. What did the authors conclude from the result?',
+  opts:[
+    'Reducing d<sub>k</sub> hurts quality, suggesting "determining compatibility is not easy" and a more sophisticated compatibility function than a dot product may help',
+    'd<sub>k</sub> is irrelevant as long as √d<sub>k</sub> scaling is applied',
+    'Smaller d<sub>k</sub> improves BLEU by acting as a regulariser',
+    'Reducing d<sub>k</sub> only affects speed, not quality'
+  ],
+  a:0,
+  why:'§6.2, verbatim: "we observe that reducing the attention key size d<sub>k</sub> hurts model quality. This suggests that determining compatibility is not easy and that a more sophisticated compatibility function than dot product may be beneficial." d<sub>k</sub>=16 → 25.1 and d<sub>k</sub>=32 → 25.4, against 25.8 base.',
+  trap:'This is the authors openly speculating that their own core operation may be too simple - in the results section of the paper that made it famous. Excellent material for "what did the experiments not demonstrate?".',
+  ref:'§6.2 and Table 3, rows (B)'
+},
+{
+  topic:'heads', d:2, type:'mcq',
+  q:'How does the paper itself justify multi-head attention?',
+  opts:[
+    'It lets the model jointly attend to information from different representation subspaces at different positions - "with a single attention head, averaging inhibits this"',
+    'It reduces the parameter count of the attention layer',
+    'It removes the need for positional encoding',
+    'It makes each head individually interpretable to humans'
+  ],
+  a:0,
+  why:'§3.2.2, verbatim. The mechanism argument is about averaging: one head must blend everything into a single weighted mean, and a mean over many positions washes out distinctions. Several narrower heads can each keep a sharp, specialised view.',
+  trap:'Option 4 is the folk version. The paper only says heads "appear to exhibit behavior related to the syntactic and semantic structure" (§4) - a hedge, backed by appendix examples, not measurement.',
+  ref:'§3.2.2; contrast §4 final paragraph'
+},
+
+/* ============ POSITIONAL ENCODING ============ */
+{
+  topic:'pos', d:1, aud:true, type:'mcq',
+  q:'Why does the Transformer need positional encoding at all?',
+  opts:[
+    'With no recurrence and no convolution, the rest of the model treats the input as a set - shuffle the tokens and the attention output permutes with them',
+    'Because softmax cannot handle sequences longer than 512 tokens',
+    'To stop the decoder attending to future positions',
+    'To keep the residual connections numerically stable'
+  ],
+  a:0,
+  why:'§3.5: "Since our model contains no recurrence and no convolution, in order for the model to make use of the order of the sequence, we must inject some information about the relative or absolute position of the tokens." Self-attention is permutation-equivariant - it genuinely cannot tell "dog bites man" from "man bites dog".',
+  trap:'Best live demo in the whole deck: shuffle the token order in your toy example and show the attention matrix comes out identical up to permutation. Let the room propose fixes before you show sinusoids - most people suggest "just append the index", which is a great setup for why that scales badly.',
+  hint:'Ask what the model would do with a shuffled sentence.',
+  ref:'§3.5 Positional Encoding'
+},
+{
+  topic:'pos', d:2, aud:true, type:'mcq',
+  q:'How is the positional encoding combined with the token embedding?',
+  opts:[
+    'Added - the PE has the same dimension d<sub>model</sub> as the embedding, so the two are summed',
+    'Concatenated, doubling the width to 2·d<sub>model</sub>',
+    'Multiplied element-wise',
+    'Applied as a separate bias inside every attention layer'
+  ],
+  a:0,
+  why:'§3.5: "The positional encodings have the same dimension d<sub>model</sub> as the embeddings, so that the two can be summed." Added once, at the bottom of both stacks - not re-injected at every layer.',
+  trap:'Adding position to meaning in the same vector space looks like it should destroy information, and it is fair to say it partly does. It survives because d<sub>model</sub> = 512 is roomy and the network can learn near-orthogonal subspaces. RoPE later took a different route: rotate Q and K by position inside every attention layer instead of adding once at the bottom.',
+  ref:'§3.5'
+},
+{
+  topic:'pos', d:3, type:'mcq',
+  q:'What range do the positional-encoding wavelengths span?',
+  opts:[
+    'A geometric progression from 2π to 10000·2π',
+    'A linear progression from 1 to d<sub>model</sub>',
+    'A geometric progression from 1 to 512',
+    'They are all identical; only the phase differs across dimensions'
+  ],
+  a:0,
+  why:'§3.5: "The wavelengths form a geometric progression from 2π to 10000 · 2π." Early dimensions oscillate fast and encode fine local offsets; late dimensions oscillate slowly and encode coarse absolute position. Together they form something like a smooth binary counter.',
+  hint:'The constant 10000 in the formula is not decorative.',
+  ref:'§3.5'
+},
+{
+  topic:'pos', d:3, type:'mcq',
+  q:'The paper also tried learned positional embeddings. What happened, and why did they still ship sinusoids?',
+  opts:[
+    'Nearly identical results (25.7 vs 25.8 BLEU); sinusoids were chosen because they <i>may</i> let the model extrapolate to sequences longer than those seen in training',
+    'Learned embeddings were clearly worse, so sinusoids won on quality',
+    'Learned embeddings were better but far too expensive to train',
+    'They did not test learned embeddings; that came in a later paper'
+  ],
+  a:0,
+  why:'Table 3 row (E) - "positional embedding instead of sinusoids" gives 4.92 PPL / 25.7 BLEU against the base 4.92 / 25.8. §3.5: "We chose the sinusoidal version because it may allow the model to extrapolate to sequence lengths longer than the ones encountered during training."',
+  trap:'"May allow." The extrapolation claim is a hypothesis the paper never tests - and later work found sinusoidal PE extrapolates poorly in practice, which is a large part of why RoPE and ALiBi exist. One of the cleanest "what aged badly" items you can put on a slide.',
+  hint:'Check both the ablation table and the stated reason.',
+  ref:'§3.5 and Table 3, row (E)'
+},
+{
+  topic:'pos', d:3, type:'mcq',
+  q:'What is the paper\'s stated hypothesis for why sinusoids should help with <i>relative</i> position?',
+  opts:[
+    'For any fixed offset k, PE<sub>pos+k</sub> can be represented as a linear function of PE<sub>pos</sub>',
+    'The dot product of two sinusoidal encodings equals their distance apart',
+    'Sinusoids are orthogonal to all token embeddings',
+    'The encoding is periodic with period equal to the maximum sequence length'
+  ],
+  a:0,
+  why:'§3.5: "We chose this function because we hypothesized it would allow the model to easily learn to attend by relative positions, since for any fixed offset k, PE<sub>pos+k</sub> can be represented as a linear function of PE<sub>pos</sub>." It follows from the angle-addition identities - shifting by k is a fixed 2×2 rotation on each sin/cos pair.',
+  trap:'"Hypothesized" again. Notice how many of the paper\'s design justifications are stated as suspicions rather than results - that is a genuine pattern worth naming in your critique section, not a gotcha.',
+  ref:'§3.5'
+},
+{
+  topic:'pos', d:2, type:'mcq',
+  q:'True or false: the paper demonstrates that sinusoidal encodings let the model handle sequences longer than it was trained on.',
+  opts:[
+    'False - it is offered as a reason for the choice, never tested',
+    'True - Table 3 row (E) is that experiment',
+    'True - it is shown in the constituency-parsing results',
+    'False - the paper explicitly shows they do not extrapolate'
+  ],
+  a:0,
+  why:'The extrapolation argument appears once, as a motivation ("may allow the model to extrapolate"), and no experiment in the paper varies sequence length beyond training. Table 3 row (E) compares sinusoidal against learned at fixed length - a different question entirely.',
+  trap:'Good "claim vs evidence" card for your session: the claim is real and reasonable, the evidence is absent, and history went the other way.',
+  ref:'§3.5; no supporting experiment in §6'
+},
+
+/* ============ MASKING & CROSS-ATTENTION ============ */
+{
+  topic:'wiring', d:1, aud:true, type:'mcq',
+  q:'How is causal masking actually implemented?',
+  opts:[
+    'Illegal positions are set to −∞ in the input to the softmax, inside scaled dot-product attention',
+    'The value vectors for future positions are zeroed after the softmax',
+    'Future tokens are deleted from the input sequence',
+    'A separate mask network predicts which positions to skip'
+  ],
+  a:0,
+  why:'§3.2.3: "We implement this inside of scaled dot-product attention by masking out (setting to −∞) all values in the input of the softmax which correspond to illegal connections." exp(−∞) = 0, so those positions get exactly zero weight and the remaining weights still sum to 1.',
+  trap:'"Inside" matters. The mask goes in before the softmax so renormalisation happens over legal positions only.',
+  hint:'Which side of the softmax?',
+  ref:'§3.2.3, third bullet'
+},
+{
+  topic:'wiring', d:2, type:'mcq',
+  q:'Why −∞ rather than simply setting the score to 0?',
+  opts:[
+    'softmax(0) is not 0 - a score of 0 becomes weight e⁰ = 1 before normalising, which is a perfectly ordinary amount of attention',
+    'Because 0 would cause a division by zero in the normaliser',
+    'Because scores must be strictly negative for the residual to work',
+    'It makes no difference; −∞ is a convention'
+  ],
+  a:0,
+  why:'Softmax exponentiates. A masked score of 0 contributes e⁰ = 1 to the numerator, which after normalising is often a <i>larger</i> share than a legitimately low-scoring token gets. Only −∞ (in practice a large negative number like −1e9) drives the weight to exactly zero.',
+  trap:'This trips people up in code as much as in theory - masking with zeros is one of the classic silent bugs in a from-scratch implementation, because the model still trains, just leakily.',
+  hint:'Work out e⁰.',
+  ref:'§3.2.3'
+},
+{
+  topic:'wiring', d:2, aud:true, type:'mcq',
+  q:'In the encoder–decoder ("cross") attention layer, where do Q, K and V come from?',
+  opts:[
+    'Q from the previous decoder layer; K and V from the encoder output',
+    'Q from the encoder output; K and V from the previous decoder layer',
+    'All three from the encoder output',
+    'Q and K from the decoder; V from the encoder'
+  ],
+  a:0,
+  why:'§3.2.3: "the queries come from the previous decoder layer, and the memory keys and values come from the output of the encoder. This allows every position in the decoder to attend over all positions in the input sequence."',
+  trap:'The direction is the whole point and it is easy to say backwards under pressure. Mnemonic: the decoder is the one <i>asking</i>, so the decoder supplies the questions. The encoder is the library - it supplies what can be looked up and what gets returned.',
+  hint:'Who is asking, and who is being read?',
+  ref:'§3.2.3, first bullet'
+},
+{
+  topic:'wiring', d:2, type:'multi',
+  q:'The paper lists three distinct uses of multi-head attention. Which statements about them are correct?',
+  opts:[
+    'Encoder self-attention: every position attends to all positions in the previous encoder layer',
+    'Decoder self-attention: each position attends to all decoder positions up to and including itself',
+    'Encoder–decoder attention: decoder queries attend over all encoder positions',
+    'Encoder self-attention is causally masked to preserve the auto-regressive property',
+    'Decoder self-attention is unmasked because the mask lives in the cross-attention layer instead'
+  ],
+  a:[0,1,2],
+  why:'Those are the three bullets of §3.2.3 verbatim. The encoder is bidirectional - it sees the whole source at once, and there is nothing autoregressive about it. Masking exists solely in decoder <i>self</i>-attention, "to prevent leftward information flow in the decoder to preserve the auto-regressive property".',
+  trap:'Cross-attention is not masked either: the decoder is allowed to see the entire source sentence from step one. Only the target side is hidden from itself.',
+  ref:'§3.2.3'
+},
+{
+  topic:'wiring', d:3, type:'mcq',
+  q:'Besides the mask, what second mechanism ensures predictions for position i depend only on outputs before i?',
+  opts:[
+    'The output embeddings are offset by one position',
+    'The decoder uses a smaller learning rate than the encoder',
+    'Beam search discards any hypothesis that violates causality',
+    'Layer normalisation is applied before the residual in the decoder only'
+  ],
+  a:0,
+  why:'§3.1: "This masking, combined with fact that the output embeddings are offset by one position, ensures that the predictions for position i can depend only on the known outputs at positions less than i." The shift is what makes it next-token prediction rather than copy-the-input.',
+  trap:'Two mechanisms, both necessary. The off-by-one shift is the boring one that nobody mentions and everybody gets wrong the first time they implement it.',
+  ref:'§3.1 Decoder'
+},
+
+/* ============ FFN, RESIDUAL, NORM ============ */
+{
+  topic:'block', d:2, aud:true, type:'mcq',
+  q:'The position-wise feed-forward network is applied how?',
+  opts:[
+    'To each position separately and identically - same parameters across positions within a layer, different parameters from layer to layer',
+    'Across positions, mixing information between tokens',
+    'Once per sentence, to the pooled encoder output',
+    'Only in the decoder, after cross-attention'
+  ],
+  a:0,
+  why:'§3.3: "applied to each position separately and identically… While the linear transformations are the same across different positions, they use different parameters from layer to layer." No token talks to another token inside the FFN - that is attention\'s job exclusively.',
+  trap:'This division of labour is the cleanest one-line summary of a Transformer block: <b>attention mixes across positions, the FFN transforms within a position.</b> Put that on a slide.',
+  ref:'§3.3 Position-wise Feed-Forward Networks'
+},
+{
+  topic:'block', d:1, type:'num',
+  q:'What is d<sub>ff</sub>, the inner dimension of the feed-forward network, in the base model?',
+  a:2048, tol:0,
+  why:'§3.3: "The dimensionality of input and output is d<sub>model</sub> = 512, and the inner-layer has dimensionality d<sub>ff</sub> = 2048." A 4× expansion then projection back down - a ratio that has survived essentially unchanged into modern LLMs.',
+  hint:'Four times d<sub>model</sub>.',
+  ref:'§3.3'
+},
+{
+  topic:'block', d:2, type:'mcq',
+  q:'What activation sits inside the feed-forward network, per Equation (2)?',
+  opts:[
+    'ReLU - FFN(x) = max(0, xW₁+b₁)W₂+b₂',
+    'GELU',
+    'SwiGLU',
+    'tanh'
+  ],
+  a:0,
+  why:'Equation (2) writes it as max(0, ·), which is ReLU. Two linear transformations with a ReLU in between - the paper also notes this is equivalent to "two convolutions with kernel size 1".',
+  trap:'A clean "what changed" item: GPT-2 moved to GELU, and most current models use gated variants like SwiGLU with a ~8/3 expansion instead of 4×. The slot survived; the contents did not.',
+  ref:'§3.3, Equation (2)'
+},
+{
+  topic:'block', d:3, type:'mcq',
+  q:'What exactly is the output of each sub-layer?',
+  opts:[
+    'LayerNorm(x + Sublayer(x)) - normalisation applied <i>after</i> the residual addition',
+    'x + LayerNorm(Sublayer(x)) - normalisation applied inside the branch',
+    'x + Sublayer(LayerNorm(x)) - normalisation applied before the sub-layer',
+    'LayerNorm(Sublayer(x)) with no residual connection'
+  ],
+  a:0,
+  why:'§3.1, verbatim: "the output of each sub-layer is LayerNorm(x + Sublayer(x))". This is <b>post-LN</b>: the residual stream is renormalised at every block.',
+  trap:'This is one of the biggest quiet changes since 2017. Post-LN is why the paper needs 4000 warmup steps - without warmup it is unstable at depth. Essentially every model since GPT-2 uses <b>pre-LN</b>, x + Sublayer(LayerNorm(x)), which trains stably without warmup, and many now use RMSNorm instead of LayerNorm. If you code the paper literally and it will not converge, this is usually why.',
+  hint:'Look at where the parentheses close.',
+  ref:'§3.1 Encoder'
+},
+{
+  topic:'block', d:3, type:'mcq',
+  q:'In §3.4, what are the embedding weights multiplied by?',
+  opts:[
+    '√d<sub>model</sub>',
+    '1/√d<sub>model</sub>',
+    '√d<sub>k</sub>',
+    'The number of heads h'
+  ],
+  a:0,
+  why:'§3.4: "In the embedding layers, we multiply those weights by √d<sub>model</sub>." With d<sub>model</sub> = 512 that is a factor of about 22.6 - it scales embeddings up so they are not swamped by the positional encodings, which have fixed amplitude in [−1, 1].',
+  trap:'The paper states this in one clause and never explains it. It is one of those details that only becomes visible when your from-scratch implementation trains badly.',
+  ref:'§3.4 Embeddings and Softmax'
+},
+{
+  topic:'block', d:3, type:'mcq',
+  q:'Which weights are tied (shared) in the model?',
+  opts:[
+    'The two embedding layers and the pre-softmax linear transformation all share one weight matrix',
+    'The encoder and decoder share all their layer weights',
+    'All heads within a layer share W<sup>Q</sup> and W<sup>K</sup>',
+    'Nothing is tied'
+  ],
+  a:0,
+  why:'§3.4: "we share the same weight matrix between the two embedding layers and the pre-softmax linear transformation." Three uses, one matrix - source embedding, target embedding, and output projection. Made possible here because EN-DE uses a <i>shared</i> 37k BPE vocabulary across source and target.',
+  trap:'Weight tying saves a lot of parameters when the vocabulary is large, and it only makes sense because the vocabulary is shared. This is worth flagging because modern multilingual models often untie the output projection again.',
+  ref:'§3.4, citing reference [30]'
+},
+{
+  topic:'block', d:3, type:'multi',
+  q:'Where is dropout applied during training?',
+  opts:[
+    'To the output of each sub-layer, before it is added to the sub-layer input and normalised',
+    'To the sums of the embeddings and the positional encodings, in both stacks',
+    'To the attention weights after softmax, at a separately tuned rate for translation',
+    'To the final beam-search scores'
+  ],
+  a:[0,1],
+  why:'§5.4 lists exactly these two placements for the translation models, at P<sub>drop</sub> = 0.1 for the base model. The order matters: dropout hits the sub-layer output <i>before</i> the residual add and the normalisation.',
+  trap:'Attention dropout is a near-universal implementation detail today, and §6.3 does mention tuning "both attention and residual" dropout - but only for the constituency-parsing experiments, not for the headline translation runs described in §5.4.',
+  ref:'§5.4 Regularization; cf. §6.3'
+},
+
+/* ============ FULL ARCHITECTURE ============ */
+{
+  topic:'arch', d:1, aud:true, type:'num',
+  q:'How many identical layers are stacked in the encoder in the base model?',
+  a:6, tol:0,
+  why:'§3.1: "The encoder is composed of a stack of N = 6 identical layers." The decoder is also 6. Both the base and the big model use N = 6 - Table 3 row (C) is where 2, 4 and 8 get tested.',
+  hint:'The same number as the decoder.',
+  ref:'§3.1 and Table 3'
+},
+{
+  topic:'arch', d:2, type:'mcq',
+  q:'How many sub-layers does a single decoder layer contain, and what are they?',
+  opts:[
+    'Three - masked self-attention, encoder–decoder attention, then the feed-forward network',
+    'Two - self-attention and feed-forward, same as the encoder',
+    'Four - self-attention, cross-attention, feed-forward, and a final LayerNorm sub-layer',
+    'Three - self-attention, feed-forward, and a second feed-forward'
+  ],
+  a:0,
+  why:'§3.1: "In addition to the two sub-layers in each encoder layer, the decoder inserts a third sub-layer, which performs multi-head attention over the output of the encoder stack." Each of the three is wrapped in its own residual + LayerNorm.',
+  trap:'The cross-attention sub-layer sits <i>between</i> the two, not at the end. Ordering matters if you rebuild Figure 1 from memory - and it is the step people most often get wrong in the reconstruction activity.',
+  ref:'§3.1 Decoder'
+},
+{
+  topic:'arch', d:3, type:'num',
+  q:'How many multi-head attention sub-layers are there in the whole base model - encoder and decoder together?',
+  sub:'N = 6 in each stack.',
+  a:18, tol:0,
+  why:'Encoder: 6 layers × 1 self-attention = 6. Decoder: 6 layers × (1 masked self-attention + 1 cross-attention) = 12. Total 18 attention sub-layers, each with 8 heads - 144 attention heads in the base model.',
+  trap:'That 144 figure is a good one to have ready. It reframes "the heads are interpretable" (§4) as a claim about 144 objects, of which the appendix shows a handful.',
+  hint:'The decoder has two attention sub-layers per layer.',
+  ref:'§3.1'
+},
+{
+  topic:'arch', d:2, aud:true, type:'order',
+  q:'Put one encoder layer\'s forward pass in the correct order.',
+  sub:'Start from the input to the layer. Assume the paper\'s post-LN arrangement.',
+  items:[
+    'Compute multi-head self-attention over the layer input',
+    'Add the layer input back (residual connection)',
+    'Apply layer normalisation',
+    'Pass through the position-wise feed-forward network',
+    'Add the FFN input back (second residual connection)',
+    'Apply layer normalisation again'
+  ],
+  why:'Each sub-layer is LayerNorm(x + Sublayer(x)), and the encoder layer chains two of them: attention block, then FFN block. Both residuals reach around their own sub-layer only.',
+  trap:'In pre-LN - what almost everything uses today - steps 3 and 6 move to the front of their blocks, so it reads normalise → sublayer → add. Same components, different order, very different training behaviour.',
+  ref:'§3.1'
+},
+
+/* ============ COMPLEXITY ============ */
+{
+  topic:'cost', d:2, aud:true, type:'mcq',
+  q:'Per Table 1, what is the complexity per layer of self-attention?',
+  opts:[
+    'O(n²·d)',
+    'O(n·d²)',
+    'O(k·n·d²)',
+    'O(n·log n·d)'
+  ],
+  a:0,
+  why:'Every one of the n queries is compared against all n keys, and each comparison costs O(d) - giving O(n²·d). Its two companions in Table 1: O(1) sequential operations and O(1) maximum path length.',
+  hint:'All pairs, each of dimension d.',
+  ref:'Table 1'
+},
+{
+  topic:'cost', d:2, type:'mcq',
+  q:'Per Table 1, what are the three figures for a recurrent layer?',
+  opts:[
+    'O(n·d²) complexity, O(n) sequential operations, O(n) maximum path length',
+    'O(n²·d) complexity, O(1) sequential operations, O(1) maximum path length',
+    'O(n·d²) complexity, O(1) sequential operations, O(log n) maximum path length',
+    'O(n·d) complexity, O(n) sequential operations, O(1) maximum path length'
+  ],
+  a:0,
+  why:'The recurrent row of Table 1. The O(n) sequential column is the parallelisation argument and the O(n) path column is the long-range dependency argument - two different weaknesses, and the paper beats both with O(1).',
+  trap:'Note the asymmetry in the d exponent: recurrent is d² because of the hidden-to-hidden matrix multiply at every step; self-attention is d¹ because the expensive object is the n × n score matrix.',
+  ref:'Table 1'
+},
+{
+  topic:'cost', d:3, aud:true, type:'mcq',
+  q:'The paper says self-attention layers are faster than recurrent layers under what condition?',
+  opts:[
+    'When the sequence length n is smaller than the representation dimensionality d',
+    'When n is larger than d',
+    'Always, at every sequence length',
+    'Only when h ≥ 8 heads are used'
+  ],
+  a:0,
+  why:'§4: "self-attention layers are faster than recurrent layers when the sequence length n is smaller than the representation dimensionality d, which is most often the case with sentence representations used by state-of-the-art models in machine translations." Compare O(n²·d) against O(n·d²): self-attention wins exactly when n < d.',
+  trap:'This is the most important caveat in the paper and it is stated plainly, once. In 2017 with d = 512 and sentences around 30–100 tokens, n ≪ d and the efficiency claim is real. At n = 100,000, O(n²) is catastrophic - the entire long-context research programme exists in the gap between that condition and modern usage. If you want one "what the experiments did not demonstrate" slide, make it this.',
+  hint:'Set n²d < nd² and solve.',
+  ref:'§4 Why Self-Attention'
+},
+{
+  topic:'cost', d:3, type:'mcq',
+  q:'Table 1 includes a fourth row, "Self-Attention (restricted)", limiting each position to a neighbourhood of size r. What does it cost?',
+  opts:[
+    'O(r·n·d) per layer, with maximum path length O(n/r)',
+    'O(n²·d) per layer, with maximum path length O(1)',
+    'O(r²·d) per layer, with maximum path length O(r)',
+    'O(n·d²) per layer, with maximum path length O(log n)'
+  ],
+  a:0,
+  why:'Each of the n positions attends to r neighbours at O(d) each, so O(r·n·d) - linear in n. The price is that information now needs about n/r hops to cross the sequence. §4: "We plan to investigate this approach further in future work."',
+  trap:'That one row is the seed of nearly a decade of efficient-attention research - Longformer, BigBird, sliding-window attention in Mistral. Worth showing as "the paper predicted its own biggest problem and left it as future work".',
+  ref:'Table 1 and §4'
+},
+{
+  topic:'cost', d:3, type:'mcq',
+  q:'Per Table 1, what is the maximum path length for a convolutional layer with dilated convolutions?',
+  opts:[
+    'O(log<sub>k</sub>(n))',
+    'O(n/k)',
+    'O(1)',
+    'O(n)'
+  ],
+  a:0,
+  why:'Table 1 gives O(log<sub>k</sub>(n)) for the convolutional row. §4 explains: a single conv layer with kernel width k < n does not connect all pairs, so you need a stack of O(n/k) layers with contiguous kernels, or O(log<sub>k</sub>(n)) with dilated ones.',
+  ref:'Table 1 and §4'
+},
+
+/* ============ TRAINING ============ */
+{
+  topic:'train', d:3, type:'multi',
+  q:'Which of these Adam / schedule settings match the paper?',
+  opts:[
+    'β₂ = 0.98',
+    'ε = 10⁻⁹',
+    'warmup_steps = 4000',
+    'Learning rate rises linearly during warmup, then decays proportionally to the inverse square root of the step number',
+    'β₂ = 0.999, the PyTorch default'
+  ],
+  a:[0,1,2,3],
+  why:'§5.3: β₁ = 0.9, β₂ = 0.98, ε = 10⁻⁹, warmup_steps = 4000, with lrate = d<sub>model</sub><sup>−0.5</sup> · min(step<sup>−0.5</sup>, step · warmup<sup>−1.5</sup>). Note β₂ = 0.98, not the 0.999 default - a shorter second-moment memory, which helps with the sharp early phase.',
+  trap:'The warmup is not a nicety. Combined with post-LN (see the residual/norm question), removing it tends to make training diverge outright - this is exactly the failure that motivated pre-LN.',
+  ref:'§5.3 Optimizer, Equation (3)'
+},
+{
+  topic:'train', d:2, type:'mcq',
+  q:'What does the paper say label smoothing at ε<sub>ls</sub> = 0.1 does to the model?',
+  opts:[
+    'Hurts perplexity, because the model learns to be more unsure - but improves accuracy and BLEU',
+    'Improves both perplexity and BLEU',
+    'Has no measurable effect but stabilises training',
+    'Improves perplexity but costs about 1 BLEU'
+  ],
+  a:0,
+  why:'§5.4, verbatim: "This hurts perplexity, as the model learns to be more unsure, but improves accuracy and BLEU score." Table 3 row (D) backs it: ε<sub>ls</sub> = 0.0 gives PPL 4.67 (better) but BLEU 25.3 (worse) against the base 4.92 / 25.8.',
+  trap:'A lovely, quotable example of a metric moving the wrong way while the thing you actually care about improves. Good ammunition whenever someone treats a single number as the goal.',
+  ref:'§5.4 and Table 3, rows (D)'
+},
+{
+  topic:'train', d:2, type:'num',
+  q:'How many hours did the base model take to train?',
+  sub:'On 8 NVIDIA P100 GPUs, 100,000 steps at roughly 0.4 s per step.',
+  a:12, tol:0, unit:'hours',
+  why:'§5.2: "We trained the base models for a total of 100,000 steps or 12 hours." The big model ran 300,000 steps at 1.0 s per step - 3.5 days. Both on a single machine with 8 P100s.',
+  trap:'This is the number that makes the paper feel like it came from another era, and it is the best possible anchor for the "what changed" discussion. One machine. Twelve hours. State of the art.',
+  hint:'100,000 × 0.4 s, converted.',
+  ref:'§5.2 Hardware and Schedule'
+},
+{
+  topic:'train', d:3, type:'mcq',
+  q:'What tokenisation and vocabulary did the two translation tasks use?',
+  opts:[
+    'EN-DE: byte-pair encoding with a shared source–target vocabulary of ~37,000 tokens. EN-FR: ~32,000 word-piece vocabulary',
+    'Both used a shared 37,000-token BPE vocabulary',
+    'EN-DE used word-level tokens; EN-FR used characters',
+    'Both used a 50,257-token BPE vocabulary'
+  ],
+  a:0,
+  why:'§5.1: EN-DE is ~4.5M sentence pairs with BPE and a shared ~37k vocabulary; EN-FR is 36M sentences with a 32k word-piece vocabulary. The <i>shared</i> vocabulary on EN-DE is what makes the three-way weight tying of §3.4 possible.',
+  trap:'The two tasks differ in tokenisation, dataset size and vocabulary - so "the Transformer wins on both" is two somewhat different experiments, not one repeated cleanly.',
+  ref:'§5.1 Training Data and Batching'
+},
+{
+  topic:'train', d:3, type:'mcq',
+  q:'What inference-time settings produced the headline translation numbers?',
+  opts:[
+    'Beam size 4, length penalty α = 0.6, with checkpoint averaging - last 5 for the base model, last 20 for the big model',
+    'Greedy decoding, no checkpoint averaging',
+    'Beam size 21, α = 0.3, averaging the last 5 checkpoints',
+    'Beam size 4, α = 0.6, single final checkpoint'
+  ],
+  a:0,
+  why:'§6.1: base models average the last 5 checkpoints (written at 10-minute intervals), big models the last 20; beam size 4 and α = 0.6 for both, chosen on the development set. Beam 21 / α = 0.3 belongs to the constituency-parsing experiments in §6.3.',
+  trap:'Checkpoint averaging is an ensemble in everything but name, and Table 2 compares these averaged models against other people\'s explicitly-labelled ensembles. Not dishonest - it is disclosed - but a fair thing to raise when discussing whether the comparison is apples to apples.',
+  ref:'§6.1; cf. §6.3'
+},
+{
+  topic:'train', d:3, type:'num',
+  q:'Approximately how many source tokens were in each training batch?',
+  a:25000, tol:0,
+  why:'§5.1: "Each training batch contained a set of sentence pairs containing approximately 25000 source tokens and 25000 target tokens." Batching by approximate sequence length keeps padding waste down - batches are defined by token count, not sentence count.',
+  hint:'Same number for source and target.',
+  ref:'§5.1'
+},
+
+/* ============ RESULTS & ABLATIONS ============ */
+{
+  topic:'results', d:1, aud:true, type:'num',
+  q:'What BLEU score did Transformer (big) reach on WMT 2014 English-to-German?',
+  a:28.4, tol:0,
+  why:'28.4 BLEU on newstest2014 EN-DE, more than 2.0 BLEU above the best previously reported models including ensembles. Training cost 2.3 × 10¹⁹ FLOPs, against 1.8 × 10²⁰ for the GNMT + RL ensemble it beat.',
+  hint:'It is in the abstract.',
+  ref:'Abstract, §6.1, Table 2'
+},
+{
+  topic:'results', d:3, type:'mcq',
+  q:'The paper reports two different BLEU scores for Transformer (big) on English-to-French. What is going on?',
+  opts:[
+    'The abstract and Table 2 say 41.8; §6.1 says 41.0 - an internal inconsistency in the paper',
+    'One is the base model, the other the big model',
+    'One is newstest2013, the other newstest2014',
+    'One includes checkpoint averaging, the other does not'
+  ],
+  a:0,
+  why:'The abstract: "a new single-model state-of-the-art BLEU score of 41.8". Table 2 also lists 41.8. But §6.1 states "our big model achieves a BLEU score of 41.0". Both refer to the same model on the same test set. The discrepancy has survived into arXiv v7.',
+  trap:'Genuinely one of the best five minutes you can spend in a journal club. It teaches that papers - including the most-cited paper in modern ML - contain unreconciled numbers, and that reading closely enough to notice is a skill worth having. Have someone find it live rather than telling them.',
+  hint:'Compare the abstract against the body text.',
+  ref:'Abstract vs §6.1 vs Table 2'
+},
+{
+  topic:'results', d:2, type:'mcq',
+  q:'How did the <i>base</i> model do against the prior state of the art?',
+  opts:[
+    '27.3 EN-DE / 38.1 EN-FR - surpassing all previously published models and ensembles on EN-DE, at a fraction of the training cost',
+    'It was slightly worse than the best prior models but far cheaper',
+    'It was only tested on EN-FR',
+    'It matched the big model exactly'
+  ],
+  a:0,
+  why:'Table 2 gives the base model 27.3 EN-DE and 38.1 EN-FR at 3.3 × 10¹⁸ FLOPs. §6.1: "Even our base model surpasses all previously published models and ensembles, at a fraction of the training cost of any of the competitive models." The best prior EN-DE was ConvS2S Ensemble at 26.36.',
+  trap:'On EN-FR the base model\'s 38.1 does <i>not</i> beat the prior art (ConvS2S 40.46, GNMT+RL 39.92). The "surpasses all" sentence is about EN-DE. Precision here is the difference between a fair summary and an overclaim.',
+  ref:'§6.1 and Table 2'
+},
+{
+  topic:'results', d:3, type:'mcq',
+  q:'Across all of Table 3\'s ablations, which single change costs the most BLEU?',
+  opts:[
+    'Dropping to N = 2 layers - 23.7 BLEU, down 2.1 from the base 25.8',
+    'Using a single attention head - 24.9',
+    'Turning dropout off - 24.6',
+    'Halving d<sub>model</sub> to 256 - 24.5'
+  ],
+  a:0,
+  why:'Row (C): N = 2 gives PPL 6.11 and BLEU 23.7, a 2.1 BLEU drop - the largest in the table. The runners-up are d<sub>model</sub> = 256 at 24.5, no dropout at 24.6, and single-head at 24.9.',
+  trap:'Depth matters more than any individual attention design choice tested here. That is a slightly awkward result for a paper about attention mechanisms, and it is a great prompt for discussion: how much of the win is attention, and how much is "a deep residual network that trains well"?',
+  hint:'Look for the worst perplexity in the table, not just the worst BLEU.',
+  ref:'Table 3, rows (C)'
+},
+{
+  topic:'results', d:2, type:'multi',
+  q:'Which of these are true of the constituency-parsing experiment in §6.3?',
+  opts:[
+    'A 4-layer Transformer with d<sub>model</sub> = 1024, trained on ~40K WSJ sentences',
+    'It reached 91.3 F1 WSJ-only and 92.7 semi-supervised',
+    'It beat every previously reported model in Table 4',
+    'It outperformed the BerkeleyParser even training only on the 40K-sentence WSJ set',
+    'It used beam size 21 and α = 0.3'
+  ],
+  a:[0,1,3,4],
+  why:'§6.3 and Table 4. The one thing it did not do is beat everything: "yielding better results than all previously reported models with the exception of the Recurrent Neural Network Grammar" - Dyer et al. (2016) generative at 93.3 F1, above the Transformer\'s 92.7. Luong et al. multi-task also scores 93.0.',
+  trap:'The purpose of this section is to answer "does it generalise beyond translation?", and the honest answer the table gives is "yes, competitively, without winning". The paper reports that plainly, which is to its credit.',
+  ref:'§6.3 and Table 4'
+},
+{
+  topic:'results', d:3, type:'mcq',
+  q:'How were the training-cost FLOP figures in Table 2 obtained?',
+  opts:[
+    'Estimated - training time × number of GPUs × an assumed sustained single-precision throughput per GPU',
+    'Measured directly with hardware performance counters',
+    'Reported by the original authors of each competing model',
+    'Derived analytically from each architecture\'s parameter count'
+  ],
+  a:0,
+  why:'§6.1 and footnote 5: "We estimate the number of floating point operations used to train a model by multiplying the training time, the number of GPUs used, and an estimate of the sustained single-precision floating-point capacity of each GPU" - using 2.8, 3.7, 6.0 and 9.5 TFLOPS for K80, K40, M40 and P100.',
+  trap:'So the headline efficiency comparison rests on an assumed constant utilisation across four different GPU generations and four different codebases. The conclusion is almost certainly directionally right - the gap is an order of magnitude - but the precision implied by "2.3 × 10¹⁹" is not really there.',
+  ref:'§6.1 and footnote 5'
+},
+{
+  topic:'results', d:3, type:'num',
+  q:'How many parameters does the big model have, in millions?',
+  a:213, tol:0, unit:'M',
+  why:'Table 3, bottom row: the big model has 213 × 10⁶ parameters (N=6, d<sub>model</sub>=1024, d<sub>ff</sub>=4096, h=16, P<sub>drop</sub>=0.3, 300K steps). The base model is 65M.',
+  trap:'213M is a useful number to have when someone asks how this relates to modern LLMs - it is roughly three orders of magnitude below today\'s frontier models. The architecture scaled; the paper never claimed it would, and never tested it.',
+  hint:'Bottom-right cell of Table 3.',
+  ref:'Table 3'
+},
+
+/* ============ CRITIQUE & LEGACY ============ */
+{
+  topic:'critique', d:3, type:'multi',
+  q:'"Self-attention could yield more interpretable models" (§4). Which characterisations of that claim are accurate?',
+  opts:[
+    'It is hedged - "could yield", not "does yield"',
+    'The support is inspection of example attention distributions in the appendix',
+    'The paper says heads "appear to exhibit" syntactic and semantic behaviour',
+    'It is supported by a quantitative interpretability metric',
+    'It is validated against human judgements of the attention maps'
+  ],
+  a:[0,1,2],
+  why:'§4, final paragraph: "As side benefit, self-attention could yield more interpretable models. We inspect attention distributions from our models and present and discuss examples in the appendix. Not only do individual attention heads clearly learn to perform different tasks, many appear to exhibit behavior related to the syntactic and semantic structure of the sentences." Hedged language, hand-picked examples, no metric.',
+  trap:'This is the strongest claim-versus-evidence card in the paper, and it aged the worst. A large later literature - Jain & Wallace\'s "Attention is not Explanation", Voita et al. on head pruning, Michel et al.\'s "Are Sixteen Heads Really Better than One?" - found attention weights are not reliable explanations and most heads can be pruned with little loss. The paper is not guilty of overclaiming; it is guilty of a plausible aside that the field then treated as established.',
+  ref:'§4, final paragraph'
+},
+{
+  topic:'critique', d:3, type:'multi',
+  q:'Which of these does the paper\'s experimental evidence <i>not</i> establish?',
+  opts:[
+    'That the architecture scales to much larger models and datasets',
+    'That it is suited to language modelling or few-shot learning',
+    'That it handles long sequences efficiently',
+    'That sinusoidal encodings extrapolate beyond training length',
+    'That it beats recurrent and convolutional models on WMT 2014 EN-DE'
+  ],
+  a:[0,1,2,3],
+  why:'The evidence base is two translation tasks and one parsing task, all with sentence-length inputs, at 65M and 213M parameters. Scaling behaviour, language modelling, in-context learning and long-context efficiency are all outside what was tested - and the O(n²·d) cost plus the explicit "faster when n < d" caveat point the other way on long sequences. Only the last option is actually demonstrated.',
+  trap:'The point is not that the paper was wrong. It is that almost everything the Transformer is now famous for was established by <i>later</i> work - and reading the original makes that vivid. Excellent closing discussion prompt: "what did this paper actually prove, versus what do we credit it with?"',
+  ref:'§6 overall; §4 for the n < d condition'
+},
+{
+  topic:'critique', d:3, beyond:true, type:'multi',
+  q:'Which changes to the 2017 recipe are standard in current large language models?',
+  opts:[
+    'Pre-LN (often with RMSNorm) instead of post-LN',
+    'Rotary or ALiBi position information instead of added sinusoids',
+    'Gated FFN activations such as SwiGLU instead of ReLU',
+    'Grouped-query or multi-query attention to shrink the inference KV cache',
+    'Removing the residual connections around sub-layers'
+  ],
+  a:[0,1,2,3],
+  why:'The block skeleton survived essentially intact - attention, FFN, residuals, normalisation, in that arrangement. Almost every component inside it has been swapped: normalisation placement and type, how position enters, the FFN nonlinearity, and how K/V are shared across heads. Residual connections are the one thing nobody has touched.',
+  trap:'This is the shape of your "what aged well / what changed" slide, and the honest summary is striking: the paper\'s <i>structure</i> was right and nearly all of its <i>details</i> were replaceable.',
+  ref:'Beyond the paper'
+},
+{
+  topic:'critique', d:3, beyond:true, type:'mcq',
+  q:'FlashAttention is often described as "fixing" attention\'s quadratic cost. What did it actually change?',
+  opts:[
+    'The memory-access pattern - it tiles the computation to avoid materialising the n × n matrix in slow memory. The arithmetic and the O(n²) compute are unchanged',
+    'It replaced softmax attention with a linear-time approximation',
+    'It reduced attention to O(n log n) exactly',
+    'It removed the need for multiple heads'
+  ],
+  a:0,
+  why:'FlashAttention computes exactly the same function as Equation (1), bit-for-bit up to floating-point ordering. It wins by never writing the full score matrix to HBM, which turns attention from memory-bandwidth-bound into something much closer to compute-bound. Quadratic compute remains quadratic.',
+  trap:'A useful correction for the room, and it lands well after the complexity section: the biggest practical speedup in attention since 2017 came from a hardware-aware implementation, not a new mechanism. Meanwhile most of the genuinely sub-quadratic attention variants did not stick.',
+  ref:'Beyond the paper - Dao et al. 2022'
+},
+{
+  topic:'critique', d:2, aud:true, type:'mcq',
+  q:'The paper\'s Transformer is an encoder–decoder. How does that relate to a modern decoder-only LLM?',
+  opts:[
+    'A decoder-only model keeps the masked self-attention and FFN blocks but drops the encoder and the cross-attention sub-layer entirely',
+    'They are the same architecture with different training data',
+    'Decoder-only models removed masking, since there is no encoder to attend to',
+    'Decoder-only models use the encoder stack only, with the decoder discarded'
+  ],
+  a:0,
+  why:'Strip the encoder and the model has nothing to cross-attend to, so the middle sub-layer of each decoder layer disappears. What remains is masked self-attention + FFN, repeated - that is GPT. BERT went the other way, keeping the unmasked encoder stack alone.',
+  trap:'Worth being explicit about on a slide, because most of the room\'s intuitions come from ChatGPT, not from a translation model. Everything in the deck about cross-attention is genuinely absent from the models they use daily - say so, or half the session quietly does not connect.',
+  hint:'Which sub-layer has nothing to point at?',
+  ref:'Beyond the paper - §3.1 by subtraction'
+},
+{
+  topic:'critique', d:2, aud:true, type:'mcq',
+  q:'A fair description of what attention produces is:',
+  opts:[
+    'Contextual representations - vectors for a token that depend on the surrounding tokens',
+    'Human-like understanding of the sentence',
+    'A parse tree of the sentence',
+    'A probability distribution over the meanings of each word'
+  ],
+  a:0,
+  why:'Mechanically, attention outputs a weighted combination of value vectors, so each token\'s representation is conditioned on its context. That is a precise and defensible claim. "Understanding" imports a great deal that no experiment in the paper touches.',
+  trap:'Worth policing the language on your own slides. "Contextual representation" costs nothing to say and cannot be attacked; "the model understands the sentence" invites an argument that has nothing to do with the paper and will eat fifteen minutes of your session.',
+  ref:'§3.2; framing note'
+},
+{
+  topic:'critique', d:3, type:'mcq',
+  q:'What is a fair criticism of the experimental rigour of the results, by present-day standards?',
+  opts:[
+    'Single runs with no seeds or variance reported, so differences of a few tenths of BLEU in Table 3 cannot be distinguished from noise',
+    'BLEU was not an accepted metric for machine translation in 2017',
+    'The test sets were not publicly available',
+    'No baselines from other architectures are reported'
+  ],
+  a:0,
+  why:'Nothing in §6 reports error bars, seed variance or significance tests. Table 3 then invites conclusions from gaps like 25.8 vs 25.7 (row E) and 25.8 vs 25.5 (h=4) - differences that are plausibly within run-to-run noise for NMT training.',
+  trap:'Judge this by 2017 norms, not 2026 ones: almost no NMT paper reported variance then. The useful framing for a journal club is not "they were sloppy" but "here is a norm that changed, and here is what it would cost to check" - which is a much better discussion.',
+  ref:'§6 overall'
+}
+
+];
+/* =========================================================
+   ENGINE
+========================================================= */
+const $ = id => document.getElementById(id);
+const state = {
+  topics:new Set(Object.keys(TOPICS)), shuffle:false,
+  queue:[], i:0, answered:false, picked:null, order:[], results:[], hintShown:false
+};
+
+function poolFor(topics){
+  return QUESTIONS.filter(q=>topics.has(q.topic));
+}
+function quizOrder(list){
+  const tOrder = Object.keys(TOPICS);
+  const arr = [...list];
+  if(state.shuffle){
+    for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]];}
+    return arr;
+  }
+  return arr.sort((a,b)=>{
+    const t = tOrder.indexOf(a.topic)-tOrder.indexOf(b.topic);
+    if(t) return t;
+    return a.d-b.d;
+  });
+}
+
+/* ---------- start screen ---------- */
+function renderTopics(){
+  const el = $('topic-list'); el.innerHTML='';
+  Object.entries(TOPICS).forEach(([k,name])=>{
+    const n = QUESTIONS.filter(q=>q.topic===k).length;
+    const b = document.createElement('button');
+    b.className = 'topic-chip' + (state.topics.has(k)?' on':'');
+    b.innerHTML = `${name} <span class="n">${n}</span>`;
+    b.onclick = ()=>{
+      if(state.topics.has(k)){ if(state.topics.size>1) state.topics.delete(k); }
+      else state.topics.add(k);
+      renderTopics(); updateCounts();
+    };
+    el.appendChild(b);
+  });
+}
+function updateCounts(){
+  const n = poolFor(state.topics).length;
+  $('q-count').textContent = n + ' question' + (n===1?'':'s') + ' selected';
+  $('btn-start').disabled = n===0;
+}
+$('btn-shuffle').onclick = ()=>{ state.shuffle=!state.shuffle; $('shuf-state').textContent = state.shuffle?'on':'off'; };
+
+/* ---------- run control ---------- */
+function begin(list){
+  state.queue = list; state.i = 0; state.results = [];
+  $('screen-start').classList.add('hidden');
+  $('screen-done').classList.add('hidden');
+  $('screen-quiz').classList.remove('hidden');
+  $('topbar').classList.remove('hidden');
+  renderQ();
+}
+$('btn-start').onclick = ()=> begin(quizOrder(poolFor(state.topics)));
+$('tb-quit').onclick = ()=> goHome();
+$('btn-home').onclick = ()=> goHome();
+function goHome(){
+  $('screen-quiz').classList.add('hidden'); $('screen-done').classList.add('hidden');
+  $('topbar').classList.add('hidden'); $('screen-start').classList.remove('hidden');
+  window.scrollTo(0,0);
+}
+$('btn-again').onclick = ()=> begin(quizOrder(poolFor(state.topics)));
+$('btn-retry-wrong').onclick = ()=>{
+  const wrong = state.results.filter(r=>!r.ok).map(r=>r.q);
+  if(wrong.length) begin(wrong);
+};
+
+/* ---------- render one question ---------- */
+function renderQ(){
+  const q = state.queue[state.i];
+  state.answered = false; state.hintShown = false;
+  state.picked = (q.type==='multi') ? new Set() : null;
+  state.order = [];
+
+  const total = state.queue.length;
+  $('tb-count').textContent = String(state.i+1).padStart(2,'0') + ' / ' + String(total).padStart(2,'0');
+  $('tb-bar').style.width = (state.i/total*100) + '%';
+  const nOk = state.results.filter(r=>r.ok).length;
+  $('tb-score').textContent = nOk + ' correct';
+
+  $('q-head').innerHTML =
+    `<span class="pill topic">${TOPICS[q.topic]}</span>` +
+    (q.beyond?`<span class="pill beyond">beyond paper</span>`:'') +
+    (q.type==='multi'?`<span class="pill">select all that apply</span>`:'') +
+    (q.type==='order'?`<span class="pill">put in order</span>`:'') +
+    (q.type==='num'?`<span class="pill">type a number</span>`:'');
+
+  $('q-text').innerHTML = q.q;
+  if(q.sub){ $('q-sub').innerHTML = q.sub; $('q-sub').classList.remove('hidden'); }
+  else $('q-sub').classList.add('hidden');
+
+  $('q-hint').classList.add('hidden');
+  $('btn-hint').classList.toggle('hidden', !q.hint);
+  $('q-explain').innerHTML = '';
+  $('btn-submit').classList.remove('hidden');
+  $('btn-submit').disabled = true;
+  $('btn-submit').textContent = 'Check';
+  $('btn-next').classList.add('hidden');
+  $('btn-next').textContent = (state.i===state.queue.length-1) ? 'See results →' : 'Next →';
+
+  const body = $('q-body'); body.innerHTML='';
+  if(q.type==='num') renderNum(q, body);
+  else if(q.type==='order') renderOrder(q, body);
+  else renderChoice(q, body);
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function renderChoice(q, body){
+  const wrap = document.createElement('div'); wrap.className='opts';
+  let selectedEl = null;
+  // Shuffle display order so the correct answer isn't positionally predictable.
+  // dataset.idx keeps the ORIGINAL index, so grading against q.a is unchanged.
+  const perm = q.opts.map((_,i)=>i);
+  for(let i=perm.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[perm[i],perm[j]]=[perm[j],perm[i]];}
+  perm.forEach((idx,slot)=>{
+    const text = q.opts[idx];
+    const b = document.createElement('button');
+    b.type='button';
+    b.className='opt'; b.dataset.idx=idx;
+    b.innerHTML = `<span class="key">${slot+1}</span><span>${text}</span><span class="mark"></span>`;
+    b.onclick = ()=>{
+      if(state.answered) return;
+      if(q.type==='multi'){
+        if(state.picked.has(idx)){ state.picked.delete(idx); b.classList.remove('sel'); }
+        else { state.picked.add(idx); b.classList.add('sel'); }
+        $('btn-submit').disabled = state.picked.size===0;
+      } else {
+        if(selectedEl) selectedEl.classList.remove('sel');
+        b.classList.add('sel');
+        selectedEl = b;
+        state.picked = idx;
+        $('btn-submit').disabled = false;
+      }
+    };
+    wrap.appendChild(b);
+  });
+  body.appendChild(wrap);
+}
+
+function renderNum(q, body){
+  const w = document.createElement('div'); w.className='numwrap'; w.id='numwrap';
+  const inp = document.createElement('input');
+  inp.type='text'; inp.inputMode='decimal'; inp.placeholder='?'; inp.id='numinput';
+  inp.oninput = ()=>{ $('btn-submit').disabled = inp.value.trim()===''; };
+  inp.onkeydown = e=>{ if(e.key==='Enter'){ e.preventDefault(); if(!$('btn-submit').disabled && !state.answered) submit(); } };
+  w.appendChild(inp);
+  if(q.unit){ const u=document.createElement('span'); u.className='unit'; u.textContent=q.unit; w.appendChild(u); }
+  body.appendChild(w);
+  setTimeout(()=>inp.focus(),80);
+}
+
+function renderOrder(q, body){
+  const w = document.createElement('div'); w.className='orderwrap';
+  const pool = document.createElement('div'); pool.className='orderbox';
+  pool.innerHTML = '<h4>Steps (click in the right order)</h4>';
+  const seq = document.createElement('div'); seq.className='orderbox';
+  seq.innerHTML = '<h4>Your sequence</h4>';
+  const poolBody = document.createElement('div'); const seqBody = document.createElement('div');
+  pool.appendChild(poolBody); seq.appendChild(seqBody);
+
+  const shuffled = q.items.map((t,i)=>({t,i}));
+  for(let i=shuffled.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[shuffled[i],shuffled[j]]=[shuffled[j],shuffled[i]];}
+
+  function draw(){
+    poolBody.innerHTML=''; seqBody.innerHTML='';
+    shuffled.forEach(o=>{
+      if(state.order.includes(o.i)) return;
+      const d = document.createElement('div'); d.className='oitem';
+      d.innerHTML = `<span class="idx">·</span><span>${o.t}</span>`;
+      d.onclick = ()=>{ if(state.answered) return; state.order.push(o.i); draw();
+        $('btn-submit').disabled = state.order.length!==q.items.length; };
+      poolBody.appendChild(d);
+    });
+    state.order.forEach((oi,pos)=>{
+      const d = document.createElement('div'); d.className='oitem';
+      d.innerHTML = `<span class="idx">${pos+1}</span><span>${q.items[oi]}</span>`;
+      d.onclick = ()=>{ if(state.answered) return; state.order.splice(pos,1); draw();
+        $('btn-submit').disabled = state.order.length!==q.items.length; };
+      seqBody.appendChild(d);
+    });
+    if(!state.order.length) seqBody.innerHTML='<div style="color:var(--text-faint);font-size:13px;padding:6px 2px;">Click steps on the left…</div>';
+  }
+  draw();
+  w.appendChild(pool); w.appendChild(seq); body.appendChild(w);
+}
+
+/* ---------- grading ---------- */
+function submit(){
+  const q = state.queue[state.i];
+  let ok = false;
+  state.answered = true;
+
+  if(q.type==='num'){
+    const raw = $('numinput').value.trim().replace(/,/g,'');
+    const v = parseFloat(raw);
+    const tol = q.tol===undefined ? 0 : q.tol;
+    ok = !isNaN(v) && Math.abs(v - q.a) <= tol;
+    $('numwrap').classList.add(ok?'correct':'wrong');
+    $('numinput').disabled = true;
+  }
+  else if(q.type==='order'){
+    ok = state.order.every((v,i)=> v===i);
+    document.querySelectorAll('#q-body .oitem').forEach(el=>el.classList.add('locked'));
+    const seqEls = document.querySelectorAll('#q-body .orderbox:last-child .oitem');
+    state.order.forEach((v,i)=>{ if(seqEls[i]) seqEls[i].classList.add(v===i?'ok':'bad'); });
+  }
+  else if(q.type==='multi'){
+    const want = new Set(q.a);
+    ok = want.size===state.picked.size && [...want].every(v=>state.picked.has(v));
+    document.querySelectorAll('#q-body .opt').forEach(el=>{
+      const i = +el.dataset.idx; el.classList.add('locked'); el.classList.remove('sel');
+      const mark = el.querySelector('.mark');
+      if(want.has(i)){ el.classList.add('correct'); mark.textContent = state.picked.has(i)?'✓ got it':'✓ missed'; }
+      else if(state.picked.has(i)){ el.classList.add('wrong'); mark.textContent='✗ not this'; }
+    });
+  }
+  else {
+    ok = state.picked === q.a;
+    document.querySelectorAll('#q-body .opt').forEach(el=>{
+      const i = +el.dataset.idx; el.classList.add('locked'); el.classList.remove('sel');
+      const mark = el.querySelector('.mark');
+      if(i===q.a){ el.classList.add('correct'); mark.textContent='✓'; }
+      else if(i===state.picked){ el.classList.add('wrong'); mark.textContent='✗'; }
+    });
+  }
+
+  state.results.push({q, ok});
+  showExplain(q, ok);
+  $('btn-submit').classList.add('hidden');
+  $('btn-next').classList.remove('hidden');
+  $('btn-hint').classList.add('hidden');
+  $('tb-score').textContent = state.results.filter(r=>r.ok).length + ' correct';
+  $('btn-next').focus();
+}
+
+function correctText(q){
+  if(q.type==='num') return q.a + (q.unit?(' '+q.unit):'');
+  if(q.type==='order') return q.items.map((t,i)=>`${i+1}. ${t}`).join(' → ');
+  if(q.type==='multi') return q.a.map(i=>q.opts[i]).join(' · ');
+  return q.opts[q.a];
+}
+
+function showExplain(q, ok){
+  const d = document.createElement('div');
+  d.className = 'explain ' + (ok?'good':'bad');
+  let html = `<div class="verdict">${ok?'Correct':'Not quite'}</div>`;
+  if(!ok) html += `<p><b style="color:var(--green);">Answer:</b> ${correctText(q)}</p>`;
+  html += `<p>${q.why}</p>`;
+  if(q.trap) html += `<p class="trap"><b>Watch out:</b> ${q.trap}</p>`;
+  if(q.ref) html += `<div class="ref">${q.ref}</div>`;
+  d.innerHTML = html;
+  $('q-explain').innerHTML=''; $('q-explain').appendChild(d);
+}
+
+$('btn-submit').onclick = ()=>{ if(!state.answered && !$('btn-submit').disabled) submit(); };
+$('btn-next').onclick = ()=>{
+  state.i++;
+  if(state.i >= state.queue.length) finish(); else renderQ();
+};
+$('btn-hint').onclick = ()=>{
+  const q = state.queue[state.i];
+  if(!q.hint) return;
+  $('q-hint').textContent = '💡 ' + q.hint;
+  $('q-hint').classList.remove('hidden');
+  state.hintShown = true;
+};
+
+document.addEventListener('keydown', e=>{
+  if($('screen-quiz').classList.contains('hidden')) return;
+  if(e.target.tagName==='INPUT') return;
+  if(e.key==='Enter'){
+    e.preventDefault();
+    if(state.answered) $('btn-next').click();
+    else if(!$('btn-submit').disabled) submit();
+    return;
+  }
+  if((e.key==='h'||e.key==='H') && !state.answered){ $('btn-hint').click(); return; }
+  const n = parseInt(e.key,10);
+  if(!isNaN(n) && n>=1 && n<=9 && !state.answered){
+    const opts = document.querySelectorAll('#q-body .opt');
+    if(opts[n-1]) opts[n-1].click();
+  }
+});
+
+/* ---------- results ---------- */
+function finish(){
+  $('screen-quiz').classList.add('hidden');
+  $('topbar').classList.add('hidden');
+  $('screen-done').classList.remove('hidden');
+  window.scrollTo(0,0);
+
+  const total = state.results.length;
+  const nOk = state.results.filter(r=>r.ok).length;
+  const pct = total? Math.round(nOk/total*100) : 0;
+  $('r-mode').textContent = 'QUIZ';
+  $('r-score').innerHTML = `${nOk}<small>/${total}</small>`;
+
+  let v;
+  if(pct>=90) v = "You can present this. Read your misses once more and you're done.";
+  else if(pct>=75) v = "Solid. The gaps below are the ones that turn into awkward pauses when someone asks a follow-up - patch those.";
+  else if(pct>=55) v = "You've got the shape of it but not the detail. Re-read the sections listed under your misses before the session, not the whole paper.";
+  else v = "Worth a proper read-through before running this again. Sections 3.2 and 6.2 are where most of the misses usually cluster.";
+  $('r-verdict').textContent = v;
+
+  const byT = {};
+  state.results.forEach(r=>{
+    byT[r.q.topic] = byT[r.q.topic] || {ok:0,n:0};
+    byT[r.q.topic].n++; if(r.ok) byT[r.q.topic].ok++;
+  });
+  const tl = $('r-topics'); tl.innerHTML='';
+  Object.keys(TOPICS).forEach(k=>{
+    if(!byT[k]) return;
+    const {ok,n} = byT[k]; const p = Math.round(ok/n*100);
+    const col = p>=80?'var(--green)':p>=50?'var(--gold)':'var(--coral)';
+    const row = document.createElement('div'); row.className='tb-row';
+    row.innerHTML = `<span class="tname">${TOPICS[k]}</span>
+      <span class="tb-bar"><i style="width:${p}%;background:${col}"></i></span>
+      <span class="tnum">${ok}/${n}</span>`;
+    tl.appendChild(row);
+  });
+
+  const missed = state.results.filter(r=>!r.ok);
+  $('r-missed-wrap').classList.toggle('hidden', missed.length===0);
+  const ml = $('r-missed'); ml.innerHTML='';
+  missed.forEach(r=>{
+    const d = document.createElement('div'); d.className='missed';
+    d.innerHTML = `<div class="mq">${r.q.q}</div>
+      <div class="ma"><b>Answer</b>${correctText(r.q)}</div>
+      ${r.q.ref?`<div class="ref" style="font-family:var(--font-mono);font-size:11px;color:var(--text-faint);margin-top:9px;">${r.q.ref}</div>`:''}`;
+    ml.appendChild(d);
+  });
+  $('btn-retry-wrong').classList.toggle('hidden', missed.length===0);
+}
+
+renderTopics(); updateCounts();
+</script>
+</body>
+</html>

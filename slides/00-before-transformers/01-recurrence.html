@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>One Word at a Time — Before the Transformer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../01-self-attention/css/styles.css">
+<style>
+.b1-chain{ display:flex; align-items:flex-end; gap:0; overflow-x:auto; padding:14px 4px 6px; }
+.b1-step{ display:flex; flex-direction:column; align-items:center; gap:7px; min-width:88px;
+  opacity:.22; transition:.4s; }
+.b1-step.on{ opacity:1; }
+.b1-tok{ font-family:var(--font-mono); font-size:12px; color:var(--text-dim);
+  background:var(--panel-2); border:1px solid var(--border); border-radius:6px;
+  padding:5px 9px; white-space:nowrap; }
+.b1-step.on .b1-tok{ color:var(--text); border-color:var(--border-strong); }
+.b1-up{ color:var(--text-faint); font-size:13px; line-height:1; }
+.b1-h{ width:60px; height:60px; border-radius:10px; border:1px solid var(--border-strong);
+  background:var(--panel); display:grid; grid-template-columns:repeat(3,1fr); gap:3px;
+  padding:6px; transition:.4s; }
+.b1-h i{ border-radius:2px; background:var(--border-strong); transition:.5s; }
+.b1-step.on .b1-h{ border-color:var(--teal); box-shadow:0 0 0 3px var(--teal-dim); }
+.b1-hlbl{ font-family:var(--font-mono); font-size:10px; color:var(--text-faint); }
+.b1-step.on .b1-hlbl{ color:var(--teal); }
+.b1-link{ flex:0 0 26px; height:2px; background:var(--border-strong); margin:0 0 38px;
+  position:relative; transition:.4s; }
+.b1-link.on{ background:var(--teal); }
+.b1-link::after{ content:'▶'; position:absolute; right:-4px; top:-6px; font-size:8px;
+  color:var(--border-strong); transition:.4s; }
+.b1-link.on::after{ color:var(--teal); }
+
+.b1-formula{ font-family:var(--font-mono); font-size:15px; text-align:center;
+  background:var(--panel); border:1px solid var(--border); border-radius:10px;
+  padding:14px; margin:12px 0; letter-spacing:.02em; }
+.b1-formula b{ color:var(--teal); }
+.b1-formula em{ color:var(--coral); font-style:normal; }
+.b1-formula small{ display:block; margin-top:8px; font-size:11px; color:var(--text-faint);
+  letter-spacing:0; font-family:var(--font-disp); }
+
+.b1-uses{ display:flex; gap:7px; flex-wrap:wrap; margin-top:2px; }
+.b1-use{ font-family:var(--font-mono); font-size:10.5px; color:var(--text-dim);
+  border:1px solid var(--border); border-radius:999px; padding:5px 11px; background:var(--panel); }
+</style>
+</head>
+<body class="single-slide-page" data-slide-index="1" data-slide-count="4" data-prev-page="" data-next-page="02-sequential.html">
+<div class="deck-header"><span class="count" id="deck-count">01 / 04</span><span class="title-mini">Before the Transformer</span></div>
+<nav class="deck-nav" id="deck-nav" aria-label="Slide navigation">
+  <a href="01-recurrence.html" class="active" aria-current="page" aria-label="Go to slide 1: Recurrence"></a>
+  <a href="02-sequential.html" aria-label="Go to slide 2: Sequential Computation"></a>
+  <a href="03-path-length.html" aria-label="Go to slide 3: Path Length"></a>
+  <a href="04-what-2014-fixed.html" aria-label="Go to slide 4: What 2014 Fixed"></a>
+</nav>
+<div class="deck" id="deck">
+<section class="slide" id="slide-recurrence">
+  <div class="slide-inner">
+    <div>
+      <div class="eyebrow"><span class="num">01</span> BEFORE THE TRANSFORMER</div>
+      <h1 class="title">One Word<br>at a Time</h1>
+      <p class="subtitle">Recurrent neural networks, 1997–2016</p>
+      <p class="lead">Before 2017, sequence problems ran on <b>RNNs</b> — in practice on their gated descendants, <b>LSTM</b> and <b>GRU</b>. The paper's own opening sentence calls them "firmly established as state of the art".</p>
+      <div class="b1-uses">
+        <span class="b1-use">machine translation</span>
+        <span class="b1-use">language modelling</span>
+        <span class="b1-use">speech recognition</span>
+        <span class="b1-use">summarisation</span>
+        <span class="b1-use">handwriting</span>
+      </div>
+      <p class="lead" style="margin-top:14px;">The idea is a <b>running memory</b>. Read one token, update a hidden state, carry it forward. Everything the network knows about the sentence so far lives in that one vector.</p>
+      <div class="note"><b>LSTM</b> (Hochreiter &amp; Schmidhuber, 1997 — reference [13] in today's paper) added gates so the state could carry information further before it decayed. It made long sentences workable. It did <i>not</i> change the shape of the computation, which is what the next two slides are about.</div>
+    </div>
+
+    <div class="stage-panel">
+      <div class="stage-caption" id="b1-cap"><b>Step 0 —</b> The hidden state starts empty. Nothing has been read yet.</div>
+
+      <div class="b1-chain" id="b1-chain"></div>
+
+      <div class="b1-formula">
+        h<sub><em>t</em></sub> = f( <b>h<sub><em>t</em>−1</sub></b> , x<sub><em>t</em></sub> )
+        <small>The new state depends on the <b style="color:var(--teal)">previous state</b> and the current token. That dependency is the whole story.</small>
+      </div>
+
+      <div class="s1-controls">
+        <button class="step-btn" id="b1-prev">← Back</button>
+        <div class="step-dots" id="b1-dots"></div>
+        <button class="step-btn" id="b1-next">Next →</button>
+      </div>
+    </div>
+  </div>
+</section>
+</div>
+<script src="../01-self-attention/js/app.js"></script>
+<script>
+(function(){
+  const TOKENS = ['The','cat','ate','the','fish'];
+  const caps = [
+    '<b>Step 0 —</b> The hidden state starts empty. Nothing has been read yet.',
+    '<b>Step 1 —</b> Read <b>“The”</b>. The state updates for the first time.',
+    '<b>Step 2 —</b> Read <b>“cat”</b>. The state now carries both words — but only through the previous state.',
+    '<b>Step 3 —</b> Read <b>“ate”</b>. Each update can only begin once the one before it has finished.',
+    '<b>Step 4 —</b> Read <b>“the”</b>. Four steps done, strictly in order.',
+    '<b>Step 5 —</b> Read <b>“fish”</b>. The final state is the network’s summary of the whole sentence.'
+  ];
+  let step = 0;
+  const chain = document.getElementById('b1-chain');
+  const cap = document.getElementById('b1-cap');
+  const dots = document.getElementById('b1-dots');
+  for(let i=0;i<caps.length;i++) dots.appendChild(document.createElement('span'));
+
+  TOKENS.forEach((t,i)=>{
+    if(i>0){ const l=document.createElement('div'); l.className='b1-link'; l.dataset.i=i; chain.appendChild(l); }
+    const s=document.createElement('div'); s.className='b1-step'; s.dataset.i=i+1;
+    s.innerHTML = `<div class="b1-tok">${t}</div><div class="b1-up">↑</div>
+      <div class="b1-h">${'<i></i>'.repeat(9)}</div>
+      <div class="b1-hlbl">h<sub>${i+1}</sub></div>`;
+    chain.appendChild(s);
+  });
+
+  function render(){
+    cap.innerHTML = caps[step];
+    [...dots.children].forEach((d,i)=>d.classList.toggle('on', i===step));
+    document.getElementById('b1-prev').disabled = step===0;
+    document.getElementById('b1-next').disabled = step===caps.length-1;
+    chain.querySelectorAll('.b1-step').forEach(s=>{
+      const on = Number(s.dataset.i) <= step;
+      s.classList.toggle('on', on);
+      if(on) s.querySelectorAll('.b1-h i').forEach((c,k)=>{
+        const v = 0.15 + ((Math.sin((Number(s.dataset.i)*7.3)+k*2.1)+1)/2)*0.85;
+        c.style.background = `rgba(79,209,197,${v.toFixed(2)})`;
+      });
+      else s.querySelectorAll('.b1-h i').forEach(c=>c.style.background='');
+    });
+    chain.querySelectorAll('.b1-link').forEach(l=>{
+      l.classList.toggle('on', Number(l.dataset.i) < step);
+    });
+  }
+  document.getElementById('b1-prev').onclick=()=>{ if(step>0){step--;render();} };
+  document.getElementById('b1-next').onclick=()=>{ if(step<caps.length-1){step++;render();} };
+  render();
+})();
+</script>
+
+<script>
+document.querySelectorAll('.deck-pager-identity span').forEach(function(s){
+  s.textContent = 'Before the Transformer';
+});
+</script>
+</body>
+</html>

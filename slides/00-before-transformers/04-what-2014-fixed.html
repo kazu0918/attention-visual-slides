@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Attention Already Existed — Before the Transformer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../01-self-attention/css/styles.css">
+<style>
+.b4-grid{ display:grid; grid-template-columns:1.25fr 1fr 1fr; gap:1px; background:var(--border);
+  border:1px solid var(--border); border-radius:11px; overflow:hidden; margin-bottom:14px; }
+.b4-grid > div{ background:var(--bg); padding:11px 13px; }
+.b4-grid .hd{ background:var(--panel-2); font-family:var(--font-mono); font-size:10px;
+  letter-spacing:.13em; text-transform:uppercase; color:var(--text-faint); }
+.b4-grid .hd b{ display:block; color:var(--text-dim); font-size:11.5px; letter-spacing:.06em;
+  margin-bottom:2px; }
+.b4-row-lbl{ font-size:13px; color:var(--text-dim); line-height:1.45; }
+.b4-row-lbl b{ color:var(--text); display:block; font-size:13.5px; margin-bottom:2px; }
+.b4-cell{ font-size:12.5px; line-height:1.45; color:var(--text-faint); opacity:0;
+  transform:translateY(5px); transition:.45s; }
+.b4-cell.show{ opacity:1; transform:none; }
+.b4-cell b{ font-family:var(--font-mono); font-size:11px; display:block; margin-bottom:3px;
+  letter-spacing:.06em; }
+.b4-cell.fixed b{ color:var(--teal); }
+.b4-cell.unfixed b{ color:var(--coral); }
+.b4-cell.unfixed{ background:rgba(255,138,101,.06); margin:-11px -13px; padding:11px 13px;
+  color:var(--text-dim); }
+
+.b4-punch{ border:1px solid var(--teal); background:var(--teal-dim); border-radius:11px;
+  padding:14px 16px; opacity:0; transform:translateY(6px); transition:.5s; }
+.b4-punch.show{ opacity:1; transform:none; }
+.b4-punch > b:first-child{ display:block; font-family:var(--font-mono); font-size:11px;
+  letter-spacing:.13em; color:var(--teal); margin-bottom:7px; }
+.b4-punch p b{ color:var(--teal); }
+.b4-punch p{ margin:0 0 9px; font-size:13.5px; line-height:1.65; color:var(--text); }
+.b4-punch p:last-child{ margin-bottom:0; }
+.b4-punch .ask{ color:var(--gold); font-weight:500; }
+
+.b4-time{ display:flex; gap:0; align-items:stretch; margin-bottom:15px; }
+.b4-yr{ flex:1; text-align:center; padding:9px 6px; border-radius:8px; background:var(--panel);
+  border:1px solid var(--border); margin-right:6px; }
+.b4-yr:last-child{ margin-right:0; }
+.b4-yr strong{ display:block; font-family:var(--font-mono); font-size:14px; color:var(--text);
+  margin-bottom:3px; }
+.b4-yr span{ font-size:10.5px; color:var(--text-faint); line-height:1.35; display:block; }
+.b4-yr.hot{ border-color:var(--teal); background:var(--teal-dim); }
+.b4-yr.hot strong{ color:var(--teal); }
+</style>
+</head>
+<body class="single-slide-page" data-slide-index="4" data-slide-count="4" data-prev-page="03-path-length.html" data-next-page="../01-self-attention/01-encoder-decoder.html">
+<div class="deck-header"><span class="count" id="deck-count">04 / 04</span><span class="title-mini">Before the Transformer</span></div>
+<nav class="deck-nav" id="deck-nav" aria-label="Slide navigation">
+  <a href="01-recurrence.html" aria-label="Go to slide 1: Recurrence"></a>
+  <a href="02-sequential.html" aria-label="Go to slide 2: Sequential Computation"></a>
+  <a href="03-path-length.html" aria-label="Go to slide 3: Path Length"></a>
+  <a href="04-what-2014-fixed.html" class="active" aria-current="page" aria-label="Go to slide 4: What 2014 Fixed"></a>
+</nav>
+<div class="deck" id="deck">
+<section class="slide" id="slide-2014">
+  <div class="slide-inner">
+    <div>
+      <div class="eyebrow"><span class="num">04</span> THE ACTUAL CLAIM</div>
+      <h1 class="title">Attention<br>Already Existed</h1>
+      <p class="subtitle">2014 fixed the reach. 2017 removed the recurrence.</p>
+      <p class="lead">This is the thing most summaries of the paper get wrong. Attention was <b>not</b> invented here — Bahdanau, Cho and Bengio introduced it for translation in 2014, and by 2017 it was standard equipment.</p>
+      <p class="lead">§2, in the paper's own words: attention mechanisms had become integral to sequence modelling, but <i>"in all but a few cases… such attention mechanisms are used in conjunction with a recurrent network."</i></p>
+      <div class="note">So read the title as a claim about <b>sufficiency</b>, not novelty. Not "attention exists" — <b>"attention is all you need"</b>, meaning you can throw the RNN away entirely. That is a strong, falsifiable claim, and it is the one we should be judging tonight.</div>
+    </div>
+
+    <div class="stage-panel">
+      <div class="stage-caption">Three problems, two papers. Step through and watch which row is still broken in 2014.</div>
+
+      <div class="b4-time">
+        <div class="b4-yr" id="b4-y1"><strong>2014</strong><span>seq2seq<br>Sutskever et al.</span></div>
+        <div class="b4-yr" id="b4-y2"><strong>2014</strong><span>+ attention<br>Bahdanau et al.</span></div>
+        <div class="b4-yr" id="b4-y3"><strong>2017</strong><span>Transformer<br>this paper</span></div>
+      </div>
+
+      <div class="b4-grid">
+        <div class="hd"><b>Problem</b>what was broken</div>
+        <div class="hd"><b>RNN + attention</b>2014</div>
+        <div class="hd"><b>Transformer</b>2017</div>
+
+        <div class="b4-row-lbl"><b>The bottleneck</b>Whole sentence squeezed into one vector</div>
+        <div class="b4-cell fixed" data-r="1"><b>SOLVED</b>Decoder attends over every encoder state, not one summary</div>
+        <div class="b4-cell fixed" data-r="1"><b>STILL SOLVED</b>Inherited unchanged</div>
+
+        <div class="b4-row-lbl"><b>Path length</b>Distant words connected through every step between</div>
+        <div class="b4-cell fixed" data-r="2"><b>SOLVED</b>Any decoder position reaches any encoder position directly</div>
+        <div class="b4-cell fixed" data-r="2"><b>O(1)</b>Now inside the encoder too, not just across it</div>
+
+        <div class="b4-row-lbl"><b>Sequential computation</b>Nothing in the sequence can run in parallel</div>
+        <div class="b4-cell unfixed" data-r="3"><b>NOT SOLVED</b>The RNN is still there. h<sub>t</sub> still waits for h<sub>t−1</sub></div>
+        <div class="b4-cell fixed" data-r="3"><b>O(1)</b>No recurrence left to wait for</div>
+      </div>
+
+      <div class="b4-punch" id="b4-punch">
+        <b>ONE ROW CHANGES</b>
+        <p>Two of the three problems were already solved in 2014, by attention. The Transformer's contribution is the <b>third row</b> — and it gets there by deleting the recurrent network rather than improving it.</p>
+        <p class="ask">Ask the room now, before we start: is that enough? Write your answer down. We'll vote on it at the end.</p>
+      </div>
+
+      <div class="s1-controls">
+        <button class="step-btn" id="b4-prev">← Back</button>
+        <div class="step-dots" id="b4-dots"></div>
+        <button class="step-btn" id="b4-next">Next →</button>
+      </div>
+    </div>
+  </div>
+</section>
+</div>
+<script src="../01-self-attention/js/app.js"></script>
+<script>
+(function(){
+  const caps = [
+    'Three problems, two papers. Step through and watch which row is still broken in 2014.',
+    '<b>The bottleneck.</b> One fixed-length vector for the whole source sentence — solved in 2014 by letting the decoder look at every encoder state.',
+    '<b>Path length.</b> Also solved in 2014: attention connects decoder to encoder directly, at any distance.',
+    '<b>Sequential computation.</b> Not solved. The recurrent network is still underneath, so training still crawls along the sequence one step at a time.',
+    '<b>So what is left?</b> Exactly one row — and the 2017 answer is to remove the RNN entirely.'
+  ];
+  let step = 0;
+  const cap = document.querySelector('.stage-caption');
+  const dots = document.getElementById('b4-dots');
+  for(let i=0;i<caps.length;i++) dots.appendChild(document.createElement('span'));
+  const cells = [...document.querySelectorAll('.b4-cell')];
+  const punch = document.getElementById('b4-punch');
+  const years = ['b4-y1','b4-y2','b4-y3'].map(id=>document.getElementById(id));
+
+  function render(){
+    cap.innerHTML = caps[step];
+    [...dots.children].forEach((d,i)=>d.classList.toggle('on', i===step));
+    document.getElementById('b4-prev').disabled = step===0;
+    document.getElementById('b4-next').disabled = step===caps.length-1;
+    cells.forEach(c=> c.classList.toggle('show', Number(c.dataset.r) <= step));
+    punch.classList.toggle('show', step>=4);
+    years.forEach((y,i)=> y.classList.toggle('hot', (step>=1 && step<=3 && i===1) || (step>=4 && i===2)));
+  }
+  document.getElementById('b4-prev').onclick=()=>{ if(step>0){step--;render();} };
+  document.getElementById('b4-next').onclick=()=>{ if(step<caps.length-1){step++;render();} };
+  render();
+})();
+</script>
+
+<script>
+document.querySelectorAll('.deck-pager-identity span').forEach(function(s){
+  s.textContent = 'Before the Transformer';
+});
+</script>
+</body>
+</html>
