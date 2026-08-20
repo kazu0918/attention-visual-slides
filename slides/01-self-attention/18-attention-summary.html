@@ -9,9 +9,9 @@
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/styles.css">
 </head>
-<body class="single-slide-page" data-slide-index="18" data-slide-count="20" data-prev-page="17-scaling.html" data-next-page="19-context-update.html">
+<body class="single-slide-page" data-slide-index="18" data-slide-count="28" data-prev-page="17-scaling.html" data-next-page="19-masked-attention.html">
 <div class="deck-header">
-  <span class="count" id="deck-count">18 / 20</span>
+  <span class="count" id="deck-count">18 / 28</span>
   <span class="title-mini">How Translation AI Works</span>
 </div>
 <nav class="deck-nav" id="deck-nav" aria-label="Slide navigation">
@@ -35,13 +35,20 @@
   <a href="18-attention-summary.html" class="active" aria-current="page" aria-label="Go to slide 18: Attention Summary"></a>
   <a href="19-context-update.html" aria-label="Go to slide 19: Context Update"></a>
   <a href="20-vector-mixing.html" aria-label="Go to slide 20: Mixing Value Vectors"></a>
+  <a href="21-weighted-vector-lab.html" aria-label="Go to slide 21: Weighted Vector Lab"></a>
+  <a href="22-multi-head-attention.html" aria-label="Go to slide 22: Multi-Head Attention"></a>
+  <a href="23-five-changes.html" aria-label="Go to slide 23: Five Multi-Head Changes"></a>
+  <a href="24-branch-and-project.html" aria-label="Go to slide 24: Branch and Project"></a>
+<a href="25-why-learn-projections.html" aria-label="Go to slide 25: Why Learn Projections"></a>
+<a href="26-attention-per-head.html" aria-label="Go to slide 26: Attention in Every Head"></a>
+<a href="27-concat-output-projection.html" aria-label="Go to slide 27: Concat and Output Projection"></a>
 </nav>
 <div class="deck" id="deck">
 <section class="slide" id="slide-attention-summary">
     <div class="slide-inner s18-inner">
       <div>
         <div class="eyebrow"><span class="num">18</span> PUTTING IT ALL TOGETHER</div>
-        <h1 class="title">One Attention Formula,<br>Five Connected Steps</h1>
+        <h1 class="title">One Attention Formula,<br>Six Connected Steps</h1>
         <p class="subtitle">The architecture, matrix operations, and equation are the same process</p>
         <p class="lead">Follow the red frame from the inputs upward. The center shows what happens to the matrices; the formula highlights the matching operation.</p>
         <div class="note">Q and K decide <b>where to attend</b>. V carries <b>what information to collect</b>. The final multiplication combines those two roles.</div>
@@ -103,6 +110,13 @@
                 <p>Scaling applies the same factor to all 25 cells—not only to one selected row.</p>
               </div>
               <div class="s18-scene scene-3">
+                <div class="s18-mask-work">
+                  <div class="s18-mask-matrix"><b>Scaled QKᵀ</b><em>KEY POSITION →</em><div class="s18-mask-axis"><span>QUERY<br>POSITION<br>↓</span><div class="s18-mask-grid"><i>0.8</i><i class="future">−∞</i><i class="future">−∞</i><i class="future">−∞</i><i class="future">−∞</i><i>0.3</i><i>1.1</i><i class="future">−∞</i><i class="future">−∞</i><i class="future">−∞</i><i>0.2</i><i>0.7</i><i>1.4</i><i class="future">−∞</i><i class="future">−∞</i><i>0.1</i><i>0.5</i><i>0.9</i><i>1.2</i><i class="future">−∞</i><i>0.0</i><i>0.4</i><i>0.6</i><i>0.8</i><i>1.0</i></div></div></div>
+                  <div class="s18-mask-proof"><b>softmax(−∞)</b><strong>= 0</strong><small>future positions receive zero attention</small></div>
+                </div>
+                <p>The causal mask replaces every score above the diagonal with −∞ before softmax.</p>
+              </div>
+              <div class="s18-scene scene-4">
                 <div class="s18-s4-work">
                   <div class="s18-qkt-result s18-soft-matrix source"><b>Scaled QKᵀ</b><em>5 × 5</em><div class="grid25"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><div class="s18-row-frames"><span></span><span></span><span></span><span></span><span></span></div></div>
                   <div class="s18-soft-op" aria-label="Softmax is applied to each row in sequence"><div class="s18-softmax-stack"><span><b>softmax</b><i>→</i></span><span><b>softmax</b><i>→</i></span><span><b>softmax</b><i>→</i></span><span><b>softmax</b><i>→</i></span><span><b>softmax</b><i>→</i></span></div></div>
@@ -110,7 +124,7 @@
                 </div>
                 <p>Softmax moves across the 5 rows; each resulting row sums to 100%.</p>
               </div>
-              <div class="s18-scene scene-4">
+              <div class="s18-scene scene-5">
                 <div class="s18-final-work">
                   <div class="s18-qkt-result s18-final-weights"><b>Attention Weights</b><em>5 × 5</em><div class="grid25"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></div>
                   <strong class="s18-final-times">×</strong>
@@ -125,10 +139,10 @@
 
           <div class="s18-column equation">
             <div class="s18-col-title"><span>03</span><b>EQUATION</b></div>
-            <div class="s18-formula" aria-label="Attention of Q K V equals softmax of Q K transpose divided by square root of d k multiplied by V">
+            <div class="s18-formula" aria-label="Attention of Q K V equals softmax of Q K transpose divided by square root of d k plus causal mask M, multiplied by V">
               <span class="s18-fn">Attention</span><span class="formula-inputs">(Q, K, V)</span><strong>=</strong>
               <span class="formula-softmax">softmax</span><span>(</span>
-              <span class="formula-frac"><span class="formula-qk">QK<sup>T</sup></span><span class="formula-divide">√d<sub>k</sub></span></span><span>)</span>
+              <span class="formula-frac"><span class="formula-qk">QK<sup>T</sup></span><span class="formula-divide">√d<sub>k</sub></span></span><span class="formula-mask">+ M</span><span>)</span>
               <span class="formula-v">V</span>
             </div>
             <div class="s18-formula-note"><span id="s18-formula-caption">Q, K, and V enter the calculation</span></div>
@@ -136,7 +150,7 @@
           </div>
         </div>
 
-        <div class="s18-progress" aria-label="Choose an attention calculation step"><button class="active" aria-label="Step 1"></button><button aria-label="Step 2"></button><button aria-label="Step 3"></button><button aria-label="Step 4"></button><button aria-label="Step 5"></button></div>
+        <div class="s18-progress" aria-label="Choose an attention calculation step"><button class="active" aria-label="Step 1"></button><button aria-label="Step 2"></button><button aria-label="Step 3"></button><button aria-label="Step 4"></button><button aria-label="Step 5"></button><button aria-label="Step 6"></button></div>
       </div>
     </div>
   </section>

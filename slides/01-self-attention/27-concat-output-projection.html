@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Concat and Output Projection — How Translation AI Works</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="single-slide-page" data-slide-index="27" data-slide-count="27" data-prev-page="26-attention-per-head.html" data-next-page="">
+<div class="deck-header"><span class="count" id="deck-count">27 / 27</span><span class="title-mini">How Translation AI Works</span></div>
+<nav class="deck-nav" id="deck-nav" aria-label="Slide navigation">
+  <a href="01-encoder-decoder.html" aria-label="Go to slide 1"></a><a href="02-word-vectors.html" aria-label="Go to slide 2"></a><a href="03-contextual-meaning.html" aria-label="Go to slide 3"></a><a href="04-matrix-transformation.html" aria-label="Go to slide 4"></a><a href="05-transformer-architecture.html" aria-label="Go to slide 5"></a><a href="06-token-embeddings.html" aria-label="Go to slide 6"></a><a href="07-positional-encoding.html" aria-label="Go to slide 7"></a><a href="08-similarity-matrix.html" aria-label="Go to slide 8"></a><a href="09-attention-architecture.html" aria-label="Go to slide 9"></a><a href="10-softmax-weights.html" aria-label="Go to slide 10"></a><a href="11-weighted-sum.html" aria-label="Go to slide 11"></a><a href="12-context-outcomes.html" aria-label="Go to slide 12"></a><a href="13-query-key-value.html" aria-label="Go to slide 13"></a><a href="14-qk-transpose.html" aria-label="Go to slide 14"></a><a href="15-similarity.html" aria-label="Go to slide 15"></a><a href="16-softmax.html" aria-label="Go to slide 16"></a><a href="17-scaling.html" aria-label="Go to slide 17"></a><a href="18-attention-summary.html" aria-label="Go to slide 18"></a><a href="19-context-update.html" aria-label="Go to slide 19"></a><a href="20-vector-mixing.html" aria-label="Go to slide 20"></a><a href="21-weighted-vector-lab.html" aria-label="Go to slide 21"></a><a href="22-multi-head-attention.html" aria-label="Go to slide 22"></a><a href="23-five-changes.html" aria-label="Go to slide 23"></a><a href="24-branch-and-project.html" aria-label="Go to slide 24"></a><a href="25-why-learn-projections.html" aria-label="Go to slide 25"></a><a href="26-attention-per-head.html" aria-label="Go to slide 26"></a><a href="27-concat-output-projection.html" class="active" aria-current="page" aria-label="Go to slide 27: Concat and Output Projection"></a>
+</nav>
+<div class="deck" id="deck"><section class="slide" id="slide-concat-output"><div class="slide-inner">
+  <div>
+    <div class="eyebrow"><span class="num">27</span> MULTI-HEAD ATTENTION · STEPS 4–5</div>
+    <h1 class="title">Concatenate the Heads,<br>Then Apply W<sup>O</sup></h1>
+    <p class="subtitle">Eight narrow views become one model-width representation</p>
+    <p class="lead"><b>Concat</b> places the eight 64-dimensional Head outputs side by side: 8 × 64 = 512.</p>
+    <p class="lead"><b>W<sup>O</sup></b> then learns how to mix information across Heads and remaps it into the shared d<sub>model</sub> = 512 space.</p>
+    <div class="note">Use the controls above the diagram to follow the three stages.</div>
+  </div>
+
+  <div class="stage-panel s27-panel">
+    <div class="s27-controls" aria-label="Step navigation">
+      <button id="s27-prev" aria-label="Previous step">← Previous</button>
+      <div><b id="s27-step-label">STEP 1 / 3</b><span id="s27-step-title">Collect the eight Head outputs</span></div>
+      <div class="s27-dots" aria-label="Choose a step"><button class="active" data-s27-step="0" aria-label="Show step 1"></button><button data-s27-step="1" aria-label="Show step 2"></button><button data-s27-step="2" aria-label="Show step 3"></button></div>
+      <button id="s27-next">Next →</button>
+    </div>
+
+    <div class="s27-viewport"><div class="s27-track" id="s27-track">
+      <article class="s27-page active" data-s27-page="0">
+        <div class="s27-page-caption"><span>STEP 1</span><b>Start with eight separate Head outputs.</b></div>
+        <div class="s27-step1-scene">
+          <aside class="s27-token-reason" aria-label="Five rows correspond to five input tokens">
+            <span>WHY 5 ROWS?</span>
+            <div><b>I</b><b>ate</b><b>a</b><b>juicy</b><b>apple</b></div>
+            <strong>5 tokens<br>→ 5 rows</strong>
+            <small>one row for each input token</small>
+          </aside>
+          <div class="s27-vertical-list" aria-label="Eight vertically arranged head outputs">
+            <div><strong>HEAD 1′</strong><span class="s27-mini-matrix"><i></i><i></i><i></i><i></i><i></i></span><b>5 × 64</b></div>
+            <div><strong>HEAD 2′</strong><span class="s27-mini-matrix"><i></i><i></i><i></i><i></i><i></i></span><b>5 × 64</b></div>
+            <div><strong>HEAD 3′</strong><span class="s27-mini-matrix"><i></i><i></i><i></i><i></i><i></i></span><b>5 × 64</b></div>
+            <div><strong>HEAD 4′</strong><span class="s27-mini-matrix"><i></i><i></i><i></i><i></i><i></i></span><b>5 × 64</b></div>
+            <div><strong>HEAD 5′</strong><span class="s27-mini-matrix"><i></i><i></i><i></i><i></i><i></i></span><b>5 × 64</b></div>
+            <div><strong>HEAD 6′</strong><span class="s27-mini-matrix"><i></i><i></i><i></i><i></i><i></i></span><b>5 × 64</b></div>
+            <div><strong>HEAD 7′</strong><span class="s27-mini-matrix"><i></i><i></i><i></i><i></i><i></i></span><b>5 × 64</b></div>
+            <div><strong>HEAD 8′</strong><span class="s27-mini-matrix"><i></i><i></i><i></i><i></i><i></i></span><b>5 × 64</b></div>
+          </div>
+        </div>
+        <div class="s27-takeaway"><span>EIGHT SEPARATE VIEWS</span><b>Each Head contains 64 features for each of the 5 tokens.</b></div>
+      </article>
+
+      <article class="s27-page" data-s27-page="1">
+        <div class="s27-page-caption"><span>STEP 2</span><b>Move the eight matrices side by side and concatenate along the feature dimension.</b></div>
+        <div class="s27-full-formula">
+          <span>FULL MULTI-HEAD FORMULA</span>
+          <b>MultiHead(Q, K, V) = <em>Concat(head<sub>1</sub>, …, head<sub>h</sub>)</em>W<sup>O</sup></b>
+          <small>Step 2 builds the highlighted Concat term · h = 8 here</small>
+        </div>
+        <div class="s27-horizontal-scene">
+          <div class="s27-horizontal-heads" aria-label="Eight head outputs placed horizontally">
+            <div><strong>H1′</strong><span><i></i><i></i><i></i><i></i><i></i></span><b>64</b></div><div><strong>H2′</strong><span><i></i><i></i><i></i><i></i><i></i></span><b>64</b></div>
+            <div><strong>H3′</strong><span><i></i><i></i><i></i><i></i><i></i></span><b>64</b></div><div><strong>H4′</strong><span><i></i><i></i><i></i><i></i><i></i></span><b>64</b></div>
+            <div><strong>H5′</strong><span><i></i><i></i><i></i><i></i><i></i></span><b>64</b></div><div><strong>H6′</strong><span><i></i><i></i><i></i><i></i><i></i></span><b>64</b></div>
+            <div><strong>H7′</strong><span><i></i><i></i><i></i><i></i><i></i></span><b>64</b></div><div><strong>H8′</strong><span><i></i><i></i><i></i><i></i><i></i></span><b>64</b></div>
+          </div>
+          <div class="s27-concat-arrow"><span>CONCATENATE SIDE BY SIDE</span><b>↓</b><small>64 × 8 = 512 features</small></div>
+          <div class="s27-concat-matrix"><header><span>Concat(HEAD 1′, …, HEAD 8′)</span><b>5 × 512</b></header><div><i></i><i></i><i></i><i></i><i></i></div><small>one row per token · all Head features preserved</small></div>
+        </div>
+        <div class="s27-takeaway"><span>CONCAT CHANGES WIDTH</span><b>5 × 64 × 8 becomes one 5 × 512 matrix.</b></div>
+      </article>
+
+      <article class="s27-page" data-s27-page="2">
+        <div class="s27-page-caption"><span>STEP 3</span><b>Apply the learned output projection W<sup>O</sup>.</b></div>
+        <div class="s27-output-flow">
+          <div class="s27-matrix concat"><span>CONCATENATED HEADS</span><b>5 × 512</b><div><i></i><i></i><i></i><i></i><i></i></div></div>
+          <div class="s27-times">×</div>
+          <div class="s27-matrix wo"><span>LEARNED W<sup>O</sup></span><b>512 × 512</b><div><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></div>
+          <div class="s27-equals">=</div>
+          <div class="s27-matrix output"><span>MULTI-HEAD OUTPUT</span><b>5 × 512</b><div><i></i><i></i><i></i><i></i><i></i></div></div>
+        </div>
+        <div class="s27-wo-meaning">
+          <span>WHAT W<sup>O</sup> LEARNS</span>
+          <div><b>1</b><p><strong>Mix the Heads</strong>Combine useful features from different Head outputs.</p></div>
+          <div><b>2</b><p><strong>Return to model space</strong>Produce the shared 512-dimensional representation used by the next layer.</p></div>
+        </div>
+        <div class="s27-takeaway"><span>WHY W<sup>O</sup>?</span><b>It learns how the eight Head outputs should be combined into the final representation.</b></div>
+      </article>
+    </div></div>
+  </div>
+</div></section></div>
+<script src="js/app.js"></script>
+</body>
+</html>

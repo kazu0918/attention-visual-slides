@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Branch and Project — How Translation AI Works</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="single-slide-page" data-slide-index="24" data-slide-count="27" data-prev-page="23-five-changes.html" data-next-page="25-why-learn-projections.html">
+<div class="deck-header"><span class="count" id="deck-count">24 / 27</span><span class="title-mini">How Translation AI Works</span></div>
+<nav class="deck-nav" id="deck-nav" aria-label="Slide navigation">
+  <a href="01-encoder-decoder.html" aria-label="Go to slide 1"></a><a href="02-word-vectors.html" aria-label="Go to slide 2"></a><a href="03-contextual-meaning.html" aria-label="Go to slide 3"></a><a href="04-matrix-transformation.html" aria-label="Go to slide 4"></a><a href="05-transformer-architecture.html" aria-label="Go to slide 5"></a><a href="06-token-embeddings.html" aria-label="Go to slide 6"></a><a href="07-positional-encoding.html" aria-label="Go to slide 7"></a><a href="08-similarity-matrix.html" aria-label="Go to slide 8"></a><a href="09-attention-architecture.html" aria-label="Go to slide 9"></a><a href="10-softmax-weights.html" aria-label="Go to slide 10"></a><a href="11-weighted-sum.html" aria-label="Go to slide 11"></a><a href="12-context-outcomes.html" aria-label="Go to slide 12"></a><a href="13-query-key-value.html" aria-label="Go to slide 13"></a><a href="14-qk-transpose.html" aria-label="Go to slide 14"></a><a href="15-similarity.html" aria-label="Go to slide 15"></a><a href="16-softmax.html" aria-label="Go to slide 16"></a><a href="17-scaling.html" aria-label="Go to slide 17"></a><a href="18-attention-summary.html" aria-label="Go to slide 18"></a><a href="19-context-update.html" aria-label="Go to slide 19"></a><a href="20-vector-mixing.html" aria-label="Go to slide 20"></a><a href="21-weighted-vector-lab.html" aria-label="Go to slide 21"></a><a href="22-multi-head-attention.html" aria-label="Go to slide 22"></a><a href="23-five-changes.html" aria-label="Go to slide 23"></a><a href="24-branch-and-project.html" class="active" aria-current="page" aria-label="Go to slide 24"></a>
+<a href="25-why-learn-projections.html" aria-label="Go to slide 25: Why Learn Projections"></a>
+<a href="26-attention-per-head.html" aria-label="Go to slide 26: Attention in Every Head"></a>
+<a href="27-concat-output-projection.html" aria-label="Go to slide 27: Concat and Output Projection"></a>
+</nav>
+<div class="deck" id="deck"><section class="slide" id="slide-branch-project"><div class="slide-inner">
+  <div>
+    <div class="eyebrow"><span class="num">24</span> MULTI-HEAD ATTENTION · STEPS 1–3</div>
+    <h1 class="title">Branch H,<br>Then Build Q, K, V</h1>
+    <p class="subtitle">Branch, project, then inspect one head</p>
+    <p class="lead"><b>Step 1:</b> turn the token sequence into H, then send that same H into every head.</p>
+    <p class="lead"><b>Step 2:</b> inside each head, apply its own W<sup>Q</sup>, W<sup>K</sup>, and W<sup>V</sup> to create smaller Q, K, and V matrices.</p>
+    <p class="lead"><b>Step 3:</b> select one completed head and enlarge its three matrices.</p>
+    <div class="note">Use the arrows above the diagram to move horizontally between the three steps.</div>
+  </div>
+
+  <div class="stage-panel s24-panel">
+    <div class="s24-controls" aria-label="Step navigation">
+      <button id="s24-prev" aria-label="Previous step">← Previous</button>
+      <div><b id="s24-step-label">STEP 1 / 3</b><span id="s24-step-title">Send H to every head</span></div>
+      <div class="s24-dots" aria-label="Choose a step"><button class="active" data-s24-step="0" aria-label="Show step 1"></button><button data-s24-step="1" aria-label="Show step 2"></button><button data-s24-step="2" aria-label="Show step 3"></button></div>
+      <button id="s24-next">Next →</button>
+    </div>
+
+    <div class="s24-viewport">
+      <div class="s24-track" id="s24-track">
+        <article class="s24-page active" data-s24-page="0">
+          <div class="s24-page-caption"><span>STEP 1</span><b>Words become H, then the same H branches into all heads.</b></div>
+          <div class="s24-diagram s24-branch-diagram" id="s24-branch-diagram">
+            <svg class="s24-connectors" id="s24-branch-lines" aria-hidden="true"></svg>
+            <div class="s24-token-card">
+              <span>TOKENS</span>
+              <div><b>I</b><b>ate</b><b>a</b><b>juicy</b><b>apple</b></div>
+              <small>5 token IDs</small>
+            </div>
+            <div class="s24-inline-arrow">→</div>
+            <div class="s24-matrix-card h" id="s24-h-source">
+              <span>H</span><small>INPUT MATRIX</small>
+              <div class="s24-matrix-grid"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+              <code>5 × 512</code>
+            </div>
+            <div class="s24-heads" aria-label="Eight attention heads">
+              <div data-s24-head><b>HEAD 1</b><span>H</span></div><div data-s24-head><b>HEAD 2</b><span>H</span></div>
+              <div data-s24-head><b>HEAD 3</b><span>H</span></div><div data-s24-head><b>HEAD 4</b><span>H</span></div>
+              <div data-s24-head><b>HEAD 5</b><span>H</span></div><div data-s24-head><b>HEAD 6</b><span>H</span></div>
+              <div data-s24-head><b>HEAD 7</b><span>H</span></div><div data-s24-head><b>HEAD 8</b><span>H</span></div>
+            </div>
+          </div>
+          <div class="s24-takeaway"><span>ONE SHARED INPUT</span><b>H is copied into the eight head-specific calculation paths.</b></div>
+        </article>
+
+        <article class="s24-page" data-s24-page="1">
+          <div class="s24-page-caption"><span>STEP 2</span><b>Keep the heads vertical. From each head, draw three weighted paths from left to right.</b></div>
+          <div class="s24-head-qkv-list" aria-label="Eight vertical heads, each producing Q K and V through three weighted paths">
+            <div class="s24-head-fan-row"><strong>HEAD 1</strong><div class="s24-mini-fan"><span class="q"><i><em>W<sub>1</sub><sup>Q</sup></em></i><b>Q<sub>1</sub></b></span><span class="k"><i><em>W<sub>1</sub><sup>K</sup></em></i><b>K<sub>1</sub></b></span><span class="v"><i><em>W<sub>1</sub><sup>V</sup></em></i><b>V<sub>1</sub></b></span></div></div>
+            <div class="s24-head-fan-row"><strong>HEAD 2</strong><div class="s24-mini-fan"><span class="q"><i><em>W<sub>2</sub><sup>Q</sup></em></i><b>Q<sub>2</sub></b></span><span class="k"><i><em>W<sub>2</sub><sup>K</sup></em></i><b>K<sub>2</sub></b></span><span class="v"><i><em>W<sub>2</sub><sup>V</sup></em></i><b>V<sub>2</sub></b></span></div></div>
+            <div class="s24-head-fan-row"><strong>HEAD 3</strong><div class="s24-mini-fan"><span class="q"><i><em>W<sub>3</sub><sup>Q</sup></em></i><b>Q<sub>3</sub></b></span><span class="k"><i><em>W<sub>3</sub><sup>K</sup></em></i><b>K<sub>3</sub></b></span><span class="v"><i><em>W<sub>3</sub><sup>V</sup></em></i><b>V<sub>3</sub></b></span></div></div>
+            <div class="s24-head-fan-row"><strong>HEAD 4</strong><div class="s24-mini-fan"><span class="q"><i><em>W<sub>4</sub><sup>Q</sup></em></i><b>Q<sub>4</sub></b></span><span class="k"><i><em>W<sub>4</sub><sup>K</sup></em></i><b>K<sub>4</sub></b></span><span class="v"><i><em>W<sub>4</sub><sup>V</sup></em></i><b>V<sub>4</sub></b></span></div></div>
+            <div class="s24-head-fan-row"><strong>HEAD 5</strong><div class="s24-mini-fan"><span class="q"><i><em>W<sub>5</sub><sup>Q</sup></em></i><b>Q<sub>5</sub></b></span><span class="k"><i><em>W<sub>5</sub><sup>K</sup></em></i><b>K<sub>5</sub></b></span><span class="v"><i><em>W<sub>5</sub><sup>V</sup></em></i><b>V<sub>5</sub></b></span></div></div>
+            <div class="s24-head-fan-row"><strong>HEAD 6</strong><div class="s24-mini-fan"><span class="q"><i><em>W<sub>6</sub><sup>Q</sup></em></i><b>Q<sub>6</sub></b></span><span class="k"><i><em>W<sub>6</sub><sup>K</sup></em></i><b>K<sub>6</sub></b></span><span class="v"><i><em>W<sub>6</sub><sup>V</sup></em></i><b>V<sub>6</sub></b></span></div></div>
+            <div class="s24-head-fan-row"><strong>HEAD 7</strong><div class="s24-mini-fan"><span class="q"><i><em>W<sub>7</sub><sup>Q</sup></em></i><b>Q<sub>7</sub></b></span><span class="k"><i><em>W<sub>7</sub><sup>K</sup></em></i><b>K<sub>7</sub></b></span><span class="v"><i><em>W<sub>7</sub><sup>V</sup></em></i><b>V<sub>7</sub></b></span></div></div>
+            <div class="s24-head-fan-row"><strong>HEAD 8</strong><div class="s24-mini-fan"><span class="q"><i><em>W<sub>8</sub><sup>Q</sup></em></i><b>Q<sub>8</sub></b></span><span class="k"><i><em>W<sub>8</sub><sup>K</sup></em></i><b>K<sub>8</sub></b></span><span class="v"><i><em>W<sub>8</sub><sup>V</sup></em></i><b>V<sub>8</sub></b></span></div></div>
+          </div>
+          <div class="s24-takeaway s24-step2-takeaway"><span>8 HEADS × 3 PATHS</span><b>Every head creates its own Q, K, and V with different learned weights.</b></div>
+        </article>
+
+        <article class="s24-page" data-s24-page="2">
+          <div class="s24-page-caption"><span>STEP 3</span><b>All heads now have Q, K, and V. Select Head 1 and enlarge it.</b></div>
+          <div class="s24-step3-layout">
+            <div class="s24-qkv-overview" aria-label="Eight completed heads with Head 1 selected">
+              <div class="selected"><strong>HEAD 1</strong><span>Q<sub>1</sub></span><span>K<sub>1</sub></span><span>V<sub>1</sub></span></div>
+              <div><strong>HEAD 2</strong><span>Q<sub>2</sub></span><span>K<sub>2</sub></span><span>V<sub>2</sub></span></div>
+              <div><strong>HEAD 3</strong><span>Q<sub>3</sub></span><span>K<sub>3</sub></span><span>V<sub>3</sub></span></div>
+              <div><strong>HEAD 4</strong><span>Q<sub>4</sub></span><span>K<sub>4</sub></span><span>V<sub>4</sub></span></div>
+              <div><strong>HEAD 5</strong><span>Q<sub>5</sub></span><span>K<sub>5</sub></span><span>V<sub>5</sub></span></div>
+              <div><strong>HEAD 6</strong><span>Q<sub>6</sub></span><span>K<sub>6</sub></span><span>V<sub>6</sub></span></div>
+              <div><strong>HEAD 7</strong><span>Q<sub>7</sub></span><span>K<sub>7</sub></span><span>V<sub>7</sub></span></div>
+              <div><strong>HEAD 8</strong><span>Q<sub>8</sub></span><span>K<sub>8</sub></span><span>V<sub>8</sub></span></div>
+            </div>
+            <div class="s24-zoom-arrow"><span>ZOOM</span><b>→</b></div>
+            <div class="s24-expanded-head s24-step3-expanded">
+              <header><span>HEAD 1 · SELECTED</span><b>Q<sub>1</sub>, K<sub>1</sub>, V<sub>1</sub></b></header>
+              <div class="s24-qkv-vertical">
+                <div class="q"><strong>QUERY</strong><span class="h">H</span><b>× W<sub>1</sub><sup>Q</sup></b><i>→</i><span class="out">Q<sub>1</sub><small>5 × 64</small></span></div>
+                <div class="k"><strong>KEY</strong><span class="h">H</span><b>× W<sub>1</sub><sup>K</sup></b><i>→</i><span class="out">K<sub>1</sub><small>5 × 64</small></span></div>
+                <div class="v"><strong>VALUE</strong><span class="h">H</span><b>× W<sub>1</sub><sup>V</sup></b><i>→</i><span class="out">V<sub>1</sub><small>5 × 64</small></span></div>
+              </div>
+            </div>
+          </div>
+          <div class="s24-takeaway s24-step3-takeaway"><span>FOCUS: HEAD 1</span><b>The next calculation can now be followed inside this one head.</b></div>
+        </article>
+      </div>
+    </div>
+  </div>
+</div></section></div>
+<script src="js/app.js"></script>
+</body>
+</html>

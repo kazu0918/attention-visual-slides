@@ -119,15 +119,32 @@ function blendedPosition(key){
 (function(){
   const deck = document.getElementById('deck');
   const slides = [...document.querySelectorAll('.slide')];
+  const nav=document.getElementById('deck-nav');
+  if(nav&&!nav.querySelector('a[href="19-masked-attention.html"]')){
+    const summaryLink=nav.querySelector('a[href="18-attention-summary.html"]');
+    if(summaryLink){
+      const maskedLink=document.createElement('a');
+      maskedLink.href='19-masked-attention.html';
+      maskedLink.setAttribute('aria-label','Go to slide 19: Causal Mask');
+      summaryLink.insertAdjacentElement('afterend',maskedLink);
+    }
+  }
   const navBtns = [...document.querySelectorAll('#deck-nav a')];
   const countEl = document.getElementById('deck-count');
   if(!deck || !slides.length) return;
-  const pageIndex = Number(document.body.dataset.slideIndex || 1);
-  const pageCount = Number(document.body.dataset.slideCount || slides.length);
+  const currentPath=window.location.pathname.split('/').pop();
+  const activeIndex=navBtns.findIndex(link=>link.getAttribute('href')===currentPath);
+  const pageIndex=activeIndex>=0?activeIndex+1:Number(document.body.dataset.slideIndex||1);
+  const pageCount=navBtns.length||Number(document.body.dataset.slideCount||slides.length);
+  navBtns.forEach((link,index)=>{
+    link.classList.toggle('active',index===pageIndex-1);
+    if(index===pageIndex-1) link.setAttribute('aria-current','page');
+    else link.removeAttribute('aria-current');
+  });
   if(countEl) countEl.textContent = String(pageIndex).padStart(2,'0') + ' / ' + String(pageCount).padStart(2,'0');
 
-  const prev = document.body.dataset.prevPage;
-  const next = document.body.dataset.nextPage;
+  const prev=navBtns[pageIndex-2]?.getAttribute('href')||'';
+  const next=navBtns[pageIndex]?.getAttribute('href')||'';
   const pager = document.createElement('nav');
   pager.className = 'deck-pager';
   pager.setAttribute('aria-label', 'Previous and next slide');
@@ -150,6 +167,118 @@ function blendedPosition(key){
       window.location.href = prev;
     }
   });
+})();
+
+// Slide 27: collect heads, concatenate them, then apply the output projection.
+(()=>{
+  const track=document.getElementById('s27-track');
+  const prev=document.getElementById('s27-prev');
+  const next=document.getElementById('s27-next');
+  const label=document.getElementById('s27-step-label');
+  const title=document.getElementById('s27-step-title');
+  const pages=[...document.querySelectorAll('[data-s27-page]')];
+  const dots=[...document.querySelectorAll('[data-s27-step]')];
+  if(!track||!prev||!next||!label||!title||pages.length!==3) return;
+  const titles=[
+    'Collect the eight Head outputs',
+    'Place them side by side and concatenate',
+    'Mix the concatenated features with Wᴼ'
+  ];
+  let current=0;
+  function show(index){
+    current=Math.max(0,Math.min(2,index));
+    track.style.transform=`translateX(-${current*(100/3)}%)`;
+    pages.forEach((page,i)=>{
+      page.classList.toggle('active',i===current);
+      page.classList.remove('is-animating');
+      if(i===current){ void page.offsetWidth; page.classList.add('is-animating'); }
+    });
+    dots.forEach((dot,i)=>dot.classList.toggle('active',i===current));
+    label.textContent=`STEP ${current+1} / 3`;
+    title.textContent=titles[current];
+    prev.disabled=current===0;
+    next.disabled=current===2;
+  }
+  prev.addEventListener('click',()=>show(current-1));
+  next.addEventListener('click',()=>show(current+1));
+  dots.forEach((dot,i)=>dot.addEventListener('click',()=>show(i)));
+  show(0);
+})();
+
+// Slide 24: horizontal Step 1 / Step 2 flow with responsive connectors.
+(()=>{
+  const track=document.getElementById('s24-track');
+  const prev=document.getElementById('s24-prev');
+  const next=document.getElementById('s24-next');
+  const label=document.getElementById('s24-step-label');
+  const title=document.getElementById('s24-step-title');
+  const pages=[...document.querySelectorAll('[data-s24-page]')];
+  const dots=[...document.querySelectorAll('[data-s24-step]')];
+  if(!track||!prev||!next||!label||!title||pages.length!==3) return;
+  const titles=['Send H to every head','Create Q, K, and V in every head','Select Head 1 and enlarge it'];
+  let current=0,frame=0;
+
+  function point(rect,root,side){
+    return {x:(side==='right'?rect.right:rect.left)-root.left,y:rect.top+rect.height/2-root.top};
+  }
+  function curve(start,end){
+    const span=Math.max(20,end.x-start.x),bend=Math.min(76,span*.45);
+    return `M${start.x} ${start.y} C${start.x+bend} ${start.y} ${end.x-bend} ${end.y} ${end.x} ${end.y}`;
+  }
+  function setSvg(svg,rootRect){
+    svg.setAttribute('viewBox',`0 0 ${rootRect.width} ${rootRect.height}`);
+    svg.setAttribute('preserveAspectRatio','none');
+    svg.innerHTML='';
+  }
+  function addPath(svg,d,className=''){
+    const path=document.createElementNS('http://www.w3.org/2000/svg','path');
+    path.setAttribute('d',d); if(className) path.setAttribute('class',className); svg.appendChild(path);
+  }
+  function draw(){
+    const branch=document.getElementById('s24-branch-diagram');
+    const branchSvg=document.getElementById('s24-branch-lines');
+    const h=document.getElementById('s24-h-source');
+    const heads=[...document.querySelectorAll('[data-s24-head]')];
+    if(branch&&branchSvg&&h&&heads.length){
+      const root=branch.getBoundingClientRect(); setSvg(branchSvg,root);
+      const start=point(h.getBoundingClientRect(),root,'right');
+      heads.forEach(head=>addPath(branchSvg,curve(start,point(head.getBoundingClientRect(),root,'left'))));
+    }
+    const project=document.getElementById('s24-project-diagram');
+    const projectSvg=document.getElementById('s24-project-lines');
+    const projectH=document.getElementById('s24-project-h');
+    const ws=[...document.querySelectorAll('[data-s24-projection]')];
+    const outputs=[...document.querySelectorAll('[data-s24-output]')];
+    if(project&&projectSvg&&projectH&&ws.length===3&&outputs.length===3){
+      const root=project.getBoundingClientRect(); setSvg(projectSvg,root);
+      const source=point(projectH.getBoundingClientRect(),root,'right');
+      ws.forEach((w,index)=>{
+        const className=['q','k','v'][index];
+        addPath(projectSvg,curve(source,point(w.getBoundingClientRect(),root,'left')),className);
+        addPath(projectSvg,curve(point(w.getBoundingClientRect(),root,'right'),point(outputs[index].getBoundingClientRect(),root,'left')),className);
+      });
+    }
+  }
+  function scheduleDraw(){ cancelAnimationFrame(frame); frame=requestAnimationFrame(draw); }
+  function show(index){
+    current=Math.max(0,Math.min(2,index));
+    track.style.transform=`translateX(-${current*(100/3)}%)`;
+    pages.forEach((page,i)=>{
+      page.classList.toggle('active',i===current);
+      page.classList.remove('is-animating');
+      if(i===current){ void page.offsetWidth; page.classList.add('is-animating'); }
+    });
+    dots.forEach((dot,i)=>dot.classList.toggle('active',i===current));
+    label.textContent=`STEP ${current+1} / 3`; title.textContent=titles[current];
+    prev.disabled=current===0; next.disabled=current===2;
+    scheduleDraw();
+  }
+  prev.addEventListener('click',()=>show(current-1));
+  next.addEventListener('click',()=>show(current+1));
+  dots.forEach((dot,i)=>dot.addEventListener('click',()=>show(i)));
+  window.addEventListener('resize',scheduleDraw,{passive:true});
+  if('ResizeObserver' in window) [document.getElementById('s24-branch-diagram'),document.getElementById('s24-project-diagram')].filter(Boolean).forEach(el=>new ResizeObserver(scheduleDraw).observe(el));
+  show(0);
 })();
 
 // Slide 20: pair apple-weight cells with V cells and land products directly in V rows.
@@ -286,6 +415,267 @@ function blendedPosition(key){
       visibleBefore=visible;
     },{threshold:[.55]}).observe(slide);
   }
+})();
+
+// Slide 21: interactive Softmax-weighted mixing of three Value vectors.
+(()=>{
+  const lab=document.getElementById('s21-lab');
+  const plot=document.getElementById('s21-plot');
+  const svg=document.getElementById('s21-lines');
+  const output=document.getElementById('s21-output');
+  const equation=document.getElementById('s21-equation');
+  const sumEl=document.getElementById('s21-weight-sum');
+  const sliders=[...document.querySelectorAll('.s21-slider')];
+  const keys=['ate','juicy','apple'];
+  if(!lab||!plot||!svg||!output||!equation||!sumEl||sliders.length!==3) return;
+
+  const points={ate:{x:22,y:25,color:'rgba(143,179,255,.85)'},juicy:{x:26,y:76,color:'rgba(126,217,154,.85)'},apple:{x:78,y:49,color:'rgba(255,138,101,.85)'}};
+  const nodes=Object.fromEntries(keys.map(key=>[key,document.querySelector(`.s21-vector-node[data-key="${key}"]`)]));
+  const scoreEls=Object.fromEntries(keys.map(key=>[key,document.getElementById(`s21-score-${key}`)]));
+  const weightEls=Object.fromEntries(keys.map(key=>[key,document.getElementById(`s21-weight-${key}`)]));
+  const barEls=Object.fromEntries(keys.map(key=>[key,document.getElementById(`s21-bar-${key}`)]));
+  const nodeWeightEls=Object.fromEntries(keys.map(key=>[key,document.getElementById(`s21-node-weight-${key}`)]));
+  let currentWeights={ate:0,juicy:0,apple:0};
+  let drawFrame=0;
+
+  const scoreText=value=>`${value>=0?'+':''}${value.toFixed(1)}`;
+  const softmax=scores=>{
+    const max=Math.max(...scores);
+    const exp=scores.map(value=>Math.exp(value-max));
+    const sum=exp.reduce((total,value)=>total+value,0);
+    return exp.map(value=>value/sum);
+  };
+  const polygon=(centers)=>{
+    const shape=document.createElementNS('http://www.w3.org/2000/svg','polygon');
+    shape.setAttribute('points',centers.map(point=>`${point.x},${point.y}`).join(' '));
+    shape.setAttribute('fill','rgba(79,209,197,.035)');
+    shape.setAttribute('stroke','rgba(79,209,197,.14)');
+    shape.setAttribute('stroke-width','1');
+    svg.appendChild(shape);
+  };
+  const draw=()=>{
+    sizeSvgToContainer(svg,plot);
+    svg.replaceChildren();
+    const centers=keys.map(key=>centerOf(nodes[key],plot));
+    polygon(centers);
+    const end=centerOf(output,plot);
+    const original=centerOf(nodes.apple,plot);
+    svgLine(svg,original.x,original.y,end.x,end.y,{stroke:'rgba(255,255,255,.32)',width:1.2,dash:'4,4',opacity:.8});
+    keys.forEach((key,index)=>{
+      const start=centers[index];
+      const weight=currentWeights[key];
+      svgLine(svg,start.x,start.y,end.x,end.y,{stroke:points[key].color,width:1.2+weight*6,opacity:.22+weight*.72});
+    });
+  };
+  const animateLines=()=>{
+    cancelAnimationFrame(drawFrame);
+    const started=performance.now();
+    const tick=now=>{
+      draw();
+      if(now-started<480) drawFrame=requestAnimationFrame(tick);
+    };
+    drawFrame=requestAnimationFrame(tick);
+  };
+  const render=()=>{
+    const scores=Object.fromEntries(sliders.map(slider=>[slider.dataset.key,Number(slider.value)]));
+    const normalized=softmax(keys.map(key=>scores[key]));
+    currentWeights=Object.fromEntries(keys.map((key,index)=>[key,normalized[index]]));
+    let x=0,y=0;
+    keys.forEach(key=>{x+=currentWeights[key]*points[key].x;y+=currentWeights[key]*points[key].y;});
+    output.style.left=`${x}%`;output.style.top=`${y}%`;
+    const strongest=keys.reduce((best,key)=>currentWeights[key]>currentWeights[best]?key:best,keys[0]);
+    sliders.forEach(slider=>{
+      const key=slider.dataset.key;
+      const score=scores[key];
+      const weight=currentWeights[key];
+      const min=Number(slider.min),max=Number(slider.max);
+      slider.style.setProperty('--range',`${(score-min)/(max-min)*100}%`);
+      scoreEls[key].textContent=scoreText(score);
+      weightEls[key].textContent=weight.toFixed(3);
+      barEls[key].style.width=`${weight*100}%`;
+      nodeWeightEls[key].textContent=`${Math.round(weight*100)}%`;
+      nodes[key].classList.toggle('dominant',key===strongest);
+    });
+    sumEl.textContent=`Σ = ${keys.reduce((sum,key)=>sum+currentWeights[key],0).toFixed(3)}`;
+    equation.innerHTML=`apple′ = ${currentWeights.ate.toFixed(3)}V<sub>ate</sub> + ${currentWeights.juicy.toFixed(3)}V<sub>juicy</sub> + ${currentWeights.apple.toFixed(3)}V<sub>apple</sub>`;
+    animateLines();
+  };
+  sliders.forEach(slider=>slider.addEventListener('input',render));
+  window.addEventListener('resize',draw,{passive:true});
+  if('ResizeObserver' in window) new ResizeObserver(draw).observe(plot);
+  render();
+})();
+
+// Slide 21 v2: two independently interactive examples in a horizontal carousel.
+(()=>{
+  const track=document.getElementById('s21-track');
+  const pages=[...document.querySelectorAll('.s21-page')];
+  const caseButtons=[...document.querySelectorAll('.s21-case-btn')];
+  const previous=document.getElementById('s21-case-prev');
+  const next=document.getElementById('s21-case-next');
+  if(!track||pages.length!==2||caseButtons.length!==2||!previous||!next) return;
+
+  const configs=[
+    {root:'s21-lab',prefix:'s21',keys:['ate','juicy','apple'],labels:{ate:'ate',juicy:'juicy',apple:'apple'},outputName:'apple′',originalKey:'apple',points:{ate:{x:22,y:25,color:'rgba(143,179,255,.85)'},juicy:{x:26,y:76,color:'rgba(126,217,154,.85)'},apple:{x:78,y:49,color:'rgba(255,138,101,.85)'}}},
+    {root:'s21-company-lab',prefix:'s21-company',keys:['bought','laptop','apple'],labels:{bought:'bought',laptop:'laptop',apple:'Apple'},outputName:'Apple′',originalKey:'apple',points:{bought:{x:31,y:72,color:'rgba(167,139,250,.85)'},laptop:{x:24,y:22,color:'rgba(143,179,255,.9)'},apple:{x:78,y:49,color:'rgba(255,138,101,.85)'}}}
+  ];
+  const scoreText=value=>`${value>=0?'+':''}${value.toFixed(1)}`;
+  const softmax=scores=>{
+    const max=Math.max(...scores);
+    const exp=scores.map(value=>Math.exp(value-max));
+    const sum=exp.reduce((total,value)=>total+value,0);
+    return exp.map(value=>value/sum);
+  };
+
+  const initialize=config=>{
+    const root=document.getElementById(config.root);
+    const plot=document.getElementById(`${config.prefix}-plot`);
+    const svg=document.getElementById(`${config.prefix}-lines`);
+    const output=document.getElementById(`${config.prefix}-output`);
+    const equation=document.getElementById(`${config.prefix}-equation`);
+    const sumEl=document.getElementById(`${config.prefix}-weight-sum`);
+    const sliders=[...root.querySelectorAll('.s21-slider')];
+    const nodes=Object.fromEntries(config.keys.map(key=>[key,root.querySelector(`.s21-vector-node[data-key="${key}"]`)]));
+    const scoreEls=Object.fromEntries(config.keys.map(key=>[key,document.getElementById(`${config.prefix}-score-${key}`)]));
+    const weightEls=Object.fromEntries(config.keys.map(key=>[key,document.getElementById(`${config.prefix}-weight-${key}`)]));
+    const barEls=Object.fromEntries(config.keys.map(key=>[key,document.getElementById(`${config.prefix}-bar-${key}`)]));
+    const nodeWeightEls=Object.fromEntries(config.keys.map(key=>[key,document.getElementById(`${config.prefix}-node-weight-${key}`)]));
+    if(!root||!plot||!svg||!output||!equation||!sumEl||sliders.length!==3||Object.values(nodes).some(node=>!node)) return null;
+    let currentWeights=Object.fromEntries(config.keys.map(key=>[key,0]));
+    let drawFrame=0;
+    const draw=()=>{
+      sizeSvgToContainer(svg,plot);
+      svg.replaceChildren();
+      const centers=config.keys.map(key=>centerOf(nodes[key],plot));
+      const shape=document.createElementNS('http://www.w3.org/2000/svg','polygon');
+      shape.setAttribute('points',centers.map(point=>`${point.x},${point.y}`).join(' '));
+      shape.setAttribute('fill','rgba(79,209,197,.035)');shape.setAttribute('stroke','rgba(79,209,197,.14)');shape.setAttribute('stroke-width','1');
+      svg.appendChild(shape);
+      const end=centerOf(output,plot);
+      const original=centerOf(nodes[config.originalKey],plot);
+      svgLine(svg,original.x,original.y,end.x,end.y,{stroke:'rgba(255,255,255,.32)',width:1.2,dash:'4,4',opacity:.8});
+      config.keys.forEach((key,index)=>{
+        const start=centers[index],weight=currentWeights[key];
+        svgLine(svg,start.x,start.y,end.x,end.y,{stroke:config.points[key].color,width:1.2+weight*6,opacity:.22+weight*.72});
+      });
+    };
+    const animateLines=()=>{
+      cancelAnimationFrame(drawFrame);
+      const started=performance.now();
+      const tick=now=>{draw();if(now-started<480) drawFrame=requestAnimationFrame(tick);};
+      drawFrame=requestAnimationFrame(tick);
+    };
+    const render=()=>{
+      const scores=Object.fromEntries(sliders.map(slider=>[slider.dataset.key,Number(slider.value)]));
+      const normalized=softmax(config.keys.map(key=>scores[key]));
+      currentWeights=Object.fromEntries(config.keys.map((key,index)=>[key,normalized[index]]));
+      let x=0,y=0;
+      config.keys.forEach(key=>{x+=currentWeights[key]*config.points[key].x;y+=currentWeights[key]*config.points[key].y;});
+      output.style.left=`${x}%`;output.style.top=`${y}%`;
+      const strongest=config.keys.reduce((best,key)=>currentWeights[key]>currentWeights[best]?key:best,config.keys[0]);
+      sliders.forEach(slider=>{
+        const key=slider.dataset.key,score=scores[key],weight=currentWeights[key];
+        slider.style.setProperty('--range',`${(score-Number(slider.min))/(Number(slider.max)-Number(slider.min))*100}%`);
+        scoreEls[key].textContent=scoreText(score);weightEls[key].textContent=weight.toFixed(3);barEls[key].style.width=`${weight*100}%`;nodeWeightEls[key].textContent=`${Math.round(weight*100)}%`;
+        nodes[key].classList.toggle('dominant',key===strongest);
+      });
+      sumEl.textContent=`Σ = ${config.keys.reduce((sum,key)=>sum+currentWeights[key],0).toFixed(3)}`;
+      equation.innerHTML=`${config.outputName} = ${config.keys.map(key=>`${currentWeights[key].toFixed(3)}V<sub>${config.labels[key]}</sub>`).join(' + ')}`;
+      animateLines();
+    };
+    sliders.forEach(slider=>slider.addEventListener('input',render));
+    if('ResizeObserver' in window) new ResizeObserver(draw).observe(plot);
+    render();
+    return {draw,animateLines};
+  };
+
+  const labs=configs.map(initialize);
+  if(labs.some(lab=>!lab)) return;
+  let current=0;
+  const show=index=>{
+    current=Math.max(0,Math.min(pages.length-1,index));
+    track.style.transform=`translateX(-${current*100}%)`;
+    pages.forEach((page,pageIndex)=>page.classList.toggle('active',pageIndex===current));
+    caseButtons.forEach((button,buttonIndex)=>button.classList.toggle('active',buttonIndex===current));
+    previous.disabled=current===0;next.disabled=current===pages.length-1;
+    requestAnimationFrame(labs[current].animateLines);
+    setTimeout(labs[current].draw,580);
+  };
+  previous.addEventListener('click',()=>show(current-1));
+  next.addEventListener('click',()=>show(current+1));
+  caseButtons.forEach((button,index)=>button.addEventListener('click',()=>show(index)));
+  window.addEventListener('resize',()=>labs.forEach(lab=>lab.draw()),{passive:true});
+  show(0);
+})();
+
+// Slide 21 v3: two control groups drive two outputs in one shared meaning space.
+(()=>{
+  const plot=document.getElementById('s21-shared-plot');
+  const svg=document.getElementById('s21-shared-lines');
+  const fruitOutput=document.getElementById('s21-shared-fruit-output');
+  const companyOutput=document.getElementById('s21-shared-company-output');
+  const fruitEquation=document.getElementById('s21-shared-fruit-equation');
+  const companyEquation=document.getElementById('s21-shared-company-equation');
+  const fruitRoot=document.getElementById('s21-lab');
+  const companyRoot=document.getElementById('s21-company-lab');
+  if(!plot||!svg||!fruitOutput||!companyOutput||!fruitEquation||!companyEquation||!fruitRoot||!companyRoot) return;
+
+  const points={
+    ate:{x:30,y:58,color:'rgba(143,179,255,.85)'},juicy:{x:18,y:80,color:'rgba(126,217,154,.9)'},
+    bought:{x:70,y:38,color:'rgba(167,139,250,.88)'},laptop:{x:82,y:18,color:'rgba(143,179,255,.92)'},
+    apple:{x:50,y:50,color:'rgba(255,138,101,.88)'}
+  };
+  const nodes=Object.fromEntries(Object.keys(points).map(key=>[key,plot.querySelector(`[data-shared-key="${key}"]`)]));
+  const contexts={
+    fruit:{root:fruitRoot,keys:['ate','juicy','apple'],labels:{ate:'ate',juicy:'juicy',apple:'apple'},output:fruitOutput,equation:fruitEquation,name:'apple′',accent:'rgba(126,217,154,.85)'},
+    company:{root:companyRoot,keys:['bought','laptop','apple'],labels:{bought:'bought',laptop:'laptop',apple:'Apple'},output:companyOutput,equation:companyEquation,name:'Apple′',accent:'rgba(143,179,255,.9)'}
+  };
+  const states={fruit:null,company:null};
+  let drawFrame=0;
+  const softmax=scores=>{const max=Math.max(...scores),exp=scores.map(value=>Math.exp(value-max)),sum=exp.reduce((total,value)=>total+value,0);return exp.map(value=>value/sum);};
+  const badge=(id,text)=>{const el=document.getElementById(id);if(el) el.textContent=text;};
+  const addPolygon=(keys,fill,stroke)=>{
+    const shape=document.createElementNS('http://www.w3.org/2000/svg','polygon');
+    shape.setAttribute('points',keys.map(key=>{const point=centerOf(nodes[key],plot);return `${point.x},${point.y}`;}).join(' '));
+    shape.setAttribute('fill',fill);shape.setAttribute('stroke',stroke);shape.setAttribute('stroke-width','1');svg.appendChild(shape);
+  };
+  const draw=()=>{
+    sizeSvgToContainer(svg,plot);svg.replaceChildren();
+    addPolygon(contexts.fruit.keys,'rgba(126,217,154,.035)','rgba(126,217,154,.18)');
+    addPolygon(contexts.company.keys,'rgba(143,179,255,.035)','rgba(143,179,255,.18)');
+    for(const [contextName,config] of Object.entries(contexts)){
+      const state=states[contextName];if(!state) continue;
+      const end=centerOf(config.output,plot),origin=centerOf(nodes.apple,plot);
+      svgLine(svg,origin.x,origin.y,end.x,end.y,{stroke:config.accent,width:1.3,dash:'4,4',opacity:.72});
+      config.keys.forEach(key=>{const start=centerOf(nodes[key],plot),weight=state.weights[key];svgLine(svg,start.x,start.y,end.x,end.y,{stroke:points[key].color,width:1.1+weight*5.5,opacity:.18+weight*.72});});
+    }
+  };
+  const animateLines=()=>{cancelAnimationFrame(drawFrame);const started=performance.now();const tick=now=>{draw();if(now-started<480) drawFrame=requestAnimationFrame(tick);};drawFrame=requestAnimationFrame(tick);};
+  const renderContext=contextName=>{
+    const config=contexts[contextName],sliders=[...config.root.querySelectorAll('.s21-slider')];
+    const scores=Object.fromEntries(sliders.map(slider=>[slider.dataset.key,Number(slider.value)]));
+    const normalized=softmax(config.keys.map(key=>scores[key]));
+    const weights=Object.fromEntries(config.keys.map((key,index)=>[key,normalized[index]]));
+    let x=0,y=0;config.keys.forEach(key=>{x+=weights[key]*points[key].x;y+=weights[key]*points[key].y;});
+    config.output.style.left=`${x}%`;config.output.style.top=`${y}%`;
+    config.equation.innerHTML=`${config.name} = ${config.keys.map(key=>`${weights[key].toFixed(3)}V<sub>${config.labels[key]}</sub>`).join(' + ')}`;
+    states[contextName]={weights,x,y};
+    const strongest=config.keys.reduce((best,key)=>weights[key]>weights[best]?key:best,config.keys[0]);
+    config.keys.forEach(key=>nodes[key].classList.toggle(`${contextName}-dominant`,key===strongest));
+    if(contextName==='fruit'){
+      badge('s21-shared-weight-ate',`F ${Math.round(weights.ate*100)}%`);badge('s21-shared-weight-juicy',`F ${Math.round(weights.juicy*100)}%`);badge('s21-shared-fruit-weight-apple',`F ${Math.round(weights.apple*100)}%`);
+    }else{
+      badge('s21-shared-weight-bought',`C ${Math.round(weights.bought*100)}%`);badge('s21-shared-weight-laptop',`C ${Math.round(weights.laptop*100)}%`);badge('s21-shared-company-weight-apple',`C ${Math.round(weights.apple*100)}%`);
+    }
+    animateLines();
+  };
+  for(const [contextName,config] of Object.entries(contexts)){
+    config.root.querySelectorAll('.s21-slider').forEach(slider=>slider.addEventListener('input',()=>renderContext(contextName)));
+    renderContext(contextName);
+  }
+  window.addEventListener('resize',draw,{passive:true});
+  if('ResizeObserver' in window) new ResizeObserver(draw).observe(plot);
+  draw();
 })();
 
 /* ---------------------------------------------------------
@@ -1751,6 +2141,7 @@ function blendedPosition(key){
     ['Create Q, K, and V','Q, K, and V enter the calculation as three learned views of the input.'],
     ['Compare every Query with every Key','QKᵀ is active; V waits until the attention weights are ready.'],
     ['Scale the dot-product scores','Dividing QKᵀ by √dₖ controls the score magnitude before softmax.'],
+    ['Mask every future position','Future-token scores become −∞, so causal self-attention cannot look ahead.'],
     ['Normalize each row with softmax','Softmax converts each scaled score row into attention weights that sum to 1.'],
     ['Next: Use the weights to mix V','This final MatMul is what we explain next: the attention weights mix the Value vectors into contextualized output.']
   ];
@@ -1763,8 +2154,8 @@ function blendedPosition(key){
       void stage.offsetWidth;
     }
     stage.className=`s18-columns stage-${current}`;
-    const isNext=current===4;
-    number.textContent=isNext?'NEXT · STEP 5 / 5':`RECAP · STEP ${current+1} / 4`;
+    const isNext=current===5;
+    number.textContent=isNext?'NEXT · STEP 6 / 6':`RECAP · STEP ${current+1} / 5`;
     title.textContent=steps[current][0];
     caption.textContent=steps[current][1];
     phase.textContent=isNext?'WHAT COMES NEXT':'WHAT WE HAVE COVERED';

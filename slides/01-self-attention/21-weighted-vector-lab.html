@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Weighted Vector Lab — How Translation AI Works</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="single-slide-page" data-slide-index="21" data-slide-count="27" data-prev-page="20-vector-mixing.html" data-next-page="22-multi-head-attention.html">
+<div class="deck-header"><span class="count" id="deck-count">21 / 27</span><span class="title-mini">How Translation AI Works</span></div>
+<nav class="deck-nav" id="deck-nav" aria-label="Slide navigation">
+  <a href="01-encoder-decoder.html" aria-label="Go to slide 1"></a><a href="02-word-vectors.html" aria-label="Go to slide 2"></a><a href="03-contextual-meaning.html" aria-label="Go to slide 3"></a><a href="04-matrix-transformation.html" aria-label="Go to slide 4"></a><a href="05-transformer-architecture.html" aria-label="Go to slide 5"></a><a href="06-token-embeddings.html" aria-label="Go to slide 6"></a><a href="07-positional-encoding.html" aria-label="Go to slide 7"></a><a href="08-similarity-matrix.html" aria-label="Go to slide 8"></a><a href="09-attention-architecture.html" aria-label="Go to slide 9"></a><a href="10-softmax-weights.html" aria-label="Go to slide 10"></a><a href="11-weighted-sum.html" aria-label="Go to slide 11"></a><a href="12-context-outcomes.html" aria-label="Go to slide 12"></a><a href="13-query-key-value.html" aria-label="Go to slide 13"></a><a href="14-qk-transpose.html" aria-label="Go to slide 14"></a><a href="15-similarity.html" aria-label="Go to slide 15"></a><a href="16-softmax.html" aria-label="Go to slide 16"></a><a href="17-scaling.html" aria-label="Go to slide 17"></a><a href="18-attention-summary.html" aria-label="Go to slide 18"></a><a href="19-context-update.html" aria-label="Go to slide 19"></a><a href="20-vector-mixing.html" aria-label="Go to slide 20"></a><a href="21-weighted-vector-lab.html" class="active" aria-current="page" aria-label="Go to slide 21"></a>
+  <a href="22-multi-head-attention.html" aria-label="Go to slide 22: Multi-Head Attention"></a>
+  <a href="23-five-changes.html" aria-label="Go to slide 23: Five Multi-Head Changes"></a>
+  <a href="24-branch-and-project.html" aria-label="Go to slide 24: Branch and Project"></a>
+<a href="25-why-learn-projections.html" aria-label="Go to slide 25: Why Learn Projections"></a>
+<a href="26-attention-per-head.html" aria-label="Go to slide 26: Attention in Every Head"></a>
+<a href="27-concat-output-projection.html" aria-label="Go to slide 27: Concat and Output Projection"></a>
+</nav>
+<div class="deck" id="deck"><section class="slide" id="slide-weighted-vector-lab"><div class="slide-inner">
+  <div>
+    <div class="eyebrow"><span class="num">21</span> WEIGHTED VECTOR LAB</div>
+    <h1 class="title">What Does a<br>Weighted Sum Do?</h1>
+    <p class="subtitle">Compare fruit and company contexts side by side</p>
+    <p class="lead">Each slider changes the raw attention score assigned to one Value vector. <b>Softmax turns those scores into positive weights that add to 1.</b></p>
+    <p class="lead"><b>apple′ is their weighted average.</b> Use the fruit controls on the left and the company controls on the right to compare how the same word moves in two contexts.</p>
+    <div class="note">This map is a 2D projection of 512 dimensions. The real calculation performs the same weighted mixing independently in every dimension.</div>
+  </div>
+
+  <div class="stage-panel s21-panel">
+    <div class="stage-caption"><b>Two interactive weighted sums —</b> Adjust either side. Each Softmax independently normalizes its three scores and repositions apple′ or Apple′.</div>
+    <div class="s21-case-nav" aria-label="Choose context example" hidden>
+      <button class="s21-case-arrow" id="s21-case-prev" aria-label="Previous example">←</button>
+      <button class="s21-case-btn active" data-case="0">① Fruit · I ate a juicy apple.</button>
+      <button class="s21-case-btn" data-case="1">② Company · I bought an Apple laptop.</button>
+      <button class="s21-case-arrow" id="s21-case-next" aria-label="Next example">→</button>
+    </div>
+    <div class="s21-viewport s21-dual-viewport"><div class="s21-track s21-dual-track" id="s21-track">
+    <article class="s21-page active" data-example="fruit">
+    <div class="s21-lab" id="s21-lab">
+      <section class="s21-controls" aria-label="Raw attention score controls">
+        <header><span>FRUIT CONTEXT · RAW SCORES</span><b>I ate a juicy apple.</b></header>
+        <label class="s21-control ate">
+          <span>score for V<sub>ate</sub></span><output id="s21-score-ate">+0.2</output>
+          <input class="s21-slider" data-key="ate" type="range" min="-2" max="3" step="0.1" value="0.2" aria-label="Raw attention score for ate">
+        </label>
+        <label class="s21-control juicy">
+          <span>score for V<sub>juicy</sub></span><output id="s21-score-juicy">+1.4</output>
+          <input class="s21-slider" data-key="juicy" type="range" min="-2" max="3" step="0.1" value="1.4" aria-label="Raw attention score for juicy">
+        </label>
+        <label class="s21-control apple">
+          <span>score for V<sub>apple</sub></span><output id="s21-score-apple">+0.8</output>
+          <input class="s21-slider" data-key="apple" type="range" min="-2" max="3" step="0.1" value="0.8" aria-label="Raw attention score for apple">
+        </label>
+
+        <div class="s21-softmax">
+          <header><span>SOFTMAX WEIGHTS</span><b id="s21-weight-sum">Σ = 1.000</b></header>
+          <div class="s21-weight-row ate"><span>α<sub>ate</sub></span><div><i id="s21-bar-ate"></i></div><output id="s21-weight-ate">0.000</output></div>
+          <div class="s21-weight-row juicy"><span>α<sub>juicy</sub></span><div><i id="s21-bar-juicy"></i></div><output id="s21-weight-juicy">0.000</output></div>
+          <div class="s21-weight-row apple"><span>α<sub>apple</sub></span><div><i id="s21-bar-apple"></i></div><output id="s21-weight-apple">0.000</output></div>
+        </div>
+      </section>
+
+      <section class="s21-space">
+        <header><span>2D PROJECTION OF VALUE SPACE</span><b>weighted average</b></header>
+        <div class="s21-plot" id="s21-plot">
+          <svg class="s21-lines" id="s21-lines" aria-hidden="true"></svg>
+          <div class="s21-axis x"></div><div class="s21-axis y"></div>
+          <div class="s21-vector-node ate" data-key="ate" style="left:22%;top:25%"><i></i><b>V<sub>ate</sub></b><small id="s21-node-weight-ate">0%</small></div>
+          <div class="s21-vector-node juicy" data-key="juicy" style="left:26%;top:76%"><i></i><b>V<sub>juicy</sub></b><small id="s21-node-weight-juicy">0%</small></div>
+          <div class="s21-vector-node apple" data-key="apple" style="left:78%;top:49%"><i></i><b>V<sub>apple</sub></b><small id="s21-node-weight-apple">0%</small></div>
+          <div class="s21-original-label">original apple position</div>
+          <div class="s21-output" id="s21-output"><i></i><b>apple′</b><small>contextualized</small></div>
+        </div>
+      </section>
+
+      <div class="s21-equation">
+        <span>WEIGHTED SUM</span>
+        <b id="s21-equation">apple′ = 0.000V<sub>ate</sub> + 0.000V<sub>juicy</sub> + 0.000V<sub>apple</sub></b>
+        <small>Because the Softmax weights sum to 1, apple′ stays inside the triangle formed by the three V vectors.</small>
+      </div>
+    </div>
+    </article>
+
+    <article class="s21-page company" data-example="company">
+    <div class="s21-lab" id="s21-company-lab">
+      <section class="s21-controls" aria-label="Company-context raw attention score controls">
+        <header><span>COMPANY CONTEXT · RAW SCORES</span><b>before Softmax</b></header>
+        <label class="s21-control bought">
+          <span>score for V<sub>bought</sub></span><output id="s21-company-score-bought">+0.3</output>
+          <input class="s21-slider" data-key="bought" type="range" min="-2" max="3" step="0.1" value="0.3" aria-label="Raw attention score for bought">
+        </label>
+        <label class="s21-control laptop">
+          <span>score for V<sub>laptop</sub></span><output id="s21-company-score-laptop">+1.6</output>
+          <input class="s21-slider" data-key="laptop" type="range" min="-2" max="3" step="0.1" value="1.6" aria-label="Raw attention score for laptop">
+        </label>
+        <label class="s21-control apple">
+          <span>score for V<sub>Apple</sub></span><output id="s21-company-score-apple">+0.7</output>
+          <input class="s21-slider" data-key="apple" type="range" min="-2" max="3" step="0.1" value="0.7" aria-label="Raw attention score for Apple">
+        </label>
+
+        <div class="s21-softmax">
+          <header><span>SOFTMAX WEIGHTS</span><b id="s21-company-weight-sum">Σ = 1.000</b></header>
+          <div class="s21-weight-row bought"><span>α<sub>bought</sub></span><div><i id="s21-company-bar-bought"></i></div><output id="s21-company-weight-bought">0.000</output></div>
+          <div class="s21-weight-row laptop"><span>α<sub>laptop</sub></span><div><i id="s21-company-bar-laptop"></i></div><output id="s21-company-weight-laptop">0.000</output></div>
+          <div class="s21-weight-row apple"><span>α<sub>Apple</sub></span><div><i id="s21-company-bar-apple"></i></div><output id="s21-company-weight-apple">0.000</output></div>
+        </div>
+      </section>
+
+      <section class="s21-space">
+        <header><span>COMPANY MEANING SPACE · 2D PROJECTION</span><b>weighted average</b></header>
+        <div class="s21-plot" id="s21-company-plot">
+          <svg class="s21-lines" id="s21-company-lines" aria-hidden="true"></svg>
+          <div class="s21-axis x"></div><div class="s21-axis y"></div>
+          <div class="s21-vector-node bought" data-key="bought" style="left:31%;top:72%"><i></i><b>V<sub>bought</sub></b><small id="s21-company-node-weight-bought">0%</small></div>
+          <div class="s21-vector-node laptop" data-key="laptop" style="left:24%;top:22%"><i></i><b>V<sub>laptop</sub></b><small id="s21-company-node-weight-laptop">0%</small></div>
+          <div class="s21-vector-node apple" data-key="apple" style="left:78%;top:49%"><i></i><b>V<sub>Apple</sub></b><small id="s21-company-node-weight-apple">0%</small></div>
+          <div class="s21-original-label">original Apple position</div>
+          <div class="s21-output" id="s21-company-output"><i></i><b>Apple′</b><small>company-context</small></div>
+        </div>
+      </section>
+
+      <div class="s21-equation">
+        <span>WEIGHTED SUM</span>
+        <b id="s21-company-equation">Apple′ = 0.000V<sub>bought</sub> + 0.000V<sub>laptop</sub> + 0.000V<sub>Apple</sub></b>
+        <small>Raise the laptop score and Apple′ moves toward the company/technology side of the space.</small>
+      </div>
+    </div>
+    </article>
+    </div></div>
+
+    <section class="s21-space s21-shared-space">
+      <header><span>ONE SHARED 2D MEANING SPACE</span><b>the same original Apple branches toward two contextualized positions</b></header>
+      <div class="s21-plot" id="s21-shared-plot">
+        <svg class="s21-lines" id="s21-shared-lines" aria-hidden="true"></svg>
+        <div class="s21-axis x"></div><div class="s21-axis y"></div>
+        <div class="s21-region-label fruit">FRUIT CONTEXT</div>
+        <div class="s21-region-label company">COMPANY CONTEXT</div>
+        <div class="s21-vector-node ate" data-shared-key="ate" style="left:30%;top:58%"><i></i><b>V<sub>ate</sub></b><small id="s21-shared-weight-ate">F 0%</small></div>
+        <div class="s21-vector-node juicy" data-shared-key="juicy" style="left:18%;top:80%"><i></i><b>V<sub>juicy</sub></b><small id="s21-shared-weight-juicy">F 0%</small></div>
+        <div class="s21-vector-node bought" data-shared-key="bought" style="left:70%;top:38%"><i></i><b>V<sub>bought</sub></b><small id="s21-shared-weight-bought">C 0%</small></div>
+        <div class="s21-vector-node laptop" data-shared-key="laptop" style="left:82%;top:18%"><i></i><b>V<sub>laptop</sub></b><small id="s21-shared-weight-laptop">C 0%</small></div>
+        <div class="s21-vector-node apple shared-apple" data-shared-key="apple" style="left:50%;top:50%"><i></i><b>V<sub>Apple</sub></b><small class="s21-shared-badges"><span id="s21-shared-fruit-weight-apple">F 0%</span><span id="s21-shared-company-weight-apple">C 0%</span></small></div>
+        <div class="s21-original-label shared">same original Apple position</div>
+        <div class="s21-output fruit" id="s21-shared-fruit-output"><i></i><b>apple′</b><small>fruit-context</small></div>
+        <div class="s21-output company" id="s21-shared-company-output"><i></i><b>Apple′</b><small>company-context</small></div>
+      </div>
+    </section>
+
+    <div class="s21-shared-equations">
+      <div class="fruit"><span>FRUIT WEIGHTED SUM</span><b id="s21-shared-fruit-equation">apple′ = …</b></div>
+      <div class="company"><span>COMPANY WEIGHTED SUM</span><b id="s21-shared-company-equation">Apple′ = …</b></div>
+    </div>
+  </div>
+</div></section></div>
+<script src="js/app.js"></script>
+</body>
+</html>
