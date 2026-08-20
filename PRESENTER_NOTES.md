@@ -5,10 +5,10 @@ The session now runs across three decks, in this order:
 | Deck | Slides | Covers |
 |---|---|---|
 | `slides/00-before-transformers/` | 4 | Why RNNs, what was wrong with them, what 2014 already fixed |
-| `slides/01-self-attention/` | 21 | Embeddings, positional encoding, scaled dot-product attention, multi-head |
+| `slides/01-self-attention/` | 23 | Embeddings, positional encoding, scaled dot-product attention, multi-head, results, significance |
 | `slides/99-quiz/` | — | Interactive quiz (see that folder's README for modes) |
 
-The chain is wired end to end: `00/01` → … → `00/04` → `01/01` → … → `01/21` → quiz.
+The chain is wired end to end: `00/01` → … → `00/04` → `01/01` → … → `01/23` → quiz.
 Open `index.html` at the repo root to start from the beginning.
 
 ---
@@ -567,6 +567,65 @@ eight is a plateau rather than a magic number.
 **Next step:** slide 21 is the last slide, and its Next button goes to the
 quiz in `slides/99-quiz/`.
 
+## Slide 22 — The results, simplified
+
+**Main idea:** Three claims in the abstract; here is what actually backs them.
+
+Click through the three table rows. The row that matters is **Transformer (base)**:
+
+> Sixty-five million parameters. Twelve hours on one machine. And it beats every
+> previously published model *and every ensemble* on English–German, using about
+> one twenty-third of the compute of the best of them.
+
+**Be precise about English–French.** The base model's 38.1 does *not* beat the
+prior art there — ConvS2S got 40.46. The "surpasses all previously published
+models and ensembles" sentence in §6.1 is an English–German claim. Saying it
+loosely is the difference between a fair summary and an overclaim, and someone
+in the room will check.
+
+**Two things worth flagging out loud:**
+
+- The FLOP figures are *estimates* — training time × GPUs × an assumed sustained
+  throughput per GPU (footnote 5), across four GPU generations and four
+  codebases. The order-of-magnitude gap is real; the precision implied by
+  "2.3 × 10¹⁹" is not.
+- Both headline numbers average the last 5 or 20 checkpoints. That is an
+  ensemble in all but name, and Table 2 compares it against other people's
+  explicitly-labelled ensembles. Disclosed, but worth naming.
+
+**The 41.8 / 41.0 discrepancy is on this slide.** Don't announce it — ask someone
+to open the PDF and compare the abstract against §6.1. Best five minutes in the
+session: the most-cited paper in modern ML has an unreconciled number in it, and
+reading closely enough to notice is the actual skill a journal club teaches.
+
+## Slide 23 — Why it mattered, and what it didn't
+
+**Three steps. Don't rush the third.**
+
+**Step 1 — the lineage.** Strip the decoder and you get BERT; strip the encoder
+and you get GPT. Say plainly that everything in this deck about cross-attention
+is *absent* from the models the room uses daily — otherwise half the audience
+never connects the session to ChatGPT.
+
+**Step 2 — what the paper never showed.** Read the five items out. This is the
+honest scope: two MT tasks, one parsing task, 65M and 213M parameters, sentences
+of about a hundred tokens. Scaling, language modelling, in-context learning,
+long context and interpretability are all outside it.
+
+> This isn't a criticism of the paper. It's the difference between what a paper
+> proved and what a field built on top of it — and keeping those two apart is
+> most of what a journal club is for.
+
+**Step 3 — the takeaway, and the vote.** The contribution was not inventing
+attention. It was showing attention could be the *entire* sequence-processing
+mechanism — that the recurrence underneath wasn't earning its cost.
+
+Then **run the vote you set up on slide 0.4.** Hands, or move to sides of the
+room. Take two arguments from each side before moving to the quiz. If the room
+argues for five minutes here, the session worked.
+
+**Next step:** slide 23 is the last slide; its Next button goes to the quiz.
+
 ## Suggested timing
 
 - Deck 0 (before the Transformer), 4 slides: 12–15 minutes
@@ -575,12 +634,20 @@ quiz in `slides/99-quiz/`.
 - Slides 11–18: 15–20 minutes
 - Slides 19–20: 6–8 minutes
 - Slide 21 (multi-head): 6–8 minutes, including the ablation prediction
+- Slides 22–23 (results, significance, vote): 12–15 minutes
 - Questions during the section: 5 minutes
 
-Total: roughly 60–75 minutes across both decks. For a shorter path, skip slide 4, shorten the
+Total: roughly 75–90 minutes across both decks, before the quiz. For a shorter path, skip slide 4, shorten the
 dragging activity on slide 12, use slide 18 as the main mathematical recap, and
 show only the first calculation on slide 19. Slide 20 is optional if the
 audience already understands the weighted sum. Slide 21 is **not** optional —
 slides 9 and 10 promise multi-head attention, so cutting it leaves the deck
-with a loose end the room will notice.
+with a loose end the room will notice. Slides 22–23 are also not optional if you
+want this to be a journal club rather than a tutorial — they are where the paper
+gets judged.
+
+**A note for whoever edits next:** slides 22 and 23 generate the nav strip from a
+`SLIDES` array in their own script instead of hardcoding 23 `<a>` tags. Slides
+1–21 still hardcode it, which is why adding a slide currently means touching
+every file. Worth retrofitting when there is time.
 

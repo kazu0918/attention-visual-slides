@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Why It Mattered — How Translation AI Works</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+<style>
+.s23-block{ opacity:0; transform:translateY(6px); transition:.45s; }
+.s23-block.show{ opacity:1; transform:none; }
+
+.s23-tree{ display:flex; flex-direction:column; gap:9px; margin-bottom:14px; }
+.s23-root{ background:var(--teal-dim); border:1px solid var(--teal); border-radius:10px;
+  padding:11px 14px; text-align:center; }
+.s23-root b{ font-family:var(--font-mono); font-size:13px; color:var(--teal); display:block; }
+.s23-root span{ font-size:11.5px; color:var(--text-dim); }
+.s23-split{ display:grid; grid-template-columns:1fr 1fr; gap:9px; }
+@media(max-width:700px){ .s23-split{ grid-template-columns:1fr; } }
+.s23-branch{ background:var(--panel); border:1px solid var(--border); border-radius:10px;
+  padding:11px 13px; }
+.s23-branch b{ font-family:var(--font-mono); font-size:11.5px; display:block; margin-bottom:4px; }
+.s23-branch.enc b{ color:var(--company); }
+.s23-branch.dec b{ color:var(--coral); }
+.s23-branch span{ font-size:12px; line-height:1.5; color:var(--text-dim); display:block; }
+.s23-branch em{ font-style:normal; color:var(--text-faint); font-size:11px; display:block;
+  margin-top:5px; font-family:var(--font-mono); }
+.s23-arrows{ display:flex; justify-content:space-around; color:var(--text-faint); font-size:12px;
+  margin:-4px 0; }
+
+.s23-list{ display:flex; flex-direction:column; gap:7px; }
+.s23-item{ display:flex; gap:10px; align-items:flex-start; font-size:12.5px; line-height:1.55;
+  color:var(--text-dim); }
+.s23-item i{ font-style:normal; font-family:var(--font-mono); font-size:11px; flex-shrink:0;
+  width:15px; color:var(--coral); }
+.s23-item b{ color:var(--text); }
+
+.s23-hd{ font-family:var(--font-mono); font-size:9.5px; letter-spacing:.14em; text-transform:uppercase;
+  color:var(--text-faint); margin:0 0 9px; }
+
+.s23-take{ border:1px solid var(--teal); background:var(--teal-dim); border-radius:11px;
+  padding:15px 17px; }
+.s23-take > b{ display:block; font-family:var(--font-mono); font-size:10px; letter-spacing:.14em;
+  color:var(--teal); margin-bottom:9px; }
+.s23-take p{ margin:0 0 10px; font-size:14px; line-height:1.65; color:var(--text); }
+.s23-take p:last-child{ margin-bottom:0; }
+.s23-take .no{ color:var(--text-dim); }
+.s23-take .no s{ color:var(--text-faint); }
+.s23-take .vote{ color:var(--gold); font-weight:500; }
+</style>
+</head>
+<body class="single-slide-page" data-slide-index="23" data-slide-count="23" data-prev-page="22-results.html" data-next-page="../99-quiz/index.html">
+<div class="deck-header"><span class="count" id="deck-count">23 / 23</span><span class="title-mini">How Translation AI Works</span></div>
+<nav class="deck-nav" id="deck-nav" aria-label="Slide navigation"></nav>
+<div class="deck" id="deck">
+<section class="slide" id="slide-significance">
+  <div class="slide-inner">
+    <div>
+      <div class="eyebrow"><span class="num">23</span> WHY IT MATTERED</div>
+      <h1 class="title">What Followed,<br>and What Didn't</h1>
+      <p class="subtitle">Significance, caveats, and the actual contribution</p>
+      <p class="lead">This was a <b>translation paper</b>. Two MT tasks, one parsing task, 65M and 213M parameters, sentences around a hundred tokens long. Everything it is now famous for was established by later work.</p>
+      <p class="lead">That is not a criticism. It is the difference between what a paper <b>proved</b> and what a field <b>built on it</b> — and keeping those apart is most of what a journal club is for.</p>
+      <div class="note">The architecture split within a year: strip the decoder and you get BERT, strip the encoder and you get GPT. Both are this paper's Figure 1 with one half deleted.</div>
+    </div>
+
+    <div class="stage-panel">
+      <div class="stage-caption" id="s23-cap"><b>Step 1 —</b> What the architecture turned into.</div>
+
+      <div class="s23-block" id="s23-b1">
+        <div class="s23-tree">
+          <div class="s23-root">
+            <b>2017 · Transformer</b>
+            <span>encoder–decoder, built for translation</span>
+          </div>
+          <div class="s23-arrows"><span>↙</span><span>↘</span></div>
+          <div class="s23-split">
+            <div class="s23-branch enc">
+              <b>encoder only</b>
+              <span>Bidirectional, sees the whole input at once. Good at understanding a text you already have.</span>
+              <em>BERT (2018) → RoBERTa, embeddings, retrieval</em>
+            </div>
+            <div class="s23-branch dec">
+              <b>decoder only</b>
+              <span>Masked self-attention, no cross-attention — nothing to attend to. Good at continuing a text.</span>
+              <em>GPT (2018) → GPT-3/4, Claude, Llama…</em>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="s23-block" id="s23-b2" style="margin-bottom:14px;">
+        <p class="s23-hd">What this paper did not show</p>
+        <div class="s23-list">
+          <div class="s23-item"><i>01</i><span><b>Scaling.</b> Nothing here says the architecture keeps improving at 100× the size. Scaling laws are 2020.</span></div>
+          <div class="s23-item"><i>02</i><span><b>Language modelling or in-context learning.</b> Not tested. Not mentioned.</span></div>
+          <div class="s23-item"><i>03</i><span><b>Long context.</b> O(n²·d) is only cheap because n &lt; d here. §4 says so explicitly. The next decade was spent fighting that.</span></div>
+          <div class="s23-item"><i>04</i><span><b>Interpretability.</b> §4 hedges — heads "could yield" more interpretable models, shown with appendix examples, never measured.</span></div>
+          <div class="s23-item"><i>05</i><span><b>Durability of the details.</b> Post-LN → pre-LN. Sinusoids → RoPE. ReLU → SwiGLU. Multi-head → grouped-query. The skeleton survived; almost every organ was replaced.</span></div>
+        </div>
+      </div>
+
+      <div class="s23-block" id="s23-b3">
+        <div class="s23-take">
+          <b>THE TAKEAWAY</b>
+          <p class="no">Not: <s>"this paper invented attention"</s> — Bahdanau did, in 2014, and by 2017 it was standard equipment.</p>
+          <p>It showed that attention could be the <b>entire</b> sequence-processing mechanism — that once you have it, the recurrence underneath is not doing work worth its cost. The title is a claim about <b>sufficiency</b>, and that claim turned out to hold far beyond translation.</p>
+          <p class="vote">You wrote down an answer at the start of the session. Time to vote — is attention all you need?</p>
+        </div>
+      </div>
+
+      <div class="s1-controls">
+        <button class="step-btn" id="s23-prev">← Back</button>
+        <div class="step-dots" id="s23-dots"></div>
+        <button class="step-btn" id="s23-next">Next →</button>
+      </div>
+    </div>
+  </div>
+</section>
+</div>
+<script src="js/app.js"></script>
+<script>
+(function(){
+  const SLIDES = [
+    ['01-encoder-decoder','Encoder–Decoder Model'],['02-word-vectors','Word Vectors'],
+    ['03-contextual-meaning','Contextual Meaning'],['04-matrix-transformation','Matrix Transformation'],
+    ['05-transformer-architecture','Transformer Architecture'],['06-token-embeddings','Token Embeddings'],
+    ['07-positional-encoding','Positional Encoding'],['08-similarity-matrix','Similarity Matrix'],
+    ['09-attention-architecture','Attention Architecture'],['10-softmax-weights','Softmax Weights'],
+    ['11-weighted-sum','Weighted Sum'],['12-context-outcomes','Context Outcomes'],
+    ['13-query-key-value','Query, Key, Value'],['14-qk-transpose','QK Transpose'],
+    ['15-similarity','Similarity'],['16-softmax','Softmax'],['17-scaling','Scaling'],
+    ['18-attention-summary','Attention Summary'],['19-context-update','Context Update'],
+    ['20-vector-mixing','Mixing Value Vectors'],['21-multi-head','Multi-Head Attention'],
+    ['22-results','Results'],['23-significance','Why It Mattered']
+  ];
+  const here = location.pathname.split('/').pop().replace('.html','');
+  document.getElementById('deck-nav').innerHTML = SLIDES.map(([f,label],i)=>
+    `<a href="${f}.html"${f===here?' class="active" aria-current="page"':''} aria-label="Go to slide ${i+1}: ${label}"></a>`
+  ).join('');
+
+  const caps = [
+    '<b>Step 1 —</b> What the architecture turned into. Both descendants are Figure 1 with one half deleted.',
+    '<b>Step 2 —</b> And what this paper never actually demonstrated. Read these out; they are the honest scope.',
+    '<b>Step 3 —</b> So what was the contribution? Not the mechanism — the claim that the mechanism was enough on its own.'
+  ];
+  let step = 0;
+  const cap = document.getElementById('s23-cap');
+  const dots = document.getElementById('s23-dots');
+  for(let i=0;i<caps.length;i++) dots.appendChild(document.createElement('span'));
+  const blocks = [1,2,3].map(i=>document.getElementById('s23-b'+i));
+
+  function render(){
+    cap.innerHTML = caps[step];
+    [...dots.children].forEach((d,i)=>d.classList.toggle('on', i===step));
+    document.getElementById('s23-prev').disabled = step===0;
+    document.getElementById('s23-next').disabled = step===caps.length-1;
+    blocks.forEach((b,i)=> b.classList.toggle('show', i<=step));
+  }
+  document.getElementById('s23-prev').onclick=()=>{ if(step>0){step--;render();} };
+  document.getElementById('s23-next').onclick=()=>{ if(step<caps.length-1){step++;render();} };
+  render();
+})();
+</script>
+</body>
+</html>

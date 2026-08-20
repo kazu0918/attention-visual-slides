@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>What It Achieved — How Translation AI Works</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+<style>
+.s22-claims{ display:grid; grid-template-columns:repeat(3,1fr); gap:9px; margin-bottom:16px; }
+@media(max-width:760px){ .s22-claims{ grid-template-columns:1fr; } }
+.s22-claim{ background:var(--panel); border:1px solid var(--border); border-radius:10px;
+  padding:11px 12px; }
+.s22-claim b{ display:block; font-family:var(--font-mono); font-size:9.5px; letter-spacing:.13em;
+  text-transform:uppercase; color:var(--teal); margin-bottom:5px; }
+.s22-claim span{ font-size:12.5px; line-height:1.5; color:var(--text-dim); display:block; }
+.s22-claim em{ font-style:normal; color:var(--text); font-family:var(--font-mono); font-size:15px;
+  display:block; margin-bottom:3px; }
+
+.s22-tbl{ width:100%; border-collapse:collapse; font-size:13px; margin-bottom:6px; }
+.s22-tbl th{ font-family:var(--font-mono); font-size:9.5px; letter-spacing:.12em;
+  text-transform:uppercase; color:var(--text-faint); font-weight:500; text-align:right;
+  padding:0 9px 7px; border-bottom:1px solid var(--border); }
+.s22-tbl th:first-child{ text-align:left; }
+.s22-tbl td{ padding:10px 9px; border-bottom:1px solid var(--border); text-align:right;
+  font-family:var(--font-mono); color:var(--text-dim); }
+.s22-tbl td:first-child{ text-align:left; font-family:var(--font-disp); color:var(--text); }
+.s22-tbl tr{ cursor:pointer; transition:.15s; }
+.s22-tbl tr:hover td{ background:var(--panel); }
+.s22-tbl tr.on td{ background:var(--teal-dim); color:var(--text); }
+.s22-tbl tr.on td:first-child{ color:var(--teal); }
+.s22-tbl tr.prior td:first-child{ color:var(--text-dim); }
+.s22-tbl .best{ color:var(--teal); }
+.s22-cost{ display:inline-block; height:7px; border-radius:99px; background:var(--coral);
+  vertical-align:middle; margin-right:7px; min-width:2px; opacity:.75; }
+.s22-tbl tr.on .s22-cost{ background:var(--teal); opacity:1; }
+
+.s22-note{ background:var(--panel); border-left:3px solid var(--teal); border-radius:0 10px 10px 0;
+  padding:13px 15px; font-size:13px; line-height:1.62; color:var(--text-dim); min-height:74px; }
+.s22-note b{ color:var(--text); }
+.s22-note .warn{ color:var(--gold); }
+
+.s22-flag{ border:1px dashed rgba(255,138,101,.45); border-radius:10px; padding:11px 13px;
+  background:rgba(255,138,101,.05); font-size:12.5px; line-height:1.6; color:var(--text-dim);
+  margin-top:12px; }
+.s22-flag > b:first-child{ font-family:var(--font-mono); font-size:9.5px; letter-spacing:.13em;
+  color:var(--coral); display:block; margin-bottom:5px; }
+.s22-flag b{ color:var(--text); font-family:var(--font-mono); }
+</style>
+</head>
+<body class="single-slide-page" data-slide-index="22" data-slide-count="23" data-prev-page="21-multi-head.html" data-next-page="23-significance.html">
+<div class="deck-header"><span class="count" id="deck-count">22 / 23</span><span class="title-mini">How Translation AI Works</span></div>
+<nav class="deck-nav" id="deck-nav" aria-label="Slide navigation"></nav>
+<div class="deck" id="deck">
+<section class="slide" id="slide-results">
+  <div class="slide-inner">
+    <div>
+      <div class="eyebrow"><span class="num">22</span> WHAT IT ACHIEVED</div>
+      <h1 class="title">The Results,<br>Simplified</h1>
+      <p class="subtitle">WMT 2014 · newstest2014 · Table 2</p>
+      <p class="lead">Three claims in the abstract: <b>better quality</b>, <b>more parallelisable</b>, <b>significantly less time to train</b>. The first and third are measured here; the second is the architecture argument from Table 1.</p>
+      <p class="lead">The striking part is not the BLEU. It is the <b>cost column</b>. The base model beats every previously published model and ensemble on English–German while using roughly <b>1/23 of the compute</b> of the best of them.</p>
+      <div class="note">Click any row for what it means. The training cost bars are on a log scale — the real gaps are far larger than they look.</div>
+    </div>
+
+    <div class="stage-panel">
+      <div class="s22-claims">
+        <div class="s22-claim"><b>Quality</b><span><em>28.4</em>BLEU EN-DE, more than 2.0 above the best prior result including ensembles</span></div>
+        <div class="s22-claim"><b>Training time</b><span><em>12 h</em>base model, 8 P100 GPUs, one machine. Big model: 3.5 days</span></div>
+        <div class="s22-claim"><b>Architecture</b><span><em>0</em>recurrent or convolutional layers anywhere in the model</span></div>
+      </div>
+
+      <table class="s22-tbl" id="s22-tbl">
+        <thead><tr><th>Model</th><th>EN-DE</th><th>EN-FR</th><th>Training cost (FLOPs)</th></tr></thead>
+        <tbody></tbody>
+      </table>
+
+      <div class="s22-note" id="s22-note"></div>
+
+      <div class="s22-flag">
+        <b>ONE FOR THE ROOM</b>
+        The abstract and Table 2 both give <b>41.8</b> BLEU for the big model on English–French. Section 6.1 says <b>41.0</b>. Same model, same test set, still unreconciled in arXiv v7. Worth having someone find it live.
+      </div>
+    </div>
+  </div>
+</section>
+</div>
+<script src="js/app.js"></script>
+<script>
+(function(){
+  // deck-wide nav, generated so adding slides doesn't mean editing every file
+  const SLIDES = [
+    ['01-encoder-decoder','Encoder–Decoder Model'],['02-word-vectors','Word Vectors'],
+    ['03-contextual-meaning','Contextual Meaning'],['04-matrix-transformation','Matrix Transformation'],
+    ['05-transformer-architecture','Transformer Architecture'],['06-token-embeddings','Token Embeddings'],
+    ['07-positional-encoding','Positional Encoding'],['08-similarity-matrix','Similarity Matrix'],
+    ['09-attention-architecture','Attention Architecture'],['10-softmax-weights','Softmax Weights'],
+    ['11-weighted-sum','Weighted Sum'],['12-context-outcomes','Context Outcomes'],
+    ['13-query-key-value','Query, Key, Value'],['14-qk-transpose','QK Transpose'],
+    ['15-similarity','Similarity'],['16-softmax','Softmax'],['17-scaling','Scaling'],
+    ['18-attention-summary','Attention Summary'],['19-context-update','Context Update'],
+    ['20-vector-mixing','Mixing Value Vectors'],['21-multi-head','Multi-Head Attention'],
+    ['22-results','Results'],['23-significance','Why It Mattered']
+  ];
+  const here = location.pathname.split('/').pop().replace('.html','');
+  document.getElementById('deck-nav').innerHTML = SLIDES.map(([f,label],i)=>
+    `<a href="${f}.html"${f===here?' class="active" aria-current="page"':''} aria-label="Go to slide ${i+1}: ${label}"></a>`
+  ).join('');
+
+  const ROWS = [
+    { name:'Best prior published<br><small style="color:var(--text-faint)">ConvS2S Ensemble</small>',
+      de:'26.36', fr:'41.29', cost:7.7e19, costTxt:'7.7 × 10¹⁹', prior:true,
+      note:'<b>The bar to clear.</b> The strongest previously published result on English–German was an <i>ensemble</i> of convolutional seq2seq models — several networks averaged together. GNMT + RL Ensemble reached 26.30 at 1.8 × 10²⁰ FLOPs, over fifty times the base Transformer\'s compute.' },
+    { name:'Transformer (base)', de:'27.3', fr:'38.1', cost:3.3e18, costTxt:'3.3 × 10¹⁸',
+      note:'<b>The efficiency result.</b> 65M parameters, 100,000 steps, twelve hours on eight P100s — and it still beats every previously published model <i>and ensemble</i> on English–German. <span class="warn">Be precise here: on English–French its 38.1 does <b>not</b> beat the prior art (ConvS2S 40.46). The "surpasses all" sentence in §6.1 is about EN-DE.</span>' },
+    { name:'Transformer (big)', de:'28.4', fr:'41.8', cost:2.3e19, costTxt:'2.3 × 10¹⁹', best:true,
+      note:'<b>The headline.</b> 213M parameters, 300,000 steps, 3.5 days on eight P100s. New state of the art on both tasks, at roughly a third of the compute of the ensemble it beat on EN-DE. Both numbers used beam size 4, length penalty α = 0.6, and averaging over the last 20 checkpoints — which is an ensemble in all but name, and worth saying out loud.' }
+  ];
+
+  const tbody = document.querySelector('#s22-tbl tbody');
+  const note = document.getElementById('s22-note');
+  const maxLog = Math.log10(7.7e19);
+  const minLog = Math.log10(3.3e18);
+
+  ROWS.forEach((r,i)=>{
+    const tr = document.createElement('tr');
+    if(r.prior) tr.classList.add('prior');
+    const w = 6 + ((Math.log10(r.cost) - minLog) / (maxLog - minLog)) * 90;
+    tr.innerHTML = `<td>${r.name}</td>
+      <td class="${r.best?'best':''}">${r.de}</td>
+      <td>${r.fr}</td>
+      <td><span class="s22-cost" style="width:${w.toFixed(0)}px"></span>${r.costTxt}</td>`;
+    tr.onclick = ()=>{
+      [...tbody.children].forEach(x=>x.classList.remove('on'));
+      tr.classList.add('on');
+      note.innerHTML = r.note;
+    };
+    tbody.appendChild(tr);
+  });
+  tbody.children[1].click();
+})();
+</script>
+</body>
+</html>
