@@ -86,7 +86,9 @@
     width:26px; height:1px; background:var(--teal);
     display:inline-block;
   }
-  .eyebrow .num{ font-weight:700; }
+  /* Slide numbering lives in the deck header and Jump To navigation.
+     Keep eyebrow topic labels, but hide their stale inline slide numbers. */
+  .eyebrow .num{ display:none; }
 
   h1.title{
     font-family:var(--font-jp);
