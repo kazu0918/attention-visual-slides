@@ -5,10 +5,10 @@ The session now runs across three decks, in this order:
 | Deck | Slides | Covers |
 |---|---|---|
 | `slides/00-before-transformers/` | 4 | Why RNNs, what was wrong with them, what 2014 already fixed |
-| `slides/01-self-attention/` | 29 | Embeddings, positional encoding, scaled dot-product attention, multi-head |
+| `slides/01-self-attention/` | 28 | Embeddings, positional encoding, scaled dot-product attention, multi-head |
 | `slides/99-quiz/` | — | Interactive quiz (see that folder's README for modes) |
 
-The chain is wired end to end: `00/01` → … → `00/04` → `01/01` → … → `01/29` → quiz.
+The chain is wired end to end: `00/01` → … → `00/04` → `01/01` → … → `01/28` → quiz.
 Open `index.html` at the repo root to start from the beginning.
 
 ---
@@ -87,7 +87,7 @@ discussion later.
    deck's temporary single-head illustration, not the paper's per-head value.
 
 The deck explains one scaled dot-product attention operation (slides 8–22) and
-then multi-head attention (slides 23–29), which is what slides 9 and 10 promise.
+then multi-head attention (slides 23–28), which is what slides 9 and 10 promise.
 **Masked decoder attention is introduced on slide 19; encoder–decoder
 cross-attention is still not in the deck** — run that off Figure 1 in the paper
 PDF rather than skipping it.
@@ -520,11 +520,10 @@ Conclude the current deck with:
 > concatenates the head outputs, and projects them back into the model
 > dimension.
 
-## Slide 23 — Multi-head attention overview
+## Slide 23 — Introducing multi-head attention
 
-**Main idea:** Everything so far was one head. The paper runs eight of them on
-the same sentence, each with its own projections, then stitches the results
-back together.
+**Main idea:** Everything so far was one head. Multi-head attention repeats the
+same operation through several learned projections, then combines the results.
 
 **What to say:**
 
@@ -534,14 +533,8 @@ back together.
 > 512 dimensions down to 64. Same sentence, eight different questions asked of
 > it.
 
-Step through the five stages. The two that matter most:
-
-- **Step 1 (split).** 512 does not become 8 × 512. It becomes 8 × 64. The heads
-  divide the existing width between them, which is why the paper can say the
-  total cost is similar to one full-width head.
-- **Step 3 (parallel).** Click through several heads. Head 2 (previous-token)
-  and head 4 (content) are the clearest contrast — one is driven purely by
-  position, the other purely by meaning.
+Use slide 24's five-change summary to establish the complete pipeline. Slides
+25–28 then unpack projection, per-head attention, concatenation, and W^O.
 
 **Say the paper's actual reason for multi-head**, because it is better than the
 usual folk version:
@@ -551,23 +544,9 @@ usual folk version:
 > information from different representation subspaces at different positions.
 > With a single attention head, averaging inhibits this."
 
-**Be honest about the head patterns.** They are illustrative, not measured from
-a trained model — the slide says so, and you should say so too. The paper only
-claims heads "appear to exhibit behavior related to the syntactic and semantic
-structure" (§4), supported by appendix examples rather than any metric. Later
-work (head pruning, "Attention is not Explanation") pushed back hard on the
-interpretability story. This is a good place to plant that flag for the critique
-discussion later.
-
-**The ablation box is the payoff.** Cover it with your hand, ask the room to
-predict what happens when you go from 8 heads to 1, then reveal: 25.8 → 24.9,
-so about 0.9 BLEU. Then ask what happens at 32 heads. Most people say "better".
-It is 25.4 — worse. Quality drops off in both directions, and h=16 ties h=8, so
-eight is a plateau rather than a magic number.
-
-**Next step:** slides 24–29 retain the existing detailed multi-head walkthrough:
+**Next step:** slides 23–28 use the existing detailed multi-head walkthrough:
 the five conceptual changes, branching into learned projections, per-head
-attention, concatenation, and the output projection. Slide 29 then goes to the
+attention, concatenation, and the output projection. Slide 28 then goes to the
 quiz in `slides/99-quiz/`.
 
 ## Suggested timing
@@ -577,7 +556,7 @@ quiz in `slides/99-quiz/`.
 - Slides 5–10: 8–10 minutes
 - Slides 11–18: 15–20 minutes
 - Slides 19–22: 8–12 minutes
-- Slides 23–29 (multi-head): 12–18 minutes, including the ablation prediction
+- Slides 23–28 (multi-head): 10–15 minutes
 - Questions during the section: 5 minutes
 
 Total: roughly 70–90 minutes across both decks. For a shorter path, skip slide 4, shorten the
