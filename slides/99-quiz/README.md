@@ -7,27 +7,21 @@ to system fonts if not). Open `index.html` in a browser.
 Everything lives in one file so it can be opened straight off disk during a
 session, or served with the rest of the deck.
 
-## One set
+## One curated set
 
-56 questions, the same set for everyone - no difficulty tiers, no separate
-presenter and audience versions. Two controls shape a run:
+40 questions, in a fixed presenter-friendly order, with the same set for
+everyone. The only start-screen control is topic filtering:
 
-- **Topics** - toggle to drill a single area.
-- **How long** - Lightning (10), Short (25), or Everything (56). A capped run
-  samples round-robin across topics, so a ten-question run still spans the whole
-  paper rather than stopping after topic three.
+- **Topics** - toggle to drill a single area or keep the full 40-question run.
 
-That covers both jobs off one bank: Lightning for a live round at the end of a
-session, Everything for prep the night before.
+This version is aimed at going through the paper together live rather than
+running variable-length solo practice modes.
 
-Questions are ordered easy-to-hard within each topic, but difficulty is not
-shown - it shapes the order, it isn't a label on anyone. Shuffle is off by
-default so a run is repeatable; turn it on for a second pass.
+Questions are ordered by topic, then easier-to-harder within each topic.
+Difficulty is not shown - it shapes the flow, it is not a label on anyone.
 
 ## Behaviour worth knowing
 
-- **Answer options are shuffled on every render.** Position carries no signal,
-  and the same question looks different on a re-run.
 - Every answer carries an explanation, most carry a `Watch out:` note for the
   thing people actually get wrong, and all carry the paper section they come from.
 - Questions marked `beyond paper` are not in Vaswani et al. - they are the
@@ -74,10 +68,10 @@ breakdown pick it up automatically.
 
 ## Coverage
 
-56 questions across: Before Transformers (4), Attention core & scaling (8),
-Multi-head (5), Positional encoding (4), Masking & cross-attention (5),
-FFN/residual/norm (5), Full architecture (4), Complexity - Table 1 (4),
-Training setup (4), Results & ablations (6), Critique & legacy (7).
+40 curated questions across: Before Transformers (4), Attention core & scaling
+(6), Multi-head (4), Positional encoding (4), Masking & cross-attention (4),
+FFN/residual/norm (4), Full architecture (3), Complexity - Table 1 (3),
+Training setup (3), Results & ablations (3), Critique & legacy (2).
 
 Every factual answer was checked against the paper text. Twelve pure-trivia
 questions were cut in a later pass (batch token counts, PE wavelength range,

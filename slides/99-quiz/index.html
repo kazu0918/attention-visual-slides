@@ -238,9 +238,10 @@ code,.mono{font-family:var(--font-mono);}
   </nav>
   <div class="eyebrow"><span class="num">POTM 01</span> UWA AI CLUB · PAPER OF THE MONTH</div>
   <h1 class="title">Attention Is All You Need - Quiz</h1>
-  <p class="lead">Vaswani et al., NeurIPS 2017. Every answer is checked against the paper, with the
-  section it comes from. A handful of questions go past the paper into things people usually get
-  asked afterwards. Those are marked <span class="pill beyond" style="display:inline-block">beyond paper</span>.</p>
+  <p class="lead">Vaswani et al., NeurIPS 2017. This is a curated 40-question run for going through
+  the paper together live. Every answer is checked against the paper, with the section it comes
+  from. A handful of questions go past the paper into things people usually get asked afterwards.
+  Those are marked <span class="pill beyond" style="display:inline-block">beyond paper</span>.</p>
 
   <div class="section-label">Topics <span style="text-transform:none;letter-spacing:0;">(click to toggle)</span></div>
   <div class="topics" id="topic-list"></div>
@@ -248,7 +249,6 @@ code,.mono{font-family:var(--font-mono);}
   <div class="spacer"></div>
   <div class="row">
     <button class="btn primary" id="btn-start">Start →</button>
-    <button class="btn ghost" id="btn-shuffle">Shuffle order: <b id="shuf-state">off</b></button>
     <span class="mono" style="font-size:12px;color:var(--text-faint);" id="q-count">-</span>
   </div>
   <p class="lead" style="margin-top:22px;font-size:13px;">
@@ -314,6 +314,20 @@ const TOPICS = {
   train:    'Training setup',
   results:  'Results & ablations',
   critique: 'Critique & legacy'
+};
+
+const PRESENTER_TOPIC_LIMITS = {
+  before:4,
+  core:6,
+  heads:4,
+  pos:4,
+  wiring:4,
+  block:4,
+  arch:3,
+  cost:3,
+  train:3,
+  results:3,
+  critique:2
 };
 
 const QUESTIONS = [
@@ -1273,21 +1287,30 @@ const QUESTIONS = [
    ENGINE
 ========================================================= */
 const $ = id => document.getElementById(id);
+function presenterPriority(a,b){
+  if(!!b.aud !== !!a.aud) return Number(!!b.aud) - Number(!!a.aud);
+  if(!!a.beyond !== !!b.beyond) return Number(!!a.beyond) - Number(!!b.beyond);
+  if(a.d !== b.d) return a.d - b.d;
+  return 0;
+}
+const CURATED_QUESTIONS = Object.keys(TOPICS).flatMap(topic=>{
+  const limit = PRESENTER_TOPIC_LIMITS[topic] ?? Infinity;
+  return QUESTIONS
+    .filter(q=>q.topic===topic)
+    .sort(presenterPriority)
+    .slice(0, limit);
+});
 const state = {
-  topics:new Set(Object.keys(TOPICS)), shuffle:false,
+  topics:new Set(Object.keys(TOPICS)),
   queue:[], i:0, answered:false, picked:null, order:[], results:[], hintShown:false
 };
 
 function poolFor(topics){
-  return QUESTIONS.filter(q=>topics.has(q.topic));
+  return CURATED_QUESTIONS.filter(q=>topics.has(q.topic));
 }
 function quizOrder(list){
   const tOrder = Object.keys(TOPICS);
   const arr = [...list];
-  if(state.shuffle){
-    for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]];}
-    return arr;
-  }
   return arr.sort((a,b)=>{
     const t = tOrder.indexOf(a.topic)-tOrder.indexOf(b.topic);
     if(t) return t;
@@ -1299,7 +1322,7 @@ function quizOrder(list){
 function renderTopics(){
   const el = $('topic-list'); el.innerHTML='';
   Object.entries(TOPICS).forEach(([k,name])=>{
-    const n = QUESTIONS.filter(q=>q.topic===k).length;
+    const n = CURATED_QUESTIONS.filter(q=>q.topic===k).length;
     const b = document.createElement('button');
     b.className = 'topic-chip' + (state.topics.has(k)?' on':'');
     b.innerHTML = `${name} <span class="n">${n}</span>`;
@@ -1316,7 +1339,6 @@ function updateCounts(){
   $('q-count').textContent = n + ' question' + (n===1?'':'s') + ' selected';
   $('btn-start').disabled = n===0;
 }
-$('btn-shuffle').onclick = ()=>{ state.shuffle=!state.shuffle; $('shuf-state').textContent = state.shuffle?'on':'off'; };
 
 /* ---------- run control ---------- */
 function begin(list){
