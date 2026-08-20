@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Only the Last Row Predicts the Next Token — How Translation AI Works</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="single-slide-page" data-slide-index="30" data-slide-count="32" data-prev-page="28-translation-generation.html" data-next-page="22-results.html">
+<div class="deck-header"><span class="count" id="deck-count">30 / 32</span><span class="title-mini">How Translation AI Works</span></div>
+<nav class="deck-nav" id="deck-nav" aria-label="Slide navigation"></nav>
+<div class="deck" id="deck"><section class="slide" id="slide-vocabulary-projection"><div class="slide-inner s29-layout">
+  <div class="s29-copy">
+    <div class="eyebrow"><span class="num">30</span> NEXT-TOKEN PREDICTION</div>
+    <h1 class="title">Only the Last Row Predicts the Next Token</h1>
+    <p class="subtitle">The FFN transforms each row — it does not merge the sequence</p>
+    <p class="lead">After Multi-Head Attention, there is still <b>one 512-dimensional row per token position</b>.</p>
+    <p class="lead">To generate the next token, the model selects the <b>last row</b> and compares it with every vocabulary item.</p>
+    <div class="s29-rule"><b>4 × 512 stays 4 × 512</b><span>Then select the last row → 1 × 512</span></div>
+  </div>
+
+  <div class="stage-panel s29-panel" aria-label="Matrix flow from decoder tokens to the next-token probability distribution">
+    <div class="s29-prompt"><span>DECODER INPUT</span><b>I</b><b>ate</b><b>a</b><b>juicy</b></div>
+
+    <div class="s29-flow">
+      <div class="s29-matrix s29-hidden">
+        <header><span>MULTI-HEAD OUTPUT</span><b>4 × 512</b></header>
+        <div class="s29-rows"><i data-token="I"></i><i data-token="ate"></i><i data-token="a"></i><i data-token="juicy"></i></div>
+        <small>one row per token position</small>
+      </div>
+
+      <div class="s29-arrow"><b>→</b><span>FFN + later<br>decoder layers</span></div>
+
+      <div class="s29-matrix s29-final">
+        <header><span>FINAL HIDDEN STATES</span><b>4 × 512</b></header>
+        <div class="s29-rows"><i data-token="I"></i><i data-token="ate"></i><i data-token="a"></i><i class="selected" data-token="juicy"></i></div>
+        <small>rows are transformed, not collapsed</small>
+      </div>
+    </div>
+
+    <div class="s29-select"><span>SELECT THE LAST POSITION</span><b>h<sub>juicy</sub> = 1 × 512</b><small>This row summarizes “I ate a juicy” for the next prediction.</small></div>
+
+    <div class="s29-projection">
+      <div class="s29-vector"><span>LAST HIDDEN VECTOR</span><b>1 × 512</b></div>
+      <strong>×</strong>
+      <div class="s29-vocab-matrix"><span>VOCABULARY PROJECTION W<sub>vocab</sub></span><b>512 × 37,800</b></div>
+      <strong>=</strong>
+      <div class="s29-logits"><span>VOCABULARY SCORES</span><b>1 × 37,800</b></div>
+    </div>
+
+    <div class="s29-softmax">
+      <span>SOFTMAX</span>
+      <div><i style="--p:88%"><b>apple</b><em>0.62</em></i><i style="--p:32%"><b>meal</b><em>0.14</em></i><i style="--p:17%"><b>sandwich</b><em>0.07</em></i></div>
+      <strong>→ apple</strong>
+    </div>
+  </div>
+</div></section></div>
+<script src="js/app.js"></script>
+</body>
+</html>

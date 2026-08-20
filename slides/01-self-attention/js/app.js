@@ -182,6 +182,8 @@ function blendedPosition(key){
         ['slides/01-self-attention/25-why-learn-projections.html','Why learn projections'],
         ['slides/01-self-attention/26-attention-per-head.html','Attention in every head'],
         ['slides/01-self-attention/27-concat-output-projection.html','Concat and output projection'],
+        ['slides/01-self-attention/28-translation-generation.html','Translation generation'],
+        ['slides/01-self-attention/29-vocabulary-projection.html','From hidden state to next token'],
       ]
     },
     {

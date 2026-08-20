@@ -5,10 +5,10 @@ The session now runs across three decks, in this order:
 | Deck | Slides | Covers |
 |---|---|---|
 | `slides/00-before-transformers/` | 4 | Why RNNs, what was wrong with them, what 2014 already fixed |
-| `slides/01-self-attention/` | 30 | Embeddings, positional encoding, scaled dot-product attention, multi-head, results, significance |
+| `slides/01-self-attention/` | 32 | Embeddings, positional encoding, scaled dot-product attention, multi-head, translation generation, vocabulary projection, results, significance |
 | `slides/99-quiz/` | - | Interactive quiz (see that folder's README for modes) |
 
-The chain is wired end to end: `00/01` → … → `00/04` → `01/01` → … → `01/30` → quiz.
+The chain is wired end to end: `00/01` → … → `00/04` → `01/01` → … → `01/32` → quiz.
 Open `index.html` at the repo root to start from the beginning.
 
 ---
@@ -546,8 +546,47 @@ usual folk version:
 
 **Next step:** slides 23–28 use the existing detailed multi-head walkthrough:
 the five conceptual changes, branching into learned projections, per-head
-attention, concatenation, and the output projection. Slide 28 then goes to the
-quiz in `slides/99-quiz/`.
+attention, concatenation, and the output projection.
+
+## Slide 29 — Read the source once, generate the translation token by token
+
+**Main idea:** In translation, the encoder processes the complete source
+sentence together, while the decoder predicts the Japanese translation one
+token at a time.
+
+**What to say:**
+
+> The encoder receives “I love cats.” all at once. Self-Attention lets every
+> source token use the other source tokens, producing contextualized vectors.
+> The decoder can refer to this representation of the whole source sentence.
+> It starts with BOS, predicts 私, then uses BOS 私 to predict は, and continues
+> until EOS. In short: read the whole source, then write the translation one
+> token at a time.
+
+Clarify that during training the shifted correct target sequence allows all
+target positions to be trained in parallel under a causal mask. During actual
+translation, the model feeds back its own generated tokens step by step.
+
+## Slide 30 — Turn the last hidden row into the next token
+
+**Main idea:** The FFN does not collapse the sequence into one vector. A
+four-token input remains a 4 × 512 matrix, with one row per position. During
+generation, only the final row is selected for the next-token prediction.
+
+**What to say:**
+
+> “I ate a juicy” produces four hidden-state rows. Multi-Head Attention, the
+> FFN, and later decoder layers update every row while preserving the 4 × 512
+> shape. To predict what follows “juicy,” we select its final 1 × 512 row. The
+> vocabulary projection multiplies that row by a 512 × 37,800 matrix, producing
+> one score for every vocabulary item. Softmax turns those scores into
+> probabilities, and “apple” is selected here.
+
+Emphasize that the 512 × 37,800 matrix is the vocabulary projection at the end
+of the decoder, not a matrix inside Multi-Head Attention.
+
+Slide 30 then leads into the results and significance slides before the quiz in
+`slides/99-quiz/`.
 
 ## Suggested timing
 
@@ -557,6 +596,8 @@ quiz in `slides/99-quiz/`.
 - Slides 11–18: 15–20 minutes
 - Slides 19–22: 8–12 minutes
 - Slides 23–28 (multi-head): 10–15 minutes
+- Slide 29 (encoder to translation generation): 2–3 minutes
+- Slide 30 (hidden state to next token): 2–3 minutes
 - Questions during the section: 5 minutes
 
 Total: roughly 70–90 minutes across both decks. For a shorter path, skip slide 4, shorten the

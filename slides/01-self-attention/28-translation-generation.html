@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Read the Source at Once, Generate the Translation One Token at a Time — How Translation AI Works</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="single-slide-page" data-slide-index="29" data-slide-count="32" data-prev-page="27-concat-output-projection.html" data-next-page="29-vocabulary-projection.html">
+<div class="deck-header"><span class="count" id="deck-count">29 / 32</span><span class="title-mini">How Translation AI Works</span></div>
+<nav class="deck-nav" id="deck-nav" aria-label="Slide navigation"></nav>
+<div class="deck" id="deck"><section class="slide" id="slide-translation-generation"><div class="slide-inner s28-layout">
+  <div class="s28-copy">
+    <div class="eyebrow"><span class="num">29</span> ENCODER → DECODER</div>
+    <h1 class="title">Read the Source at Once.<br>Generate One Token at a Time.</h1>
+    <p class="subtitle">English → Japanese translation</p>
+    <p class="lead">The <b>Encoder</b> processes the complete source sentence together. Attention produces vectors that reflect the context.</p>
+    <p class="lead">The <b>Decoder</b> uses those vectors and the translation so far to predict the next token.</p>
+    <div class="s28-summary">Read the whole source, then write the translation one token at a time.</div>
+  </div>
+
+  <div class="stage-panel s28-panel" aria-label="Encoder and Decoder processing for English-to-Japanese translation">
+    <div class="s28-source">
+      <span>ENGLISH SOURCE · INPUT ALL AT ONCE</span>
+      <div><b>I</b><b>love</b><b>cats</b><b>.</b></div>
+    </div>
+    <div class="s28-down"><span>↓</span><small>Process all source tokens together</small></div>
+    <div class="s28-encoder">
+      <header><b>ENCODER</b><span>Self-Attention</span></header>
+      <div class="s28-token-links" aria-hidden="true">
+        <i></i><i></i><i></i><i></i>
+      </div>
+      <p>Connect relationships between words and produce<br><strong>context-aware token vectors</strong></p>
+    </div>
+    <div class="s28-bridge"><span>CONTEXT VECTORS</span><b>↓</b><small>Attend to the full source</small></div>
+    <div class="s28-decoder">
+      <header><b>DECODER</b><span>Next-token prediction</span></header>
+      <div class="s28-steps">
+        <div><code>&lt;BOS&gt;</code><span>→</span><strong>私</strong></div>
+        <div><code>&lt;BOS&gt; 私</code><span>→</span><strong>は</strong></div>
+        <div><code>&lt;BOS&gt; 私 は</code><span>→</span><strong>猫</strong></div>
+        <div><code>&lt;BOS&gt; 私 は 猫</code><span>→</span><strong>が</strong></div>
+        <div><code>&lt;BOS&gt; 私 は 猫 が</code><span>→</span><strong>好き</strong></div>
+      </div>
+    </div>
+    <div class="s28-output"><span>JAPANESE OUTPUT · ONE TOKEN AT A TIME</span><b>私 → は → 猫 → が → 好き → です → 。→ &lt;EOS&gt;</b></div>
+  </div>
+</div></section></div>
+<script src="js/app.js"></script>
+</body>
+</html>
