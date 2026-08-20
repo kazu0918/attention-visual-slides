@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>How Far Must the Signal Travel — Before the Transformer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../01-self-attention/css/styles.css">
+<style>
+.b3-sent{ display:flex; flex-wrap:wrap; gap:5px; margin-bottom:16px; }
+.b3-w{ font-family:var(--font-mono); font-size:12.5px; padding:7px 10px; border-radius:7px;
+  background:var(--panel); border:1px solid var(--border); color:var(--text-dim);
+  cursor:pointer; transition:.15s; }
+.b3-w:hover{ border-color:var(--border-strong); color:var(--text); }
+.b3-w.a{ background:var(--coral-dim); border-color:var(--coral); color:var(--coral); }
+.b3-w.b{ background:var(--purple-dim); border-color:var(--purple); color:var(--purple); }
+.b3-w.mid{ background:rgba(255,138,101,.07); border-color:rgba(255,138,101,.3); }
+
+.b3-lane{ background:var(--panel); border:1px solid var(--border); border-radius:10px;
+  padding:13px 15px; margin-bottom:11px; }
+.b3-lane h4{ margin:0 0 9px; font-family:var(--font-mono); font-size:10.5px; letter-spacing:.14em;
+  text-transform:uppercase; font-weight:500; display:flex; justify-content:space-between; }
+.b3-lane.rnn h4{ color:var(--coral); }
+.b3-lane.att h4{ color:var(--teal); }
+.b3-lane h4 em{ font-style:normal; color:var(--text-faint); letter-spacing:0; text-transform:none; }
+.b3-hops{ display:flex; align-items:center; gap:2px; flex-wrap:wrap; margin-bottom:8px; }
+.b3-hop{ height:9px; width:9px; border-radius:50%; flex:0 0 auto; }
+.b3-lane.rnn .b3-hop{ background:var(--coral); opacity:.75; }
+.b3-lane.att .b3-hop{ background:var(--teal); }
+.b3-dash{ height:2px; flex:0 0 12px; }
+.b3-lane.rnn .b3-dash{ background:rgba(255,138,101,.4); }
+.b3-lane.att .b3-dash{ background:rgba(79,209,197,.5); }
+.b3-count{ font-family:var(--font-mono); font-size:20px; }
+.b3-lane.rnn .b3-count{ color:var(--coral); }
+.b3-lane.att .b3-count{ color:var(--teal); }
+.b3-lane p{ margin:0; font-size:12.5px; line-height:1.6; color:var(--text-dim); }
+
+.b3-hint{ font-size:12.5px; color:var(--text-faint); font-style:italic; margin-bottom:14px; }
+.b3-quote{ font-size:12.5px; line-height:1.62; color:var(--text-faint); font-style:italic;
+  border-left:2px solid var(--border-strong); padding-left:11px; }
+</style>
+</head>
+<body class="single-slide-page" data-slide-index="3" data-slide-count="4" data-prev-page="02-sequential.html" data-next-page="04-what-2014-fixed.html">
+<div class="deck-header"><span class="count" id="deck-count">03 / 04</span><span class="title-mini">Before the Transformer</span></div>
+<nav class="deck-nav" id="deck-nav" aria-label="Slide navigation">
+  <a href="01-recurrence.html" aria-label="Go to slide 1: Recurrence"></a>
+  <a href="02-sequential.html" aria-label="Go to slide 2: Sequential Computation"></a>
+  <a href="03-path-length.html" class="active" aria-current="page" aria-label="Go to slide 3: Path Length"></a>
+  <a href="04-what-2014-fixed.html" aria-label="Go to slide 4: What 2014 Fixed"></a>
+</nav>
+<div class="deck" id="deck">
+<section class="slide" id="slide-path">
+  <div class="slide-inner">
+    <div>
+      <div class="eyebrow"><span class="num">03</span> PROBLEM TWO</div>
+      <h1 class="title">How Far Must<br>the Signal Travel?</h1>
+      <p class="subtitle">Long-range dependencies and path length</p>
+      <p class="lead">To connect two words, an RNN has to push information through <b>every step in between</b>. Twenty words apart means twenty transformations, each one a chance for the signal to decay or be overwritten.</p>
+      <p class="lead">Attention connects any two positions in <b>one</b> operation, whatever the distance. That is the second column of Table 1, and it is a separate argument from parallelism — don't merge them when you present.</p>
+      <div class="note">LSTM gates <i>mitigate</i> this; they don't remove it. The path is still there, just better insulated. §4: <i>"The shorter these paths between any combination of positions in the input and output sequences, the easier it is to learn long-range dependencies."</i></div>
+    </div>
+
+    <div class="stage-panel">
+      <div class="stage-caption">Click <b>two words</b> to connect them. The grammar links "keys" to "were" across the whole sentence.</div>
+      <p class="b3-hint" id="b3-hint">Try the two highlighted words first — that agreement is exactly the kind of dependency that breaks at distance.</p>
+
+      <div class="b3-sent" id="b3-sent"></div>
+
+      <div class="b3-lane rnn">
+        <h4><span>Recurrent</span><em>Table 1 · O(n)</em></h4>
+        <div class="b3-hops" id="b3-rnn-hops"></div>
+        <p><span class="b3-count" id="b3-rnn-n">—</span> &nbsp;hops. Information must survive every intermediate step.</p>
+      </div>
+
+      <div class="b3-lane att">
+        <h4><span>Self-attention</span><em>Table 1 · O(1)</em></h4>
+        <div class="b3-hops" id="b3-att-hops"></div>
+        <p><span class="b3-count" id="b3-att-n">—</span> &nbsp;hop. One dot product, regardless of distance.</p>
+      </div>
+
+      <div class="b3-quote">This is why the paper's Table 1 has a "Maximum Path Length" column at all. Recurrent: O(n). Convolutional: O(log<sub>k</sub> n) with dilation. Self-attention: O(1).</div>
+    </div>
+  </div>
+</section>
+</div>
+<script src="../01-self-attention/js/app.js"></script>
+<script>
+(function(){
+  const WORDS = ['The','keys','to','the','cabinet','in','the','hallway','cupboard','downstairs','were','rusty'];
+  const DEFAULT_A = 1, DEFAULT_B = 10;   // "keys" ... "were"
+  let a = DEFAULT_A, b = DEFAULT_B;
+
+  const sent = document.getElementById('b3-sent');
+  const rnnHops = document.getElementById('b3-rnn-hops');
+  const attHops = document.getElementById('b3-att-hops');
+  const rnnN = document.getElementById('b3-rnn-n');
+  const attN = document.getElementById('b3-att-n');
+  const hint = document.getElementById('b3-hint');
+
+  WORDS.forEach((w,i)=>{
+    const el = document.createElement('button');
+    el.className='b3-w'; el.dataset.i=i; el.textContent=w;
+    el.onclick = ()=>{
+      if(a===null){ a=i; b=null; }
+      else if(b===null){ if(i===a) return; b=i; }
+      else { a=i; b=null; }
+      render();
+    };
+    sent.appendChild(el);
+  });
+
+  function render(){
+    const lo = (a!==null && b!==null) ? Math.min(a,b) : null;
+    const hi = (a!==null && b!==null) ? Math.max(a,b) : null;
+
+    [...sent.children].forEach((el,i)=>{
+      el.className = 'b3-w';
+      if(i===a) el.classList.add('a');
+      else if(i===b) el.classList.add('b');
+      else if(lo!==null && i>lo && i<hi) el.classList.add('mid');
+    });
+
+    rnnHops.innerHTML=''; attHops.innerHTML='';
+    if(lo===null){
+      rnnN.textContent='—'; attN.textContent='—';
+      hint.textContent = 'Pick a second word.';
+      return;
+    }
+    const d = hi - lo;
+    hint.textContent = `“${WORDS[lo]}” → “${WORDS[hi]}” — ${d} position${d===1?'':'s'} apart.`;
+
+    for(let i=0;i<d;i++){
+      const dot=document.createElement('span'); dot.className='b3-hop'; rnnHops.appendChild(dot);
+      if(i<d-1){ const dash=document.createElement('span'); dash.className='b3-dash'; rnnHops.appendChild(dash); }
+    }
+    const s=document.createElement('span'); s.className='b3-hop'; attHops.appendChild(s);
+    const dl=document.createElement('span'); dl.className='b3-dash'; dl.style.flexBasis='40px'; attHops.appendChild(dl);
+    const e=document.createElement('span'); e.className='b3-hop'; attHops.appendChild(e);
+
+    rnnN.textContent = d;
+    attN.textContent = 1;
+  }
+  render();
+})();
+</script>
+
+<script>
+document.querySelectorAll('.deck-pager-identity span').forEach(function(s){
+  s.textContent = 'Before the Transformer';
+});
+</script>
+</body>
+</html>

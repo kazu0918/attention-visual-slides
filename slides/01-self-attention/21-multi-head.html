@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Multi-Head Attention — How Translation AI Works</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+<style>
+/* ---- scoped to this slide only (s21-) ---- */
+.s21-stage{ display:flex; flex-direction:column; gap:14px; }
+
+.s21-width{ display:flex; align-items:center; gap:10px; }
+.s21-width-label{ font-family:var(--font-mono); font-size:10px; letter-spacing:.12em;
+  color:var(--text-faint); min-width:58px; }
+.s21-bar{ flex:1; display:flex; height:34px; border-radius:8px; overflow:hidden;
+  border:1px solid var(--border-strong); background:var(--panel-2); }
+.s21-seg{ flex:1; display:flex; align-items:center; justify-content:center;
+  font-family:var(--font-mono); font-size:10px; color:var(--text-faint);
+  border-right:1px solid var(--bg); transition:.35s; background:var(--panel-2); }
+.s21-seg:last-child{ border-right:none; }
+.s21-bar.split .s21-seg{ background:var(--panel); color:var(--text-dim); }
+.s21-bar.split .s21-seg.on{ background:var(--teal-dim); color:var(--teal); }
+.s21-bar.whole .s21-seg{ border-right-color:transparent; }
+.s21-dims{ font-family:var(--font-mono); font-size:11px; color:var(--text-faint);
+  text-align:right; min-width:72px; }
+
+.s21-heads{ display:flex; gap:6px; flex-wrap:wrap; }
+.s21-head-chip{ flex:1; min-width:52px; background:var(--panel); border:1px solid var(--border);
+  border-radius:8px; padding:7px 4px; cursor:pointer; transition:.15s; text-align:center;
+  font-family:var(--font-mono); font-size:10px; color:var(--text-faint); }
+.s21-head-chip:hover{ border-color:var(--border-strong); color:var(--text-dim); }
+.s21-head-chip.on{ background:var(--teal-dim); border-color:var(--teal); color:var(--teal); }
+.s21-head-chip b{ display:block; font-size:13px; font-weight:600; margin-bottom:1px; }
+
+.s21-panel{ display:grid; grid-template-columns: auto 1fr; gap:16px; align-items:start;
+  background:var(--panel); border:1px solid var(--border); border-radius:12px; padding:14px; }
+@media(max-width:760px){ .s21-panel{ grid-template-columns:1fr; } }
+
+.s21-grid{ display:grid; grid-template-columns:auto repeat(5, 30px); gap:3px;
+  font-family:var(--font-mono); font-size:9px; }
+.s21-grid .hdr{ color:var(--text-faint); height:42px; font-size:8.5px;
+  display:flex; align-items:flex-end; justify-content:center; overflow:visible; }
+.s21-grid .hdr span{ display:block; white-space:nowrap; transform:rotate(-52deg);
+  transform-origin:center bottom; }
+.s21-grid .rowlbl{ color:var(--text-dim); text-align:right; padding-right:5px;
+  line-height:30px; font-size:9px; }
+.s21-corner{ font-size:7.5px; color:var(--text-faint); display:flex; align-items:flex-end;
+  justify-content:flex-end; padding:0 5px 2px 0; line-height:1.25; text-align:right; }
+.s21-cell{ width:30px; height:30px; border-radius:4px; display:flex; align-items:center;
+  justify-content:center; font-size:8px; color:#06231f; font-weight:600;
+  border:1px solid var(--border); transition:.3s; }
+.s21-corner{}
+
+.s21-role{ font-size:13px; line-height:1.6; color:var(--text-dim); }
+.s21-role b{ color:var(--teal); display:block; font-family:var(--font-mono); font-size:10px;
+  letter-spacing:.12em; text-transform:uppercase; margin-bottom:5px; }
+.s21-role .warn{ display:block; margin-top:10px; padding-top:9px; border-top:1px solid var(--border);
+  font-size:11.5px; color:var(--text-faint); line-height:1.55; }
+
+.s21-flow{ display:flex; align-items:center; gap:8px; flex-wrap:wrap;
+  font-family:var(--font-mono); font-size:11px; }
+.s21-box{ background:var(--panel-2); border:1px solid var(--border); border-radius:7px;
+  padding:7px 11px; color:var(--text-dim); transition:.3s; }
+.s21-box.lit{ border-color:var(--teal); color:var(--teal); background:var(--teal-dim); }
+.s21-box.wo{ border-color:var(--purple); color:var(--purple); background:var(--purple-dim); }
+.s21-arrow{ color:var(--text-faint); }
+
+.s21-reality{ border:1px dashed var(--border-strong); border-radius:10px; padding:12px 14px;
+  background:rgba(255,138,101,.05); }
+.s21-reality span{ font-family:var(--font-mono); font-size:9.5px; letter-spacing:.14em;
+  color:var(--coral); display:block; margin-bottom:6px; }
+.s21-reality b{ font-family:var(--font-mono); font-size:12px; color:var(--text); display:block;
+  margin-bottom:6px; }
+.s21-reality p{ margin:0; font-size:12px; line-height:1.6; color:var(--text-dim); }
+.s21-dim{ opacity:.28; pointer-events:none; transition:.3s; }
+</style>
+</head>
+<body class="single-slide-page" data-slide-index="21" data-slide-count="21" data-prev-page="20-vector-mixing.html" data-next-page="../99-quiz/index.html">
+<div class="deck-header"><span class="count" id="deck-count">21 / 21</span><span class="title-mini">How Translation AI Works</span></div>
+<nav class="deck-nav" id="deck-nav" aria-label="Slide navigation">
+  <a href="01-encoder-decoder.html" aria-label="Go to slide 1: Encoder–Decoder Model"></a>
+  <a href="02-word-vectors.html" aria-label="Go to slide 2: Word Vectors"></a>
+  <a href="03-contextual-meaning.html" aria-label="Go to slide 3: Contextual Meaning"></a>
+  <a href="04-matrix-transformation.html" aria-label="Go to slide 4: Matrix Transformation"></a>
+  <a href="05-transformer-architecture.html" aria-label="Go to slide 5: Transformer Architecture"></a>
+  <a href="06-token-embeddings.html" aria-label="Go to slide 6: Token Embeddings"></a>
+  <a href="07-positional-encoding.html" aria-label="Go to slide 7: Positional Encoding"></a>
+  <a href="08-similarity-matrix.html" aria-label="Go to slide 8: Similarity Matrix"></a>
+  <a href="09-attention-architecture.html" aria-label="Go to slide 9: Attention Architecture"></a>
+  <a href="10-softmax-weights.html" aria-label="Go to slide 10: Softmax Weights"></a>
+  <a href="11-weighted-sum.html" aria-label="Go to slide 11: Weighted Sum"></a>
+  <a href="12-context-outcomes.html" aria-label="Go to slide 12: Context Outcomes"></a>
+  <a href="13-query-key-value.html" aria-label="Go to slide 13: Query, Key, Value"></a>
+  <a href="14-qk-transpose.html" aria-label="Go to slide 14: QK Transpose"></a>
+  <a href="15-similarity.html" aria-label="Go to slide 15: Similarity"></a>
+  <a href="16-softmax.html" aria-label="Go to slide 16: Softmax"></a>
+  <a href="17-scaling.html" aria-label="Go to slide 17: Scaling"></a>
+  <a href="18-attention-summary.html" aria-label="Go to slide 18: Attention Summary"></a>
+  <a href="19-context-update.html" aria-label="Go to slide 19: Context Update"></a>
+  <a href="20-vector-mixing.html" aria-label="Go to slide 20: Mixing Value Vectors"></a>
+  <a href="21-multi-head.html" class="active" aria-current="page" aria-label="Go to slide 21: Multi-Head Attention"></a>
+</nav>
+<div class="deck" id="deck">
+<section class="slide" id="slide-multi-head">
+  <div class="slide-inner">
+    <div>
+      <div class="eyebrow"><span class="num">21</span> MULTI-HEAD ATTENTION</div>
+      <h1 class="title">Eight Heads,<br>Eight Questions</h1>
+      <p class="subtitle">MultiHead(Q,K,V) = Concat(head₁, …, head₈)W<sup>O</sup></p>
+      <p class="lead">Everything up to here was <b>one</b> attention head. The paper runs <b>eight</b>, side by side, on the same sentence.</p>
+      <p class="lead">Each head gets its own W<sup>Q</sup>, W<sup>K</sup>, W<sup>V</sup>, projecting 512 dimensions down to 64. Same input, eight different questions asked of it — then the answers are concatenated and mixed back together by one final matrix.</p>
+      <div class="note">The paper's reason, §3.2.2: multi-head attention lets the model <i>"jointly attend to information from different representation subspaces at different positions. With a single attention head, averaging inhibits this."</i> One head has to blend everything into a single weighted mean, and a mean washes out distinctions.</div>
+    </div>
+
+    <div class="stage-panel">
+      <div class="stage-caption" id="s21-caption"><b>Step 0 —</b> One head, full width. This is the attention we just built.</div>
+
+      <div class="s21-stage">
+        <div class="s21-width">
+          <span class="s21-width-label" id="s21-barlabel">1 HEAD</span>
+          <div class="s21-bar whole" id="s21-bar"></div>
+          <span class="s21-dims" id="s21-dims">d<sub>model</sub> = 512</span>
+        </div>
+
+        <div id="s21-headwrap" class="s21-dim">
+          <div class="s21-heads" id="s21-heads"></div>
+        </div>
+
+        <div class="s21-panel" id="s21-mapwrap">
+          <div class="s21-grid" id="s21-grid"></div>
+          <div class="s21-role" id="s21-role"></div>
+        </div>
+
+        <div class="s21-flow" id="s21-flow">
+          <span class="s21-box" id="s21-f1">8 × (5 × 64)</span>
+          <span class="s21-arrow">→</span>
+          <span class="s21-box" id="s21-f2">concat → 5 × 512</span>
+          <span class="s21-arrow">→</span>
+          <span class="s21-box wo" id="s21-f3">W<sup>O</sup> · 512 × 512</span>
+          <span class="s21-arrow">→</span>
+          <span class="s21-box" id="s21-f4">output 5 × 512</span>
+        </div>
+
+        <div class="s21-reality">
+          <span>WHAT THE ABLATION SAYS · TABLE 3, ROWS (A)</span>
+          <b>h=1 → 24.9 &nbsp; h=4 → 25.5 &nbsp; h=8 → 25.8 &nbsp; h=16 → 25.8 &nbsp; h=32 → 25.4 BLEU</b>
+          <p>Heads are not free wins. One head is 0.9 BLEU worse than the best setting, but "quality also drops off with too many heads" (§6.2). It is an inverted U — and h=16 ties h=8, so eight is a plateau, not a magic number.</p>
+        </div>
+      </div>
+
+      <div class="s1-controls">
+        <button class="step-btn" id="s21-prev">← Back</button>
+        <div class="step-dots" id="s21-dots"></div>
+        <button class="step-btn" id="s21-next">Next →</button>
+      </div>
+    </div>
+  </div>
+</section>
+</div>
+<script src="js/app.js"></script>
+<script>
+(function(){
+  const TOKENS = ['I','ate','a','juicy','apple'];
+  const N = TOKENS.length;
+
+  // Eight illustrative head patterns. Each entry is a scoring function over
+  // (query index, key index); rows are softmaxed so each sums to 1.
+  const HEADS = [
+    { name:'self',      role:'Diagonal / identity',
+      desc:'Each token attends mostly to itself, carrying its own value through largely unchanged.',
+      f:(i,j)=> i===j ? 3 : 0 },
+    { name:'prev',      role:'Previous-token head',
+      desc:'Each token looks one step back. Heads like this are found reliably in trained models — they are effectively re-implementing what a recurrent step gave you for free.',
+      f:(i,j)=> j===i-1 ? 3 : (j===i ? 0.4 : 0) },
+    { name:'next',      role:'Next-token head',
+      desc:'The mirror image: each token looks one step forward. Only possible in the encoder, where attention is not masked.',
+      f:(i,j)=> j===i+1 ? 3 : (j===i ? 0.4 : 0) },
+    { name:'content',   role:'Content / modifier head',
+      desc:'Driven by meaning rather than position: "apple" and "juicy" find each other. This is the behaviour the deck\'s toy example has been showing all along.',
+      f:(i,j)=>{ const p={'juicy':'apple','apple':'juicy'}; return p[TOKENS[i]]===TOKENS[j] ? 3 : (i===j?0.5:0.1); } },
+    { name:'verb',      role:'Verb-anchored head',
+      desc:'Everything routes through the main verb. Heads that concentrate on one syntactically important token are common.',
+      f:(i,j)=> TOKENS[j]==='ate' ? 2.6 : (i===j?0.6:0.1) },
+    { name:'first',     role:'First-token sink',
+      desc:'Attention piles onto the first position. Later work calls these "attention sinks" — a head with nothing useful to do parks its weight somewhere harmless.',
+      f:(i,j)=> j===0 ? 2.8 : (i===j?0.5:0.1) },
+    { name:'last',      role:'Final-token head',
+      desc:'Weight collects on the last token, which in a translation encoder often accumulates a summary of the clause.',
+      f:(i,j)=> j===N-1 ? 2.6 : (i===j?0.5:0.1) },
+    { name:'broad',     role:'Near-uniform head',
+      desc:'Almost flat — close to averaging the whole sentence. Pruning studies find many heads look like this and can be removed with little loss.',
+      f:(i,j)=> 0.25 }
+  ];
+
+  function rowWeights(h, i){
+    const raw = TOKENS.map((_,j)=> HEADS[h].f(i,j));
+    const mx = Math.max(...raw);
+    const ex = raw.map(v=>Math.exp((v-mx)*1.6));
+    const s = ex.reduce((a,b)=>a+b,0);
+    return ex.map(v=>v/s);
+  }
+
+  const captions = [
+    '<b>Step 0 —</b> One head, full width. This is exactly the attention we just built across slides 13–20.',
+    '<b>Step 1 —</b> Split the 512 dimensions into <b>8 slices of 64</b>. Each head will work inside its own narrow slice.',
+    '<b>Step 2 —</b> Each head gets its <b>own</b> W<sup>Q</sup>, W<sup>K</sup>, W<sup>V</sup> — each 512 × 64. Different projections mean different questions.',
+    '<b>Step 3 —</b> All eight run <b>in parallel</b>, each producing its own attention map. Click a head to see how differently they behave.',
+    '<b>Step 4 —</b> <b>Concatenate</b> the eight 64-wide outputs back into 512, then mix them with one final projection W<sup>O</sup>.'
+  ];
+
+  let step = 0, head = 3;
+
+  const barEl = document.getElementById('s21-bar');
+  const capEl = document.getElementById('s21-caption');
+  const dotsEl = document.getElementById('s21-dots');
+  const headsEl = document.getElementById('s21-heads');
+  const headWrap = document.getElementById('s21-headwrap');
+  const mapWrap = document.getElementById('s21-mapwrap');
+  const gridEl = document.getElementById('s21-grid');
+  const roleEl = document.getElementById('s21-role');
+  const flowEl = document.getElementById('s21-flow');
+  const dimsEl = document.getElementById('s21-dims');
+  const barLbl = document.getElementById('s21-barlabel');
+
+  for(let i=0;i<captions.length;i++) dotsEl.appendChild(document.createElement('span'));
+
+  // width bar
+  for(let i=0;i<8;i++){
+    const s = document.createElement('div');
+    s.className = 's21-seg'; s.dataset.h = i;
+    s.textContent = '64';
+    barEl.appendChild(s);
+  }
+  // head chips
+  HEADS.forEach((h,i)=>{
+    const b = document.createElement('button');
+    b.className = 's21-head-chip'; b.dataset.h = i;
+    b.innerHTML = `<b>${i+1}</b>${h.name}`;
+    b.onclick = ()=>{ head = i; render(); };
+    headsEl.appendChild(b);
+  });
+
+  function drawGrid(){
+    gridEl.innerHTML = '';
+    const corner = document.createElement('div'); corner.className='s21-corner';
+    corner.innerHTML = 'query&nbsp;↓<br>key&nbsp;→';
+    gridEl.appendChild(corner);
+    TOKENS.forEach(t=>{ const d=document.createElement('div'); d.className='hdr';
+      d.innerHTML = `<span>${t}</span>`; gridEl.appendChild(d); });
+    TOKENS.forEach((t,i)=>{
+      const l = document.createElement('div'); l.className='rowlbl'; l.textContent=t; gridEl.appendChild(l);
+      const w = rowWeights(head, i);
+      w.forEach(v=>{
+        const c = document.createElement('div'); c.className='s21-cell';
+        c.style.background = `rgba(79,209,197,${(0.06 + v*0.94).toFixed(3)})`;
+        c.textContent = v>=0.12 ? v.toFixed(2).slice(1) : '';
+        gridEl.appendChild(c);
+      });
+    });
+  }
+
+  function render(){
+    capEl.innerHTML = captions[step];
+    [...dotsEl.children].forEach((d,i)=> d.classList.toggle('on', i===step));
+    document.getElementById('s21-prev').disabled = step===0;
+    document.getElementById('s21-next').disabled = step===captions.length-1;
+
+    // width bar state
+    barEl.classList.toggle('split', step>=1);
+    barEl.classList.toggle('whole', step===0);
+    barLbl.textContent = step===0 ? '1 HEAD' : '8 HEADS';
+    dimsEl.innerHTML = step===0
+      ? 'd<sub>model</sub> = 512'
+      : '8 × d<sub>k</sub> = 8 × 64 = 512';
+    [...barEl.children].forEach((s,i)=>{
+      s.textContent = step===0 ? (i===0 ? '512 dimensions, one head' : '') : '64';
+      s.classList.toggle('on', step>=3 && i===head);
+      s.style.flex = step===0 && i>0 ? '1' : '1';
+    });
+
+    // heads + map
+    headWrap.classList.toggle('s21-dim', step<2);
+    mapWrap.classList.toggle('s21-dim', step<3);
+    flowEl.classList.toggle('s21-dim', step<4);
+    [...headsEl.children].forEach((c,i)=> c.classList.toggle('on', step>=3 && i===head));
+
+    if(step>=2){
+      roleEl.innerHTML = step<3
+        ? `<b>Head ${head+1} — own projections</b>W<sup>Q</sup><sub>${head+1}</sub>, W<sup>K</sup><sub>${head+1}</sub>, W<sup>V</sup><sub>${head+1}</sub> — each 512 × 64, each learned separately. Nothing is shared between heads except the input.`
+        : `<b>Head ${head+1} — ${HEADS[head].role}</b>${HEADS[head].desc}
+           <span class="warn">Illustrative patterns, not measured from a trained model — but these are the <i>kinds</i> of behaviour interpretability work reports. The paper itself only says heads "appear to exhibit behavior related to the syntactic and semantic structure" (§4), backed by appendix examples rather than any metric.</span>`;
+    } else {
+      roleEl.innerHTML = `<b>One head</b>A single attention map over the whole 512-dimensional representation — everything blended into one weighted mean.`;
+    }
+    drawGrid();
+
+    document.getElementById('s21-f1').classList.toggle('lit', step>=4);
+    document.getElementById('s21-f2').classList.toggle('lit', step>=4);
+    document.getElementById('s21-f4').classList.toggle('lit', step>=4);
+  }
+
+  document.getElementById('s21-prev').onclick = ()=>{ if(step>0){ step--; render(); } };
+  document.getElementById('s21-next').onclick = ()=>{ if(step<captions.length-1){ step++; render(); } };
+  render();
+})();
+</script>
+</body>
+</html>

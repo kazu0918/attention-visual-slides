@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Chain You Can't Break — Before the Transformer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../01-self-attention/css/styles.css">
+<style>
+.b2-ctl{ display:flex; align-items:center; gap:12px; margin-bottom:16px; }
+.b2-ctl label{ font-family:var(--font-mono); font-size:11px; color:var(--text-faint);
+  letter-spacing:.1em; white-space:nowrap; }
+.b2-ctl input[type=range]{ flex:1; accent-color:var(--teal); }
+.b2-n{ font-family:var(--font-mono); font-size:20px; color:var(--teal); min-width:52px;
+  text-align:right; }
+
+.b2-lane{ margin-bottom:16px; }
+.b2-lane h4{ margin:0 0 8px; font-family:var(--font-mono); font-size:10.5px; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--text-dim); display:flex; justify-content:space-between;
+  align-items:baseline; font-weight:500; }
+.b2-lane h4 span{ color:var(--text-faint); letter-spacing:0; text-transform:none; font-size:11px; }
+.b2-track{ background:var(--panel); border:1px solid var(--border); border-radius:9px;
+  padding:9px; min-height:56px; display:flex; flex-wrap:wrap; gap:3px; align-content:flex-start; }
+.b2-tick{ height:20px; border-radius:3px; flex:0 0 auto; transition:.35s; }
+.b2-lane.rnn .b2-tick{ background:var(--coral-dim); border:1px solid rgba(255,138,101,.5); }
+.b2-lane.tr  .b2-tick{ background:var(--teal-dim);  border:1px solid rgba(79,209,197,.5); }
+.b2-foot{ display:flex; justify-content:space-between; margin-top:7px;
+  font-family:var(--font-mono); font-size:11px; }
+.b2-lane.rnn .b2-foot b{ color:var(--coral); }
+.b2-lane.tr  .b2-foot b{ color:var(--teal); }
+.b2-foot span{ color:var(--text-faint); }
+
+.b2-verdict{ border:1px dashed var(--border-strong); border-radius:10px; padding:13px 15px;
+  background:rgba(79,209,197,.05); font-size:13px; line-height:1.62; color:var(--text-dim); }
+.b2-verdict b{ color:var(--text); font-family:var(--font-mono); font-size:12.5px; }
+.b2-quote{ font-size:12.5px; line-height:1.62; color:var(--text-faint); font-style:italic;
+  border-left:2px solid var(--border-strong); padding-left:11px; margin-top:11px; }
+</style>
+</head>
+<body class="single-slide-page" data-slide-index="2" data-slide-count="4" data-prev-page="01-recurrence.html" data-next-page="03-path-length.html">
+<div class="deck-header"><span class="count" id="deck-count">02 / 04</span><span class="title-mini">Before the Transformer</span></div>
+<nav class="deck-nav" id="deck-nav" aria-label="Slide navigation">
+  <a href="01-recurrence.html" aria-label="Go to slide 1: Recurrence"></a>
+  <a href="02-sequential.html" class="active" aria-current="page" aria-label="Go to slide 2: Sequential Computation"></a>
+  <a href="03-path-length.html" aria-label="Go to slide 3: Path Length"></a>
+  <a href="04-what-2014-fixed.html" aria-label="Go to slide 4: What 2014 Fixed"></a>
+</nav>
+<div class="deck" id="deck">
+<section class="slide" id="slide-sequential">
+  <div class="slide-inner">
+    <div>
+      <div class="eyebrow"><span class="num">02</span> PROBLEM ONE</div>
+      <h1 class="title">The Chain<br>You Can't Break</h1>
+      <p class="subtitle">Why RNNs could not use the hardware</p>
+      <p class="lead">h<sub>t</sub> needs h<sub>t−1</sub>. That single dependency means a forty-token sentence takes <b>forty steps that must happen in order</b> — however many GPU cores are sitting idle.</p>
+      <p class="lead">Self-attention has no such chain. Every position is computed from the same input, so all of them can be done <b>at once</b>. That is the parallelism the paper is selling.</p>
+      <div class="note">This is the paper's opening complaint, in its own words: <i>"This inherently sequential nature precludes parallelization within training examples, which becomes critical at longer sequence lengths, as memory constraints limit batching across examples."</i> (§1)</div>
+    </div>
+
+    <div class="stage-panel">
+      <div class="stage-caption">Drag to change sentence length. Each block is one step that must wait for the one before it.</div>
+
+      <div class="b2-ctl">
+        <label>SENTENCE LENGTH n</label>
+        <input type="range" id="b2-range" min="4" max="60" value="12">
+        <span class="b2-n" id="b2-n">12</span>
+      </div>
+
+      <div class="b2-lane rnn">
+        <h4>Recurrent <span>one step per token, strictly in order</span></h4>
+        <div class="b2-track" id="b2-rnn"></div>
+        <div class="b2-foot"><b id="b2-rnn-n">12 sequential steps</b><span>Table 1: O(n)</span></div>
+      </div>
+
+      <div class="b2-lane tr">
+        <h4>Self-attention <span>every position at once</span></h4>
+        <div class="b2-track" id="b2-tr"></div>
+        <div class="b2-foot"><b>1 sequential step</b><span>Table 1: O(1)</span></div>
+      </div>
+
+      <div class="b2-verdict" id="b2-verdict"></div>
+
+      <div class="b2-quote">"The fundamental constraint of sequential computation, however, remains." — §1, on earlier attempts to speed RNNs up with factorization tricks and conditional computation.</div>
+    </div>
+  </div>
+</section>
+</div>
+<script src="../01-self-attention/js/app.js"></script>
+<script>
+(function(){
+  const range = document.getElementById('b2-range');
+  const nOut = document.getElementById('b2-n');
+  const rnn = document.getElementById('b2-rnn');
+  const tr  = document.getElementById('b2-tr');
+  const rnnN = document.getElementById('b2-rnn-n');
+  const verdict = document.getElementById('b2-verdict');
+
+  function render(){
+    const n = Number(range.value);
+    nOut.textContent = n;
+    rnnN.textContent = n + ' sequential steps';
+
+    rnn.innerHTML = '';
+    for(let i=0;i<n;i++){
+      const d = document.createElement('div');
+      d.className = 'b2-tick';
+      d.style.width = '14px';
+      d.style.transitionDelay = (i*7) + 'ms';
+      rnn.appendChild(d);
+    }
+    tr.innerHTML = '';
+    const one = document.createElement('div');
+    one.className = 'b2-tick';
+    one.style.width = '100%';
+    one.style.display = 'flex';
+    one.style.alignItems = 'center';
+    one.style.justifyContent = 'center';
+    one.style.fontFamily = 'var(--font-mono)';
+    one.style.fontSize = '10px';
+    one.style.color = 'var(--teal)';
+    one.textContent = `all ${n} positions computed in parallel`;
+    tr.appendChild(one);
+
+    verdict.innerHTML = `<b>${n} steps versus 1.</b> The recurrent model cannot start token ${n}
+      until token ${n-1} is finished, so its wall-clock time grows with the sentence.
+      Self-attention pays more <i>total</i> arithmetic — O(n²·d) against O(n·d²) — but it can spend
+      it all simultaneously. The trade is <b>more work, less waiting</b>.`;
+  }
+  range.addEventListener('input', render);
+  render();
+})();
+</script>
+
+<script>
+document.querySelectorAll('.deck-pager-identity span').forEach(function(s){
+  s.textContent = 'Before the Transformer';
+});
+</script>
+</body>
+</html>

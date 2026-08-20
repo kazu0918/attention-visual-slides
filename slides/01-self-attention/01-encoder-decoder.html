@@ -9,9 +9,9 @@
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/styles.css">
 </head>
-<body class="single-slide-page" data-slide-index="1" data-slide-count="20" data-prev-page="" data-next-page="02-word-vectors.html">
+<body class="single-slide-page" data-slide-index="1" data-slide-count="21" data-prev-page="../00-before-transformers/04-what-2014-fixed.html" data-next-page="02-word-vectors.html">
 <div class="deck-header">
-  <span class="count" id="deck-count">01 / 20</span>
+  <span class="count" id="deck-count">01 / 21</span>
   <span class="title-mini">How Translation AI Works</span>
 </div>
 <nav class="deck-nav" id="deck-nav" aria-label="Slide navigation">
@@ -35,17 +35,18 @@
   <a href="18-attention-summary.html" aria-label="Go to slide 18: Attention Summary"></a>
   <a href="19-context-update.html" aria-label="Go to slide 19: Context Update"></a>
   <a href="20-vector-mixing.html" aria-label="Go to slide 20: Mixing Value Vectors"></a>
+  <a href="21-multi-head.html" aria-label="Go to slide 21: Multi-Head Attention"></a>
 </nav>
 <div class="deck" id="deck">
 <section class="slide" id="slide1">
     <div class="slide-inner">
       <div>
-        <div class="eyebrow"><span class="num">01</span> TRANSLATION AI</div>
-        <h1 class="title">AI That Translates —<br>The Encoder–Decoder Model</h1>
-        <p class="subtitle">Encoder–Decoder Model</p>
-        <p class="lead">Because word order differs across languages, translation isn't just word-by-word. Instead, the model <b>first "digests" the whole sentence into a single meaning</b>, then builds the output from that.</p>
-        <p class="lead">The input sentence is turned entirely into numbers (a vector) that capture its meaning, and the output words are generated from that vector.</p>
-        <div class="note">In this simplified encoder–decoder diagram, the meaning vector is a numeric summary of the whole sentence—not a translation of any single word. It carries information such as who did what to whom, allowing the decoder to rebuild the sentence in a different word order.</div>
+        <div class="eyebrow"><span class="num">01</span> BEFORE THE TRANSFORMER</div>
+        <h1 class="title">The Bottleneck<br>Before Attention</h1>
+        <p class="subtitle">Encoder–Decoder, circa 2014</p>
+        <p class="lead">Because word order differs across languages, translation isn't word-by-word. The original encoder–decoder design had the model <b>"digest" the whole sentence into a single meaning vector</b>, then build the output from that alone.</p>
+        <p class="lead">That single vector is the <b>bottleneck</b>. Everything the decoder will ever know about a forty-word sentence has to survive being squeezed into one fixed-length list of numbers.</p>
+        <div class="note"><b>This slide is the problem, not the solution.</b> Attention (Bahdanau et al., 2014) fixed it by letting the decoder look back at <i>every</i> encoder position instead of one summary. Today's paper keeps that fix and removes the recurrence — and its encoder emits <b>one vector per token</b>, a 5 × 512 matrix for a five-token sentence, never a single sentence vector. Hold this picture in mind as the thing the rest of the session takes apart.</div>
       </div>
 
       <div class="stage-panel">
@@ -64,11 +65,11 @@
             </div>
             <div class="s1-arrow" id="arrow-2">→</div>
             <div class="s1-block s1-meaning">
-              <div class="s1-block-label">Sentence<br>Meaning Vector</div>
+              <div class="s1-block-label">Single<br>Meaning Vector</div>
               <div class="s1-meaning-grid" id="s1-meaning-grid">
                 <div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div>
               </div>
-              <div class="s1-meaning-desc">A numeric summary of the whole sentence</div>
+              <div class="s1-meaning-desc">One fixed-length vector — the bottleneck attention removed</div>
             </div>
             <div class="s1-arrow" id="arrow-3">→</div>
             <div class="s1-block s1-decoder" id="s1-decoder">
