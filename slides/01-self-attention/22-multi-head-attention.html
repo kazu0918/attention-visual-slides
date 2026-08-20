@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Introducing Multi-Head Attention — How Translation AI Works</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="single-slide-page" data-slide-index="23" data-slide-count="28" data-prev-page="21-weighted-vector-lab.html" data-next-page="23-five-changes.html">
+<div class="deck-header"><span class="count" id="deck-count">23 / 28</span><span class="title-mini">How Translation AI Works</span></div>
+<nav class="deck-nav" id="deck-nav" aria-label="Slide navigation">
+  <a href="01-encoder-decoder.html" aria-label="Go to slide 1"></a><a href="02-word-vectors.html" aria-label="Go to slide 2"></a><a href="03-contextual-meaning.html" aria-label="Go to slide 3"></a><a href="04-matrix-transformation.html" aria-label="Go to slide 4"></a><a href="05-transformer-architecture.html" aria-label="Go to slide 5"></a><a href="06-token-embeddings.html" aria-label="Go to slide 6"></a><a href="07-positional-encoding.html" aria-label="Go to slide 7"></a><a href="08-similarity-matrix.html" aria-label="Go to slide 8"></a><a href="09-attention-architecture.html" aria-label="Go to slide 9"></a><a href="10-softmax-weights.html" aria-label="Go to slide 10"></a><a href="11-weighted-sum.html" aria-label="Go to slide 11"></a><a href="12-context-outcomes.html" aria-label="Go to slide 12"></a><a href="13-query-key-value.html" aria-label="Go to slide 13"></a><a href="14-qk-transpose.html" aria-label="Go to slide 14"></a><a href="15-similarity.html" aria-label="Go to slide 15"></a><a href="16-softmax.html" aria-label="Go to slide 16"></a><a href="17-scaling.html" aria-label="Go to slide 17"></a><a href="18-attention-summary.html" aria-label="Go to slide 18"></a><a href="19-context-update.html" aria-label="Go to slide 19"></a><a href="20-vector-mixing.html" aria-label="Go to slide 20"></a><a href="21-weighted-vector-lab.html" aria-label="Go to slide 21"></a><a href="22-multi-head-attention.html" class="active" aria-current="page" aria-label="Go to slide 22"></a>
+  <a href="23-five-changes.html" aria-label="Go to slide 23: Five Multi-Head Changes"></a>
+  <a href="24-branch-and-project.html" aria-label="Go to slide 24: Branch and Project"></a>
+<a href="25-why-learn-projections.html" aria-label="Go to slide 25: Why Learn Projections"></a>
+<a href="26-attention-per-head.html" aria-label="Go to slide 26: Attention in Every Head"></a>
+<a href="27-concat-output-projection.html" aria-label="Go to slide 27: Concat and Output Projection"></a>
+</nav>
+<div class="deck" id="deck"><section class="slide" id="slide-multi-head-intro"><div class="slide-inner">
+  <div>
+    <div class="eyebrow"><span class="num">22</span> MULTI-HEAD ATTENTION</div>
+    <h1 class="title">Now Run Attention<br>in Parallel</h1>
+    <p class="subtitle">One mechanism, several learned views</p>
+    <p class="lead">So far, we have followed <b>one Attention(Q, K, V)</b> operation from its inputs to a contextualized output.</p>
+    <p class="lead"><b>Multi-Head Attention repeats that operation in parallel.</b> Each head receives its own learned projections of Q, K, and V, so it can form a different attention pattern.</p>
+    <div class="note">The heads are not assigned fixed jobs by hand. During training, each projection learns a useful way to view the same sequence.</div>
+  </div>
+
+  <div class="stage-panel s22-panel">
+    <div class="stage-caption"><b>Recall slide 10 —</b> we first unpacked one Scaled Dot-Product Attention. Now we move to the Multi-Head block beside it.</div>
+
+    <div class="s22-recall">
+      <div class="s22-recall-label"><span>RECALL</span><b>SLIDE 10</b></div>
+      <div class="s22-recall-frame" aria-label="Reduced view of slide 10">
+        <iframe src="10-softmax-weights.html" title="Slide 10 recap" tabindex="-1" scrolling="no"></iframe>
+      </div>
+      <div class="s22-chapter-shift"><span>ONE ATTENTION</span><i>→</i><b>h PARALLEL HEADS</b></div>
+    </div>
+
+    <div class="s22-formula" aria-label="MultiHead of Q K V equals Concat of head one through head h times W O, where each head i equals Attention of Q W i Q, K W i K, V W i V">
+      <div class="s22-formula-main">
+        <span class="fn">MultiHead</span><span>(Q, K, V)</span><span class="eq">=</span>
+        <span class="fn">Concat</span><span>(head<sub>1</sub>, …, head<sub>h</sub>)</span><span>W<sup>O</sup></span>
+      </div>
+      <div class="s22-formula-head">
+        <span class="where">where</span><span>head<sub>i</sub></span><span class="eq">=</span>
+        <span class="fn">Attention</span><span>(QW<sub>i</sub><sup>Q</sup>, KW<sub>i</sub><sup>K</sup>, VW<sub>i</sub><sup>V</sup>)</span>
+      </div>
+    </div>
+
+    <div class="s22-process" aria-label="Multi-head attention process">
+      <span>PROJECT Q, K, V</span><i>→</i><span>ATTEND IN PARALLEL</span><i>→</i><span>CONCATENATE</span><i>→</i><span>OUTPUT MIX W<sup>O</sup></span>
+    </div>
+  </div>
+</div></section></div>
+<script src="js/app.js"></script>
+</body>
+</html>

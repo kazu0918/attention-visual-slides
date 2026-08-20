@@ -5,10 +5,10 @@ The session now runs across three decks, in this order:
 | Deck | Slides | Covers |
 |---|---|---|
 | `slides/00-before-transformers/` | 4 | Why RNNs, what was wrong with them, what 2014 already fixed |
-| `slides/01-self-attention/` | 23 | Embeddings, positional encoding, scaled dot-product attention, multi-head, results, significance |
+| `slides/01-self-attention/` | 30 | Embeddings, positional encoding, scaled dot-product attention, multi-head, results, significance |
 | `slides/99-quiz/` | — | Interactive quiz (see that folder's README for modes) |
 
-The chain is wired end to end: `00/01` → … → `00/04` → `01/01` → … → `01/23` → quiz.
+The chain is wired end to end: `00/01` → … → `00/04` → `01/01` → … → `01/30` → quiz.
 Open `index.html` at the repo root to start from the beginning.
 
 ---
@@ -86,14 +86,15 @@ discussion later.
    `d_k = 64` and divides its scores by `sqrt(64) = 8`. Describe 512 as the
    deck's temporary single-head illustration, not the paper's per-head value.
 
-The deck explains one scaled dot-product attention operation (slides 8–20) and
-then multi-head attention (slide 21), which is what slides 9 and 10 promise.
-**Masked decoder attention and encoder–decoder cross-attention are still not in
-the deck** — run those off Figure 1 in the paper PDF rather than skipping them.
+The deck explains one scaled dot-product attention operation (slides 8–22) and
+then multi-head attention (slides 23–28), which is what slides 9 and 10 promise.
+**Masked decoder attention is introduced on slide 19; encoder–decoder
+cross-attention is still not in the deck** — run that off Figure 1 in the paper
+PDF rather than skipping it.
 
-Slide 21 also resolves qualification 3 below: it is where `d_k = 64` is
+Slide 23 also resolves qualification 3 below: it is where `d_k = 64` is
 established, so treat slide 17's 512 as the single-head illustration and let
-slide 21 correct it.
+slide 23 correct it.
 
 ## Slide 1 — The encoder–decoder model
 
@@ -519,11 +520,10 @@ Conclude the current deck with:
 > concatenates the head outputs, and projects them back into the model
 > dimension.
 
-## Slide 21 — Multi-head attention
+## Slide 23 — Introducing multi-head attention
 
-**Main idea:** Everything so far was one head. The paper runs eight of them on
-the same sentence, each with its own projections, then stitches the results
-back together.
+**Main idea:** Everything so far was one head. Multi-head attention repeats the
+same operation through several learned projections, then combines the results.
 
 **What to say:**
 
@@ -533,14 +533,8 @@ back together.
 > 512 dimensions down to 64. Same sentence, eight different questions asked of
 > it.
 
-Step through the five stages. The two that matter most:
-
-- **Step 1 (split).** 512 does not become 8 × 512. It becomes 8 × 64. The heads
-  divide the existing width between them, which is why the paper can say the
-  total cost is similar to one full-width head.
-- **Step 3 (parallel).** Click through several heads. Head 2 (previous-token)
-  and head 4 (content) are the clearest contrast — one is driven purely by
-  position, the other purely by meaning.
+Use slide 24's five-change summary to establish the complete pipeline. Slides
+25–28 then unpack projection, per-head attention, concatenation, and W^O.
 
 **Say the paper's actual reason for multi-head**, because it is better than the
 usual folk version:
@@ -550,81 +544,10 @@ usual folk version:
 > information from different representation subspaces at different positions.
 > With a single attention head, averaging inhibits this."
 
-**Be honest about the head patterns.** They are illustrative, not measured from
-a trained model — the slide says so, and you should say so too. The paper only
-claims heads "appear to exhibit behavior related to the syntactic and semantic
-structure" (§4), supported by appendix examples rather than any metric. Later
-work (head pruning, "Attention is not Explanation") pushed back hard on the
-interpretability story. This is a good place to plant that flag for the critique
-discussion later.
-
-**The ablation box is the payoff.** Cover it with your hand, ask the room to
-predict what happens when you go from 8 heads to 1, then reveal: 25.8 → 24.9,
-so about 0.9 BLEU. Then ask what happens at 32 heads. Most people say "better".
-It is 25.4 — worse. Quality drops off in both directions, and h=16 ties h=8, so
-eight is a plateau rather than a magic number.
-
-**Next step:** slide 21 is the last slide, and its Next button goes to the
+**Next step:** slides 23–28 use the existing detailed multi-head walkthrough:
+the five conceptual changes, branching into learned projections, per-head
+attention, concatenation, and the output projection. Slide 28 then goes to the
 quiz in `slides/99-quiz/`.
-
-## Slide 22 — The results, simplified
-
-**Main idea:** Three claims in the abstract; here is what actually backs them.
-
-Click through the three table rows. The row that matters is **Transformer (base)**:
-
-> Sixty-five million parameters. Twelve hours on one machine. And it beats every
-> previously published model *and every ensemble* on English–German, using about
-> one twenty-third of the compute of the best of them.
-
-**Be precise about English–French.** The base model's 38.1 does *not* beat the
-prior art there — ConvS2S got 40.46. The "surpasses all previously published
-models and ensembles" sentence in §6.1 is an English–German claim. Saying it
-loosely is the difference between a fair summary and an overclaim, and someone
-in the room will check.
-
-**Two things worth flagging out loud:**
-
-- The FLOP figures are *estimates* — training time × GPUs × an assumed sustained
-  throughput per GPU (footnote 5), across four GPU generations and four
-  codebases. The order-of-magnitude gap is real; the precision implied by
-  "2.3 × 10¹⁹" is not.
-- Both headline numbers average the last 5 or 20 checkpoints. That is an
-  ensemble in all but name, and Table 2 compares it against other people's
-  explicitly-labelled ensembles. Disclosed, but worth naming.
-
-**The 41.8 / 41.0 discrepancy is on this slide.** Don't announce it — ask someone
-to open the PDF and compare the abstract against §6.1. Best five minutes in the
-session: the most-cited paper in modern ML has an unreconciled number in it, and
-reading closely enough to notice is the actual skill a journal club teaches.
-
-## Slide 23 — Why it mattered, and what it didn't
-
-**Three steps. Don't rush the third.**
-
-**Step 1 — the lineage.** Strip the decoder and you get BERT; strip the encoder
-and you get GPT. Say plainly that everything in this deck about cross-attention
-is *absent* from the models the room uses daily — otherwise half the audience
-never connects the session to ChatGPT.
-
-**Step 2 — what the paper never showed.** Read the five items out. This is the
-honest scope: two MT tasks, one parsing task, 65M and 213M parameters, sentences
-of about a hundred tokens. Scaling, language modelling, in-context learning,
-long context and interpretability are all outside it.
-
-> This isn't a criticism of the paper. It's the difference between what a paper
-> proved and what a field built on top of it — and keeping those two apart is
-> most of what a journal club is for.
-
-**Step 3 — the takeaway, and the vote.** The contribution was not inventing
-attention. It was showing attention could be the *entire* sequence-processing
-mechanism — that the recurrence underneath wasn't earning its cost.
-
-Then **run the vote you set up on slide 0.4.** Hands, or move to sides of the
-room. Take two arguments from each side before moving to the quiz. If the room
-argues for five minutes here, the session worked.
-
-**Next step:** slide 23 is the last slide; its Next button goes to the quiz.
 
 ## Suggested timing
 
@@ -632,22 +555,13 @@ argues for five minutes here, the session worked.
 - Slides 1–4: 8–10 minutes
 - Slides 5–10: 8–10 minutes
 - Slides 11–18: 15–20 minutes
-- Slides 19–20: 6–8 minutes
-- Slide 21 (multi-head): 6–8 minutes, including the ablation prediction
-- Slides 22–23 (results, significance, vote): 12–15 minutes
+- Slides 19–22: 8–12 minutes
+- Slides 23–28 (multi-head): 10–15 minutes
 - Questions during the section: 5 minutes
 
-Total: roughly 75–90 minutes across both decks, before the quiz. For a shorter path, skip slide 4, shorten the
+Total: roughly 70–90 minutes across both decks. For a shorter path, skip slide 4, shorten the
 dragging activity on slide 12, use slide 18 as the main mathematical recap, and
-show only the first calculation on slide 19. Slide 20 is optional if the
-audience already understands the weighted sum. Slide 21 is **not** optional —
+show only the first calculation on slide 20. Slide 21 is optional if the
+audience already understands the weighted sum. Slide 23 is **not** optional —
 slides 9 and 10 promise multi-head attention, so cutting it leaves the deck
-with a loose end the room will notice. Slides 22–23 are also not optional if you
-want this to be a journal club rather than a tutorial — they are where the paper
-gets judged.
-
-**A note for whoever edits next:** slides 22 and 23 generate the nav strip from a
-`SLIDES` array in their own script instead of hardcoding 23 `<a>` tags. Slides
-1–21 still hardcode it, which is why adding a slide currently means touching
-every file. Worth retrofitting when there is time.
-
+with a loose end the room will notice.

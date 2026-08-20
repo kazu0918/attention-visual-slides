@@ -50,14 +50,14 @@
 .s22-flag b{ color:var(--text); font-family:var(--font-mono); }
 </style>
 </head>
-<body class="single-slide-page" data-slide-index="22" data-slide-count="23" data-prev-page="21-multi-head.html" data-next-page="23-significance.html">
-<div class="deck-header"><span class="count" id="deck-count">22 / 23</span><span class="title-mini">How Translation AI Works</span></div>
+<body class="single-slide-page" data-slide-index="29" data-slide-count="30" data-prev-page="27-concat-output-projection.html" data-next-page="23-significance.html">
+<div class="deck-header"><span class="count" id="deck-count">29 / 30</span><span class="title-mini">How Translation AI Works</span></div>
 <nav class="deck-nav" id="deck-nav" aria-label="Slide navigation"></nav>
 <div class="deck" id="deck">
 <section class="slide" id="slide-results">
   <div class="slide-inner">
     <div>
-      <div class="eyebrow"><span class="num">22</span> WHAT IT ACHIEVED</div>
+      <div class="eyebrow"><span class="num">29</span> WHAT IT ACHIEVED</div>
       <h1 class="title">The Results,<br>Simplified</h1>
       <p class="subtitle">WMT 2014 · newstest2014 · Table 2</p>
       <p class="lead">Three claims in the abstract: <b>better quality</b>, <b>more parallelisable</b>, <b>significantly less time to train</b>. The first and third are measured here; the second is the architecture argument from Table 1.</p>
@@ -90,25 +90,6 @@
 <script src="js/app.js"></script>
 <script>
 (function(){
-  // deck-wide nav, generated so adding slides doesn't mean editing every file
-  const SLIDES = [
-    ['01-encoder-decoder','Encoder–Decoder Model'],['02-word-vectors','Word Vectors'],
-    ['03-contextual-meaning','Contextual Meaning'],['04-matrix-transformation','Matrix Transformation'],
-    ['05-transformer-architecture','Transformer Architecture'],['06-token-embeddings','Token Embeddings'],
-    ['07-positional-encoding','Positional Encoding'],['08-similarity-matrix','Similarity Matrix'],
-    ['09-attention-architecture','Attention Architecture'],['10-softmax-weights','Softmax Weights'],
-    ['11-weighted-sum','Weighted Sum'],['12-context-outcomes','Context Outcomes'],
-    ['13-query-key-value','Query, Key, Value'],['14-qk-transpose','QK Transpose'],
-    ['15-similarity','Similarity'],['16-softmax','Softmax'],['17-scaling','Scaling'],
-    ['18-attention-summary','Attention Summary'],['19-context-update','Context Update'],
-    ['20-vector-mixing','Mixing Value Vectors'],['21-multi-head','Multi-Head Attention'],
-    ['22-results','Results'],['23-significance','Why It Mattered']
-  ];
-  const here = location.pathname.split('/').pop().replace('.html','');
-  document.getElementById('deck-nav').innerHTML = SLIDES.map(([f,label],i)=>
-    `<a href="${f}.html"${f===here?' class="active" aria-current="page"':''} aria-label="Go to slide ${i+1}: ${label}"></a>`
-  ).join('');
-
   const ROWS = [
     { name:'Best prior published<br><small style="color:var(--text-faint)">ConvS2S Ensemble</small>',
       de:'26.36', fr:'41.29', cost:7.7e19, costTxt:'7.7 × 10¹⁹', prior:true,

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Causal Mask — How Translation AI Works</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="single-slide-page" data-slide-index="19" data-slide-count="28" data-prev-page="18-attention-summary.html" data-next-page="19-context-update.html">
+<div class="deck-header"><span class="count" id="deck-count">19 / 28</span><span class="title-mini">How Translation AI Works</span></div>
+<nav class="deck-nav" id="deck-nav" aria-label="Slide navigation">
+  <a href="01-encoder-decoder.html"></a><a href="02-word-vectors.html"></a><a href="03-contextual-meaning.html"></a><a href="04-matrix-transformation.html"></a><a href="05-transformer-architecture.html"></a><a href="06-token-embeddings.html"></a><a href="07-positional-encoding.html"></a><a href="08-similarity-matrix.html"></a><a href="09-attention-architecture.html"></a><a href="10-softmax-weights.html"></a><a href="11-weighted-sum.html"></a><a href="12-context-outcomes.html"></a><a href="13-query-key-value.html"></a><a href="14-qk-transpose.html"></a><a href="15-similarity.html"></a><a href="16-softmax.html"></a><a href="17-scaling.html"></a><a href="18-attention-summary.html"></a><a href="19-masked-attention.html" class="active" aria-current="page"></a><a href="19-context-update.html"></a><a href="20-vector-mixing.html"></a><a href="21-weighted-vector-lab.html"></a><a href="22-multi-head-attention.html"></a><a href="23-five-changes.html"></a><a href="24-branch-and-project.html"></a><a href="25-why-learn-projections.html"></a><a href="26-attention-per-head.html"></a><a href="27-concat-output-projection.html"></a>
+</nav>
+<div class="deck" id="deck"><section class="slide" id="slide-causal-mask"><div class="slide-inner s18-inner">
+  <div>
+    <div class="eyebrow"><span class="num">19</span> CAUSAL SELF-ATTENTION · STEP 4</div>
+    <h1 class="title">Mask the Future<br>Before Softmax</h1>
+    <p class="subtitle">Each query may attend only to itself and earlier positions</p>
+    <p class="lead">The decoder replaces every future-token score with <b>−∞</b>. The row and column labels make exactly which connections are blocked visible.</p>
+    <div class="note"><b>Why −∞?</b> Because exp(−∞) = 0. After softmax, every masked position has exactly zero attention weight.</div>
+  </div>
+  <div class="stage-panel s18-panel s19m-panel">
+    <div class="stage-caption"><b>STEP 4 / 6 · Apply a causal mask to the scaled score matrix.</b></div>
+    <div class="s19m-flow">
+      <div class="s19m-card source"><header><span>SCALED QKᵀ</span><b>5 × 5</b></header><div class="s19m-axis-top"><span>I</span><span>ate</span><span>a</span><span>juicy</span><span>apple</span></div><div class="s19m-matrix"><div class="s19m-axis-left"><span>I</span><span>ate</span><span>a</span><span>juicy</span><span>apple</span></div><div class="s19m-grid"><i>0.8</i><i>0.3</i><i>0.1</i><i>0.4</i><i>0.2</i><i>0.3</i><i>1.1</i><i>0.6</i><i>0.2</i><i>0.5</i><i>0.2</i><i>0.7</i><i>1.4</i><i>0.5</i><i>0.3</i><i>0.1</i><i>0.5</i><i>0.9</i><i>1.2</i><i>0.4</i><i>0.0</i><i>0.4</i><i>0.6</i><i>0.8</i><i>1.0</i></div></div><small>rows = query positions · columns = key positions</small></div>
+      <div class="s19m-arrow"><b>+</b><span>CAUSAL<br>MASK</span><strong>→</strong></div>
+      <div class="s19m-card masked"><header><span>MASKED SCORES</span><b>5 × 5</b></header><div class="s19m-axis-top"><span>I</span><span>ate</span><span>a</span><span>juicy</span><span>apple</span></div><div class="s19m-matrix"><div class="s19m-axis-left"><span>I</span><span>ate</span><span>a</span><span>juicy</span><span>apple</span></div><div class="s19m-grid"><i>0.8</i><i class="blocked">−∞</i><i class="blocked">−∞</i><i class="blocked">−∞</i><i class="blocked">−∞</i><i>0.3</i><i>1.1</i><i class="blocked">−∞</i><i class="blocked">−∞</i><i class="blocked">−∞</i><i>0.2</i><i>0.7</i><i>1.4</i><i class="blocked">−∞</i><i class="blocked">−∞</i><i>0.1</i><i>0.5</i><i>0.9</i><i>1.2</i><i class="blocked">−∞</i><i>0.0</i><i>0.4</i><i>0.6</i><i>0.8</i><i>1.0</i></div></div><small>the upper triangle is the future</small></div>
+    </div>
+    <div class="s19m-softmax"><span>FOR EVERY MASKED CELL</span><code>softmax(−∞)</code><b>= 0</b><strong>future attention weight</strong></div>
+    <div class="s19m-takeaway"><b>NO LOOK-AHEAD</b><span>Row “a” can attend to “I”, “ate”, and “a” — but not to “juicy” or “apple”.</span></div>
+  </div>
+</div></section></div>
+<script src="js/app.js"></script>
+</body>
+</html>

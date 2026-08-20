@@ -51,14 +51,14 @@
 .s23-take .vote{ color:var(--gold); font-weight:500; }
 </style>
 </head>
-<body class="single-slide-page" data-slide-index="23" data-slide-count="23" data-prev-page="22-results.html" data-next-page="../99-quiz/index.html">
-<div class="deck-header"><span class="count" id="deck-count">23 / 23</span><span class="title-mini">How Translation AI Works</span></div>
+<body class="single-slide-page" data-slide-index="30" data-slide-count="30" data-prev-page="22-results.html" data-next-page="../99-quiz/index.html">
+<div class="deck-header"><span class="count" id="deck-count">30 / 30</span><span class="title-mini">How Translation AI Works</span></div>
 <nav class="deck-nav" id="deck-nav" aria-label="Slide navigation"></nav>
 <div class="deck" id="deck">
 <section class="slide" id="slide-significance">
   <div class="slide-inner">
     <div>
-      <div class="eyebrow"><span class="num">23</span> WHY IT MATTERED</div>
+      <div class="eyebrow"><span class="num">30</span> WHY IT MATTERED</div>
       <h1 class="title">What Followed,<br>and What Didn't</h1>
       <p class="subtitle">Significance, caveats, and the actual contribution</p>
       <p class="lead">This was a <b>translation paper</b>. Two MT tasks, one parsing task, 65M and 213M parameters, sentences around a hundred tokens long. Everything it is now famous for was established by later work.</p>
@@ -123,24 +123,6 @@
 <script src="js/app.js"></script>
 <script>
 (function(){
-  const SLIDES = [
-    ['01-encoder-decoder','Encoder–Decoder Model'],['02-word-vectors','Word Vectors'],
-    ['03-contextual-meaning','Contextual Meaning'],['04-matrix-transformation','Matrix Transformation'],
-    ['05-transformer-architecture','Transformer Architecture'],['06-token-embeddings','Token Embeddings'],
-    ['07-positional-encoding','Positional Encoding'],['08-similarity-matrix','Similarity Matrix'],
-    ['09-attention-architecture','Attention Architecture'],['10-softmax-weights','Softmax Weights'],
-    ['11-weighted-sum','Weighted Sum'],['12-context-outcomes','Context Outcomes'],
-    ['13-query-key-value','Query, Key, Value'],['14-qk-transpose','QK Transpose'],
-    ['15-similarity','Similarity'],['16-softmax','Softmax'],['17-scaling','Scaling'],
-    ['18-attention-summary','Attention Summary'],['19-context-update','Context Update'],
-    ['20-vector-mixing','Mixing Value Vectors'],['21-multi-head','Multi-Head Attention'],
-    ['22-results','Results'],['23-significance','Why It Mattered']
-  ];
-  const here = location.pathname.split('/').pop().replace('.html','');
-  document.getElementById('deck-nav').innerHTML = SLIDES.map(([f,label],i)=>
-    `<a href="${f}.html"${f===here?' class="active" aria-current="page"':''} aria-label="Go to slide ${i+1}: ${label}"></a>`
-  ).join('');
-
   const caps = [
     '<b>Step 1 —</b> What the architecture turned into. Both descendants are Figure 1 with one half deleted.',
     '<b>Step 2 —</b> And what this paper never actually demonstrated. Read these out; they are the honest scope.',

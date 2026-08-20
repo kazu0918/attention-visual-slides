@@ -9,9 +9,9 @@
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/styles.css">
 </head>
-<body class="single-slide-page" data-slide-index="1" data-slide-count="23" data-prev-page="../00-before-transformers/04-what-2014-fixed.html" data-next-page="02-word-vectors.html">
+<body class="single-slide-page" data-slide-index="1" data-slide-count="28" data-prev-page="../00-before-transformers/04-what-2014-fixed.html" data-next-page="02-word-vectors.html">
 <div class="deck-header">
-  <span class="count" id="deck-count">01 / 23</span>
+  <span class="count" id="deck-count">01 / 28</span>
   <span class="title-mini">How Translation AI Works</span>
 </div>
 <nav class="deck-nav" id="deck-nav" aria-label="Slide navigation">
@@ -35,9 +35,13 @@
   <a href="18-attention-summary.html" aria-label="Go to slide 18: Attention Summary"></a>
   <a href="19-context-update.html" aria-label="Go to slide 19: Context Update"></a>
   <a href="20-vector-mixing.html" aria-label="Go to slide 20: Mixing Value Vectors"></a>
-  <a href="21-multi-head.html" aria-label="Go to slide 21: Multi-Head Attention"></a>
-  <a href="22-results.html" aria-label="Go to slide 22: Results"></a>
-  <a href="23-significance.html" aria-label="Go to slide 23: Why It Mattered"></a>
+  <a href="21-weighted-vector-lab.html" aria-label="Go to slide 21: Weighted Vector Lab"></a>
+  <a href="22-multi-head-attention.html" aria-label="Go to slide 22: Multi-Head Attention"></a>
+  <a href="23-five-changes.html" aria-label="Go to slide 23: Five Multi-Head Changes"></a>
+  <a href="24-branch-and-project.html" aria-label="Go to slide 24: Branch and Project"></a>
+<a href="25-why-learn-projections.html" aria-label="Go to slide 25: Why Learn Projections"></a>
+<a href="26-attention-per-head.html" aria-label="Go to slide 26: Attention in Every Head"></a>
+<a href="27-concat-output-projection.html" aria-label="Go to slide 27: Concat and Output Projection"></a>
 </nav>
 <div class="deck" id="deck">
 <section class="slide" id="slide1">
@@ -48,7 +52,7 @@
         <p class="subtitle">Encoder–Decoder, circa 2014</p>
         <p class="lead">Because word order differs across languages, translation isn't word-by-word. The original encoder–decoder design had the model <b>"digest" the whole sentence into a single meaning vector</b>, then build the output from that alone.</p>
         <p class="lead">That single vector is the <b>bottleneck</b>. Everything the decoder will ever know about a forty-word sentence has to survive being squeezed into one fixed-length list of numbers.</p>
-        <div class="note"><b>This slide is the problem, not the solution.</b> Attention (Bahdanau et al., 2014) fixed it by letting the decoder look back at <i>every</i> encoder position instead of one summary. Today's paper keeps that fix and removes the recurrence — and its encoder emits <b>one vector per token</b>, a 5 × 512 matrix for a five-token sentence, never a single sentence vector. Hold this picture in mind as the thing the rest of the session takes apart.</div>
+        <div class="note"><b>This slide is the problem, not the solution.</b> Attention fixed it by letting the decoder look back at <i>every</i> encoder position instead of one summary. The Transformer keeps that fix and removes recurrence; its encoder emits one vector per token, never a single sentence vector.</div>
       </div>
 
       <div class="stage-panel">
