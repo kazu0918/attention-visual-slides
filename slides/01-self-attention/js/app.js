@@ -242,23 +242,67 @@ function blendedPosition(key){
   const jump=document.createElement('div');
   jump.className='deck-jump';
   jump.innerHTML='<span class="deck-jump-label">Jump to</span>';
-  const select=document.createElement('select');
-  select.id='deck-jump-select';
-  select.setAttribute('aria-label','Jump to any section or slide');
+  const jumpButton=document.createElement('button');
+  jumpButton.type='button';
+  jumpButton.className='deck-jump-button';
+  jumpButton.setAttribute('aria-label','Jump to any section or slide');
+  jumpButton.setAttribute('aria-haspopup','true');
+  jumpButton.setAttribute('aria-expanded','false');
+  jumpButton.textContent='Choose a slide';
+  const jumpMenu=document.createElement('div');
+  jumpMenu.className='deck-jump-menu';
+  jumpMenu.hidden=true;
   manifest.forEach(section=>{
-    const group=document.createElement('optgroup');
-    group.label=section.label;
+    const group=document.createElement('section');
+    group.className='deck-jump-group';
+    const heading=document.createElement('div');
+    heading.className='deck-jump-group-title';
+    heading.textContent=section.label;
+    group.appendChild(heading);
     section.slides.forEach(([path,title],index)=>{
-      const option=document.createElement('option');
-      option.value=repoHref(path);
-      option.textContent=`${index+1}. ${title}`;
-      option.selected=currentPath.endsWith(path);
-      group.appendChild(option);
+      const link=document.createElement('a');
+      const href=repoHref(path);
+      const selected=currentPath.endsWith(path);
+      link.href=href;
+      link.className='deck-jump-option';
+      link.textContent=`${index+1}. ${title}`;
+      if(selected){
+        link.classList.add('active');
+        link.setAttribute('aria-current','page');
+        jumpButton.textContent=`${section.label}: ${index+1}. ${title}`;
+      }
+      group.appendChild(link);
     });
-    select.appendChild(group);
+    jumpMenu.appendChild(group);
   });
-  select.addEventListener('change',()=>{ if(select.value) window.location.href=select.value; });
-  jump.appendChild(select);
+  function closeJumpMenu(){
+    jump.classList.remove('open');
+    jumpButton.setAttribute('aria-expanded','false');
+    jumpMenu.hidden=true;
+  }
+  function openJumpMenu(){
+    jump.classList.add('open');
+    jumpButton.setAttribute('aria-expanded','true');
+    jumpMenu.hidden=false;
+    const activeLink=jumpMenu.querySelector('.deck-jump-option.active');
+    if(activeLink) activeLink.scrollIntoView({ block:'nearest' });
+  }
+  jumpButton.addEventListener('click',()=>{
+    if(jump.classList.contains('open')) closeJumpMenu();
+    else openJumpMenu();
+  });
+  document.addEventListener('click',(event)=>{
+    if(!jump.contains(event.target)) closeJumpMenu();
+  });
+  document.addEventListener('keydown',(event)=>{
+    if(event.key==='Escape') closeJumpMenu();
+  });
+  jumpMenu.addEventListener('click',(event)=>{
+    const link=event.target.closest('a[href]');
+    if(link) closeJumpMenu();
+  });
+  jump.appendChild(jumpButton);
+  jump.appendChild(jumpMenu);
   toolbar.appendChild(pager);
   toolbar.appendChild(jump);
   document.body.insertBefore(toolbar,document.body.firstChild);
