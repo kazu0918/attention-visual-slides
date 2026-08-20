@@ -165,6 +165,8 @@ function blendedPosition(key){
         ['slides/01-self-attention/19-context-update.html','Context update'],
         ['slides/01-self-attention/20-vector-mixing.html','Mixing value vectors'],
         ['slides/01-self-attention/21-multi-head.html','Multi-head attention'],
+        ['slides/01-self-attention/22-results.html','Results, simplified'],
+        ['slides/01-self-attention/23-significance.html','Why it mattered'],
       ]
     },
     {
