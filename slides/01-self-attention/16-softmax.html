@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Softmax — How Translation AI Works</title>
+<title>Softmax - How Translation AI Works</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -52,7 +52,7 @@
         <p class="subtitle">Normalize each row into comparable attention weights</p>
         <p class="lead">Each row belongs to one Query word. Its values say how similar that word is to every Key word.</p>
         <p class="lead"><b>Softmax normalizes across that row.</b> Every score becomes positive, and the row adds up to exactly 1.</p>
-        <div class="note">Why 1? It lets us read the result as a share of attention—“how should this word distribute 100% of its attention?” It also keeps the weighted Value mixture on a stable scale.</div>
+        <div class="note">Why 1? It lets us read the result as a share of attention - “how should this word distribute 100% of its attention?” It also keeps the weighted Value mixture on a stable scale.</div>
       </div>
 
       <div class="stage-panel s16-panel">

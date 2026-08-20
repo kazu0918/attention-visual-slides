@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>How Far Must the Signal Travel — Before the Transformer</title>
+<title>How Far Must the Signal Travel - Before the Transformer</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -58,26 +58,26 @@
       <h1 class="title">How Far Must<br>the Signal Travel?</h1>
       <p class="subtitle">Long-range dependencies and path length</p>
       <p class="lead">To connect two words, an RNN has to push information through <b>every step in between</b>. Twenty words apart means twenty transformations, each one a chance for the signal to decay or be overwritten.</p>
-      <p class="lead">Attention connects any two positions in <b>one</b> operation, whatever the distance. That is the second column of Table 1, and it is a separate argument from parallelism — don't merge them when you present.</p>
+      <p class="lead">Attention connects any two positions in <b>one</b> operation, whatever the distance. That is the second column of Table 1, and it is a separate argument from parallelism - don't merge them when you present.</p>
       <div class="note">LSTM gates <i>mitigate</i> this; they don't remove it. The path is still there, just better insulated. §4: <i>"The shorter these paths between any combination of positions in the input and output sequences, the easier it is to learn long-range dependencies."</i></div>
     </div>
 
     <div class="stage-panel">
       <div class="stage-caption">Click <b>two words</b> to connect them. The grammar links "keys" to "were" across the whole sentence.</div>
-      <p class="b3-hint" id="b3-hint">Try the two highlighted words first — that agreement is exactly the kind of dependency that breaks at distance.</p>
+      <p class="b3-hint" id="b3-hint">Try the two highlighted words first - that agreement is exactly the kind of dependency that breaks at distance.</p>
 
       <div class="b3-sent" id="b3-sent"></div>
 
       <div class="b3-lane rnn">
         <h4><span>Recurrent</span><em>Table 1 · O(n)</em></h4>
         <div class="b3-hops" id="b3-rnn-hops"></div>
-        <p><span class="b3-count" id="b3-rnn-n">—</span> &nbsp;hops. Information must survive every intermediate step.</p>
+        <p><span class="b3-count" id="b3-rnn-n">-</span> &nbsp;hops. Information must survive every intermediate step.</p>
       </div>
 
       <div class="b3-lane att">
         <h4><span>Self-attention</span><em>Table 1 · O(1)</em></h4>
         <div class="b3-hops" id="b3-att-hops"></div>
-        <p><span class="b3-count" id="b3-att-n">—</span> &nbsp;hop. One dot product, regardless of distance.</p>
+        <p><span class="b3-count" id="b3-att-n">-</span> &nbsp;hop. One dot product, regardless of distance.</p>
       </div>
 
       <div class="b3-quote">This is why the paper's Table 1 has a "Maximum Path Length" column at all. Recurrent: O(n). Convolutional: O(log<sub>k</sub> n) with dilation. Self-attention: O(1).</div>
@@ -124,12 +124,12 @@
 
     rnnHops.innerHTML=''; attHops.innerHTML='';
     if(lo===null){
-      rnnN.textContent='—'; attN.textContent='—';
+      rnnN.textContent='-'; attN.textContent='-';
       hint.textContent = 'Pick a second word.';
       return;
     }
     const d = hi - lo;
-    hint.textContent = `“${WORDS[lo]}” → “${WORDS[hi]}” — ${d} position${d===1?'':'s'} apart.`;
+    hint.textContent = `“${WORDS[lo]}” → “${WORDS[hi]}” - ${d} position${d===1?'':'s'} apart.`;
 
     for(let i=0;i<d;i++){
       const dot=document.createElement('span'); dot.className='b3-hop'; rnnHops.appendChild(dot);

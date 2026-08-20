@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>One Word at a Time — Before the Transformer</title>
+<title>One Word at a Time - Before the Transformer</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -60,7 +60,7 @@
       <div class="eyebrow"><span class="num">01</span> BEFORE THE TRANSFORMER</div>
       <h1 class="title">One Word<br>at a Time</h1>
       <p class="subtitle">Recurrent neural networks, 1997–2016</p>
-      <p class="lead">Before 2017, sequence problems ran on <b>RNNs</b> — in practice on their gated descendants, <b>LSTM</b> and <b>GRU</b>. The paper's own opening sentence calls them "firmly established as state of the art".</p>
+      <p class="lead">Before 2017, sequence problems ran on <b>RNNs</b> - in practice on their gated descendants, <b>LSTM</b> and <b>GRU</b>. The paper's own opening sentence calls them "firmly established as state of the art".</p>
       <div class="b1-uses">
         <span class="b1-use">machine translation</span>
         <span class="b1-use">language modelling</span>
@@ -69,11 +69,11 @@
         <span class="b1-use">handwriting</span>
       </div>
       <p class="lead" style="margin-top:14px;">The idea is a <b>running memory</b>. Read one token, update a hidden state, carry it forward. Everything the network knows about the sentence so far lives in that one vector.</p>
-      <div class="note"><b>LSTM</b> (Hochreiter &amp; Schmidhuber, 1997 — reference [13] in today's paper) added gates so the state could carry information further before it decayed. It made long sentences workable. It did <i>not</i> change the shape of the computation, which is what the next two slides are about.</div>
+      <div class="note"><b>LSTM</b> (Hochreiter &amp; Schmidhuber, 1997 - reference [13] in today's paper) added gates so the state could carry information further before it decayed. It made long sentences workable. It did <i>not</i> change the shape of the computation, which is what the next two slides are about.</div>
     </div>
 
     <div class="stage-panel">
-      <div class="stage-caption" id="b1-cap"><b>Step 0 —</b> The hidden state starts empty. Nothing has been read yet.</div>
+      <div class="stage-caption" id="b1-cap"><b>Step 0  - </b> The hidden state starts empty. Nothing has been read yet.</div>
 
       <div class="b1-chain" id="b1-chain"></div>
 
@@ -96,12 +96,12 @@
 (function(){
   const TOKENS = ['The','cat','ate','the','fish'];
   const caps = [
-    '<b>Step 0 —</b> The hidden state starts empty. Nothing has been read yet.',
-    '<b>Step 1 —</b> Read <b>“The”</b>. The state updates for the first time.',
-    '<b>Step 2 —</b> Read <b>“cat”</b>. The state now carries both words — but only through the previous state.',
-    '<b>Step 3 —</b> Read <b>“ate”</b>. Each update can only begin once the one before it has finished.',
-    '<b>Step 4 —</b> Read <b>“the”</b>. Four steps done, strictly in order.',
-    '<b>Step 5 —</b> Read <b>“fish”</b>. The final state is the network’s summary of the whole sentence.'
+    '<b>Step 0  - </b> The hidden state starts empty. Nothing has been read yet.',
+    '<b>Step 1  - </b> Read <b>“The”</b>. The state updates for the first time.',
+    '<b>Step 2  - </b> Read <b>“cat”</b>. The state now carries both words - but only through the previous state.',
+    '<b>Step 3  - </b> Read <b>“ate”</b>. Each update can only begin once the one before it has finished.',
+    '<b>Step 4  - </b> Read <b>“the”</b>. Four steps done, strictly in order.',
+    '<b>Step 5  - </b> Read <b>“fish”</b>. The final state is the network’s summary of the whole sentence.'
   ];
   let step = 0;
   const chain = document.getElementById('b1-chain');

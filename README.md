@@ -26,9 +26,9 @@ An interactive slide collection that explains attention mechanisms by theme.
 
 ## Topics
 
-1. **Self-Attention** — The current slide deck visualizes word vectors, similarity scores, softmax weights, and contextualization.
-2. **Masked Attention** — A planned deck about preventing a decoder from attending to future tokens.
-3. **Cross-Attention** — A planned deck about how a decoder attends to encoder outputs.
+1. **Self-Attention** - The current slide deck visualizes word vectors, similarity scores, softmax weights, and contextualization.
+2. **Masked Attention** - A planned deck about preventing a decoder from attending to future tokens.
+3. **Cross-Attention** - A planned deck about how a decoder attends to encoder outputs.
 
 ## Usage
 

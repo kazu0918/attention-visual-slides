@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Attention Already Existed — Before the Transformer</title>
+<title>Attention Already Existed - Before the Transformer</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -64,9 +64,9 @@
       <div class="eyebrow"><span class="num">04</span> THE ACTUAL CLAIM</div>
       <h1 class="title">Attention<br>Already Existed</h1>
       <p class="subtitle">2014 fixed the reach. 2017 removed the recurrence.</p>
-      <p class="lead">This is the thing most summaries of the paper get wrong. Attention was <b>not</b> invented here — Bahdanau, Cho and Bengio introduced it for translation in 2014, and by 2017 it was standard equipment.</p>
+      <p class="lead">This is the thing most summaries of the paper get wrong. Attention was <b>not</b> invented here - Bahdanau, Cho and Bengio introduced it for translation in 2014, and by 2017 it was standard equipment.</p>
       <p class="lead">§2, in the paper's own words: attention mechanisms had become integral to sequence modelling, but <i>"in all but a few cases… such attention mechanisms are used in conjunction with a recurrent network."</i></p>
-      <div class="note">So read the title as a claim about <b>sufficiency</b>, not novelty. Not "attention exists" — <b>"attention is all you need"</b>, meaning you can throw the RNN away entirely. That is a strong, falsifiable claim, and it is the one we should be judging tonight.</div>
+      <div class="note">So read the title as a claim about <b>sufficiency</b>, not novelty. Not "attention exists" - <b>"attention is all you need"</b>, meaning you can throw the RNN away entirely. That is a strong, falsifiable claim, and it is the one we should be judging tonight.</div>
     </div>
 
     <div class="stage-panel">
@@ -98,7 +98,7 @@
 
       <div class="b4-punch" id="b4-punch">
         <b>ONE ROW CHANGES</b>
-        <p>Two of the three problems were already solved in 2014, by attention. The Transformer's contribution is the <b>third row</b> — and it gets there by deleting the recurrent network rather than improving it.</p>
+        <p>Two of the three problems were already solved in 2014, by attention. The Transformer's contribution is the <b>third row</b> - and it gets there by deleting the recurrent network rather than improving it.</p>
         <p class="ask">Ask the room now, before we start: is that enough? Write your answer down. We'll vote on it at the end.</p>
       </div>
 
@@ -116,10 +116,10 @@
 (function(){
   const caps = [
     'Three problems, two papers. Step through and watch which row is still broken in 2014.',
-    '<b>The bottleneck.</b> One fixed-length vector for the whole source sentence — solved in 2014 by letting the decoder look at every encoder state.',
+    '<b>The bottleneck.</b> One fixed-length vector for the whole source sentence - solved in 2014 by letting the decoder look at every encoder state.',
     '<b>Path length.</b> Also solved in 2014: attention connects decoder to encoder directly, at any distance.',
     '<b>Sequential computation.</b> Not solved. The recurrent network is still underneath, so training still crawls along the sequence one step at a time.',
-    '<b>So what is left?</b> Exactly one row — and the 2017 answer is to remove the RNN entirely.'
+    '<b>So what is left?</b> Exactly one row - and the 2017 answer is to remove the RNN entirely.'
   ];
   let step = 0;
   const cap = document.querySelector('.stage-caption');

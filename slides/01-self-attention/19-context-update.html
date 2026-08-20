@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Attention Weights × V — How Translation AI Works</title>
+<title>Attention Weights × V - How Translation AI Works</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -52,7 +52,7 @@
         <p class="subtitle">Attention finishes by combining the original token information</p>
         <p class="lead"><b>V comes from the original embeddings</b>: each token embedding is passed through the learned V projection, so every row still carries that token’s information.</p>
         <p class="lead">The attention-weight matrix now tells us <b>how much of every V row to collect</b>. Each output row becomes a weighted mixture of all five token vectors.</p>
-        <div class="note">For one output token: <b>new vector = Σ attention weight × V row</b>. The weights do not replace the embeddings—they control how the embedding information is mixed.</div>
+        <div class="note">For one output token: <b>new vector = Σ attention weight × V row</b>. The weights do not replace the embeddings - they control how the embedding information is mixed.</div>
       </div>
 
       <div class="stage-panel s19-panel">

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>What It Achieved — How Translation AI Works</title>
+<title>What It Achieved - How Translation AI Works</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -62,7 +62,7 @@
       <p class="subtitle">WMT 2014 · newstest2014 · Table 2</p>
       <p class="lead">Three claims in the abstract: <b>better quality</b>, <b>more parallelisable</b>, <b>significantly less time to train</b>. The first and third are measured here; the second is the architecture argument from Table 1.</p>
       <p class="lead">The striking part is not the BLEU. It is the <b>cost column</b>. The base model beats every previously published model and ensemble on English–German while using roughly <b>1/23 of the compute</b> of the best of them.</p>
-      <div class="note">Click any row for what it means. The training cost bars are on a log scale — the real gaps are far larger than they look.</div>
+      <div class="note">Click any row for what it means. The training cost bars are on a log scale - the real gaps are far larger than they look.</div>
     </div>
 
     <div class="stage-panel">
@@ -93,11 +93,11 @@
   const ROWS = [
     { name:'Best prior published<br><small style="color:var(--text-faint)">ConvS2S Ensemble</small>',
       de:'26.36', fr:'41.29', cost:7.7e19, costTxt:'7.7 × 10¹⁹', prior:true,
-      note:'<b>The bar to clear.</b> The strongest previously published result on English–German was an <i>ensemble</i> of convolutional seq2seq models — several networks averaged together. GNMT + RL Ensemble reached 26.30 at 1.8 × 10²⁰ FLOPs, over fifty times the base Transformer\'s compute.' },
+      note:'<b>The bar to clear.</b> The strongest previously published result on English–German was an <i>ensemble</i> of convolutional seq2seq models - several networks averaged together. GNMT + RL Ensemble reached 26.30 at 1.8 × 10²⁰ FLOPs, over fifty times the base Transformer\'s compute.' },
     { name:'Transformer (base)', de:'27.3', fr:'38.1', cost:3.3e18, costTxt:'3.3 × 10¹⁸',
-      note:'<b>The efficiency result.</b> 65M parameters, 100,000 steps, twelve hours on eight P100s — and it still beats every previously published model <i>and ensemble</i> on English–German. <span class="warn">Be precise here: on English–French its 38.1 does <b>not</b> beat the prior art (ConvS2S 40.46). The "surpasses all" sentence in §6.1 is about EN-DE.</span>' },
+      note:'<b>The efficiency result.</b> 65M parameters, 100,000 steps, twelve hours on eight P100s - and it still beats every previously published model <i>and ensemble</i> on English–German. <span class="warn">Be precise here: on English–French its 38.1 does <b>not</b> beat the prior art (ConvS2S 40.46). The "surpasses all" sentence in §6.1 is about EN-DE.</span>' },
     { name:'Transformer (big)', de:'28.4', fr:'41.8', cost:2.3e19, costTxt:'2.3 × 10¹⁹', best:true,
-      note:'<b>The headline.</b> 213M parameters, 300,000 steps, 3.5 days on eight P100s. New state of the art on both tasks, at roughly a third of the compute of the ensemble it beat on EN-DE. Both numbers used beam size 4, length penalty α = 0.6, and averaging over the last 20 checkpoints — which is an ensemble in all but name, and worth saying out loud.' }
+      note:'<b>The headline.</b> 213M parameters, 300,000 steps, 3.5 days on eight P100s. New state of the art on both tasks, at roughly a third of the compute of the ensemble it beat on EN-DE. Both numbers used beam size 4, length penalty α = 0.6, and averaging over the last 20 checkpoints - which is an ensemble in all but name, and worth saying out loud.' }
   ];
 
   const tbody = document.querySelector('#s22-tbl tbody');

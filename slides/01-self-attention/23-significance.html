@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Why It Mattered — How Translation AI Works</title>
+<title>Why It Mattered - How Translation AI Works</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -62,12 +62,12 @@
       <h1 class="title">What Followed,<br>and What Didn't</h1>
       <p class="subtitle">Significance, caveats, and the actual contribution</p>
       <p class="lead">This was a <b>translation paper</b>. Two MT tasks, one parsing task, 65M and 213M parameters, sentences around a hundred tokens long. Everything it is now famous for was established by later work.</p>
-      <p class="lead">That is not a criticism. It is the difference between what a paper <b>proved</b> and what a field <b>built on it</b> — and keeping those apart is most of what a journal club is for.</p>
+      <p class="lead">That is not a criticism. It is the difference between what a paper <b>proved</b> and what a field <b>built on it</b> - and keeping those apart is most of what a journal club is for.</p>
       <div class="note">The architecture split within a year: strip the decoder and you get BERT, strip the encoder and you get GPT. Both are this paper's Figure 1 with one half deleted.</div>
     </div>
 
     <div class="stage-panel">
-      <div class="stage-caption" id="s23-cap"><b>Step 1 —</b> What the architecture turned into.</div>
+      <div class="stage-caption" id="s23-cap"><b>Step 1  - </b> What the architecture turned into.</div>
 
       <div class="s23-block" id="s23-b1">
         <div class="s23-tree">
@@ -84,7 +84,7 @@
             </div>
             <div class="s23-branch dec">
               <b>decoder only</b>
-              <span>Masked self-attention, no cross-attention — nothing to attend to. Good at continuing a text.</span>
+              <span>Masked self-attention, no cross-attention - nothing to attend to. Good at continuing a text.</span>
               <em>GPT (2018) → GPT-3/4, Claude, Llama…</em>
             </div>
           </div>
@@ -97,7 +97,7 @@
           <div class="s23-item"><i>01</i><span><b>Scaling.</b> Nothing here says the architecture keeps improving at 100× the size. Scaling laws are 2020.</span></div>
           <div class="s23-item"><i>02</i><span><b>Language modelling or in-context learning.</b> Not tested. Not mentioned.</span></div>
           <div class="s23-item"><i>03</i><span><b>Long context.</b> O(n²·d) is only cheap because n &lt; d here. §4 says so explicitly. The next decade was spent fighting that.</span></div>
-          <div class="s23-item"><i>04</i><span><b>Interpretability.</b> §4 hedges — heads "could yield" more interpretable models, shown with appendix examples, never measured.</span></div>
+          <div class="s23-item"><i>04</i><span><b>Interpretability.</b> §4 hedges - heads "could yield" more interpretable models, shown with appendix examples, never measured.</span></div>
           <div class="s23-item"><i>05</i><span><b>Durability of the details.</b> Post-LN → pre-LN. Sinusoids → RoPE. ReLU → SwiGLU. Multi-head → grouped-query. The skeleton survived; almost every organ was replaced.</span></div>
         </div>
       </div>
@@ -105,9 +105,9 @@
       <div class="s23-block" id="s23-b3">
         <div class="s23-take">
           <b>THE TAKEAWAY</b>
-          <p class="no">Not: <s>"this paper invented attention"</s> — Bahdanau did, in 2014, and by 2017 it was standard equipment.</p>
-          <p>It showed that attention could be the <b>entire</b> sequence-processing mechanism — that once you have it, the recurrence underneath is not doing work worth its cost. The title is a claim about <b>sufficiency</b>, and that claim turned out to hold far beyond translation.</p>
-          <p class="vote">You wrote down an answer at the start of the session. Time to vote — is attention all you need?</p>
+          <p class="no">Not: <s>"this paper invented attention"</s> - Bahdanau did, in 2014, and by 2017 it was standard equipment.</p>
+          <p>It showed that attention could be the <b>entire</b> sequence-processing mechanism - that once you have it, the recurrence underneath is not doing work worth its cost. The title is a claim about <b>sufficiency</b>, and that claim turned out to hold far beyond translation.</p>
+          <p class="vote">You wrote down an answer at the start of the session. Time to vote - is attention all you need?</p>
         </div>
       </div>
 
@@ -124,9 +124,9 @@
 <script>
 (function(){
   const caps = [
-    '<b>Step 1 —</b> What the architecture turned into. Both descendants are Figure 1 with one half deleted.',
-    '<b>Step 2 —</b> And what this paper never actually demonstrated. Read these out; they are the honest scope.',
-    '<b>Step 3 —</b> So what was the contribution? Not the mechanism — the claim that the mechanism was enough on its own.'
+    '<b>Step 1  - </b> What the architecture turned into. Both descendants are Figure 1 with one half deleted.',
+    '<b>Step 2  - </b> And what this paper never actually demonstrated. Read these out; they are the honest scope.',
+    '<b>Step 3  - </b> So what was the contribution? Not the mechanism - the claim that the mechanism was enough on its own.'
   ];
   let step = 0;
   const cap = document.getElementById('s23-cap');

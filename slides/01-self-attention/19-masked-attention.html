@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Causal Mask — How Translation AI Works</title>
+<title>Causal Mask - How Translation AI Works</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -30,7 +30,7 @@
       <div class="s19m-card masked"><header><span>MASKED SCORES</span><b>5 × 5</b></header><div class="s19m-axis-top"><span>I</span><span>ate</span><span>a</span><span>juicy</span><span>apple</span></div><div class="s19m-matrix"><div class="s19m-axis-left"><span>I</span><span>ate</span><span>a</span><span>juicy</span><span>apple</span></div><div class="s19m-grid"><i>0.8</i><i class="blocked">−∞</i><i class="blocked">−∞</i><i class="blocked">−∞</i><i class="blocked">−∞</i><i>0.3</i><i>1.1</i><i class="blocked">−∞</i><i class="blocked">−∞</i><i class="blocked">−∞</i><i>0.2</i><i>0.7</i><i>1.4</i><i class="blocked">−∞</i><i class="blocked">−∞</i><i>0.1</i><i>0.5</i><i>0.9</i><i>1.2</i><i class="blocked">−∞</i><i>0.0</i><i>0.4</i><i>0.6</i><i>0.8</i><i>1.0</i></div></div><small>the upper triangle is the future</small></div>
     </div>
     <div class="s19m-softmax"><span>FOR EVERY MASKED CELL</span><code>softmax(−∞)</code><b>= 0</b><strong>future attention weight</strong></div>
-    <div class="s19m-takeaway"><b>NO LOOK-AHEAD</b><span>Row “a” can attend to “I”, “ate”, and “a” — but not to “juicy” or “apple”.</span></div>
+    <div class="s19m-takeaway"><b>NO LOOK-AHEAD</b><span>Row “a” can attend to “I”, “ate”, and “a” - but not to “juicy” or “apple”.</span></div>
   </div>
 </div></section></div>
 <script src="js/app.js"></script>

@@ -55,14 +55,14 @@ function sizeSvgToContainer(svg, containerEl){
 /* ---------------------------------------------------------
    Shared example sentences + self-attention math (slides 4-8)
    "apple" / "Apple" always starts at the same point in both
-   sentences — the pre-attention, context-free embedding.
+   sentences - the pre-attention, context-free embedding.
    similarity() is a REAL dot product of each token's 2D vector
    (the same numbers slide 4 plots), so slide 5's worked example
    and the matrix always agree with each other.
 --------------------------------------------------------- */
 const sentences = {
   fruit: {
-    label: 'Sentence ① — "I ate a juicy apple."',
+    label: 'Sentence ① - "I ate a juicy apple."',
     tokens: [
       {w:'I',     x:44, y:56},
       {w:'ate',   x:48, y:60},
@@ -72,7 +72,7 @@ const sentences = {
     ]
   },
   company: {
-    label: 'Sentence ② — "I bought an Apple laptop."',
+    label: 'Sentence ② - "I bought an Apple laptop."',
     tokens: [
       {w:'I',      x:44, y:56},
       {w:'bought', x:48, y:60},
@@ -132,15 +132,25 @@ function blendedPosition(key){
       ]
     },
     {
-      label:'How Translation AI Works',
+      label:'The Bottleneck',
       slides:[
         ['slides/01-self-attention/01-encoder-decoder.html','Encoder–Decoder model'],
         ['slides/01-self-attention/02-word-vectors.html','Word vectors'],
         ['slides/01-self-attention/03-contextual-meaning.html','Contextual meaning'],
         ['slides/01-self-attention/04-matrix-transformation.html','Matrix transformation'],
+      ]
+    },
+    {
+      label:'Inside the Transformer',
+      slides:[
         ['slides/01-self-attention/05-transformer-architecture.html','Transformer architecture'],
         ['slides/01-self-attention/06-token-embeddings.html','Token embeddings'],
         ['slides/01-self-attention/07-positional-encoding.html','Positional encoding'],
+      ]
+    },
+    {
+      label:'Self-Attention',
+      slides:[
         ['slides/01-self-attention/08-similarity-matrix.html','Similarity matrix'],
         ['slides/01-self-attention/09-attention-architecture.html','Attention architecture'],
         ['slides/01-self-attention/10-softmax-weights.html','Softmax weights'],
@@ -152,16 +162,31 @@ function blendedPosition(key){
         ['slides/01-self-attention/16-softmax.html','Softmax'],
         ['slides/01-self-attention/17-scaling.html','Scaling'],
         ['slides/01-self-attention/18-attention-summary.html','Attention summary'],
+      ]
+    },
+    {
+      label:'Masking & Mixing',
+      slides:[
         ['slides/01-self-attention/19-masked-attention.html','Causal mask'],
         ['slides/01-self-attention/19-context-update.html','Context update'],
         ['slides/01-self-attention/20-vector-mixing.html','Mixing value vectors'],
         ['slides/01-self-attention/21-weighted-vector-lab.html','Weighted vector lab'],
+      ]
+    },
+    {
+      label:'Multi-Head Attention',
+      slides:[
         ['slides/01-self-attention/22-multi-head-attention.html','Multi-head attention'],
         ['slides/01-self-attention/23-five-changes.html','Five multi-head changes'],
         ['slides/01-self-attention/24-branch-and-project.html','Branch and project'],
         ['slides/01-self-attention/25-why-learn-projections.html','Why learn projections'],
         ['slides/01-self-attention/26-attention-per-head.html','Attention in every head'],
         ['slides/01-self-attention/27-concat-output-projection.html','Concat and output projection'],
+      ]
+    },
+    {
+      label:'Results & Significance',
+      slides:[
         ['slides/01-self-attention/22-results.html','Results, simplified'],
         ['slides/01-self-attention/23-significance.html','Why it mattered'],
       ]
@@ -210,7 +235,7 @@ function blendedPosition(key){
     ${prev ? `<a href="${prev}" rel="prev">← Previous</a>` : '<span aria-disabled="true">← Previous</span>'}
     <div class="deck-pager-identity">
       <strong>${pageIndex} / ${pageCount}</strong>
-      <span>${currentSection?.label||'How Translation AI Works'}</span>
+      <span>${currentSection?.label||'Presentation'}</span>
     </div>
     ${next ? `<a href="${next}" rel="next">Next →</a>` : '<span aria-disabled="true">Next →</span>'}
   `;
@@ -767,11 +792,11 @@ function blendedPosition(key){
   const examples = {
     fruit: {
       matrix:[1.00,0.50,-0.80,0.70], result:'[−0.28, +0.52]', note:'built from “ate” + “juicy”',
-      caption:'<b>Fruit context —</b> A context-dependent transformation moves Apple toward the fruit region, matching slide 03.'
+      caption:'<b>Fruit context  - </b> A context-dependent transformation moves Apple toward the fruit region, matching slide 03.'
     },
     company: {
       matrix:[1.20,-0.80,0.50,0.40], result:'[+0.54, +0.08]', note:'built from “bought” + “laptop”',
-      caption:'<b>Company context —</b> A different transformation moves the same initial Apple toward the tech region, matching slide 03.'
+      caption:'<b>Company context  - </b> A different transformation moves the same initial Apple toward the tech region, matching slide 03.'
     }
   };
   const matrix = document.getElementById('s3b-matrix');
@@ -809,12 +834,12 @@ function blendedPosition(key){
     { source:4, target:2 }, // fish -> 魚
   ];
   const captions = [
-    '<b>Step 0 —</b> The sentence to translate is fed into the encoder.',
-    '<b>Step 1 —</b> ① The text is split into words (tokens).',
-    '<b>Step 2 —</b> ② Each word becomes an initial vector (a list of numbers).',
-    '<b>Step 3 —</b> ③ Each vector is updated using the vectors of surrounding words (this is Attention). This is the encoder\'s job.',
-    '<b>Step 4 —</b> The encoder creates a numeric representation of the whole sentence: who did what to whom.',
-    '<b>Step 5 —</b> The decoder generates Japanese in Japanese word order. The crossing lines show why translation is not sequential word replacement.'
+    '<b>Step 0  - </b> The sentence to translate is fed into the encoder.',
+    '<b>Step 1  - </b> ① The text is split into words (tokens).',
+    '<b>Step 2  - </b> ② Each word becomes an initial vector (a list of numbers).',
+    '<b>Step 3  - </b> ③ Each vector is updated using the vectors of surrounding words (this is Attention). This is the encoder\'s job.',
+    '<b>Step 4  - </b> The encoder creates a numeric representation of the whole sentence: who did what to whom.',
+    '<b>Step 5  - </b> The decoder generates Japanese in Japanese word order. The crossing lines show why translation is not sequential word replacement.'
   ];
   const totalSteps = captions.length;
   let step = 0;
@@ -1010,7 +1035,7 @@ function blendedPosition(key){
             <div class="vec-num">${fmt(v)}</div>
           </div>`).join('')}
       </div>
-      <div class="s2-dim-note">This toy example uses just <b>2 numbers</b> so it can be plotted directly. Real embedding models (e.g. OpenAI text-embedding-3-large) use <b>3072 numbers</b> to represent one word or sentence — far more dimensions than a flat map can show, which is how they capture much finer nuance.</div>
+      <div class="s2-dim-note">This toy example uses just <b>2 numbers</b> so it can be plotted directly. Real embedding models (e.g. OpenAI text-embedding-3-large) use <b>3072 numbers</b> to represent one word or sentence - far more dimensions than a flat map can show, which is how they capture much finer nuance.</div>
     `;
     drawAnalogy();
   }
@@ -1036,7 +1061,7 @@ function blendedPosition(key){
     analogyOn = !analogyOn;
     analogyBtn.textContent = analogyOn ? '✕ Hide relationship' : '🔎 See how "Japan → Tokyo" and "France → Paris" relate';
     analogyCaption.textContent = analogyOn
-      ? 'When two word pairs share the same kind of relationship (country → capital), their vector difference — the arrow\'s direction and length — tends to be similar too. This is one of word2vec\'s most famous properties.'
+      ? 'When two word pairs share the same kind of relationship (country → capital), their vector difference - the arrow\'s direction and length - tends to be similar too. This is one of word2vec\'s most famous properties.'
       : '';
     drawAnalogy();
   });
@@ -1045,7 +1070,7 @@ function blendedPosition(key){
 })();
 
 /* ---------------------------------------------------------
-   SLIDE 3 : Attention — Apple's point moves between clusters
+   SLIDE 3 : Attention - Apple's point moves between clusters
 --------------------------------------------------------- */
 (function(){
   if(!document.getElementById('s3-plot')) return;
@@ -1073,9 +1098,9 @@ function blendedPosition(key){
     company: [ {ref:'laptop', weight:.9}, {w:'bought', x:58, y:36, weight:.55} ],
   };
   const captions = {
-    neutral: '<b>Initial vector —</b> Before attention, Apple has the same context-free starting position.',
-    fruit: '<b>Attention —</b> "ate" and "juicy" pull Apple\'s vector toward the fruit cluster.',
-    company: '<b>Attention —</b> "laptop" and "bought" pull Apple\'s vector toward the tech cluster.'
+    neutral: '<b>Initial vector  - </b> Before attention, Apple has the same context-free starting position.',
+    fruit: '<b>Attention  - </b> "ate" and "juicy" pull Apple\'s vector toward the fruit cluster.',
+    company: '<b>Attention  - </b> "laptop" and "bought" pull Apple\'s vector toward the tech cluster.'
   };
 
   const plot = document.getElementById('s3-plot');
@@ -1185,7 +1210,7 @@ function blendedPosition(key){
 })();
 
 /* ---------------------------------------------------------
-   SLIDE 4 : Token embeddings — same word, same starting point
+   SLIDE 4 : Token embeddings - same word, same starting point
 --------------------------------------------------------- */
 (function(){
   const plot = document.getElementById('s4-plot');
@@ -1232,9 +1257,9 @@ function blendedPosition(key){
   if(!dotsEl || !prevBtn || !nextBtn) return;
 
   const stepCaptions = [
-    '<b>Initial vector —</b> We are here, just before self-attention begins.',
-    'Step 2 — Pick a pair, multiply matching components, and add them up: that\'s the dot product.',
-    'Step 3 — Repeat that for every pair of tokens, and you get the full similarity matrix.',
+    '<b>Initial vector  - </b> We are here, just before self-attention begins.',
+    'Step 2 - Pick a pair, multiply matching components, and add them up: that\'s the dot product.',
+    'Step 3 - Repeat that for every pair of tokens, and you get the full similarity matrix.',
   ];
   const totalSteps = stepCaptions.length;
   let step = 0;
@@ -1375,7 +1400,7 @@ function blendedPosition(key){
     buttons.forEach(b=> b.classList.toggle('active', b.dataset.ctx===key));
     const { tokens } = sentences[key];
     const fi = focusIndex(key);
-    caption.innerHTML = `Blend weights for <b>${tokens[fi].w}</b>'s row — every bar adds up to 100%.`;
+    caption.innerHTML = `Blend weights for <b>${tokens[fi].w}</b>'s row - every bar adds up to 100%.`;
 
     const { weights } = blendedPosition(key);
     const maxW = Math.max(...weights);
@@ -1565,7 +1590,7 @@ function blendedPosition(key){
 })();
 
 /* ---------------------------------------------------------
-   SLIDE 7 : application — word vectors plus precomputed position
+   SLIDE 7 : application - word vectors plus precomputed position
 --------------------------------------------------------- */
 (function(){
   const viewButtons = [...document.querySelectorAll('[data-s12-view]')];
@@ -1724,7 +1749,7 @@ function blendedPosition(key){
 })();
 
 /* ---------------------------------------------------------
-   SLIDE 8 : Both sentences at once — same start, two outcomes
+   SLIDE 8 : Both sentences at once - same start, two outcomes
 --------------------------------------------------------- */
 (function(){
   const plot = document.getElementById('s8-plot');
